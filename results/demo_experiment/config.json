@@ -1,0 +1,67 @@
+{
+  "experiment_name": "demo_experiment",
+  "output_dir": "results",
+  "seed": 42,
+  "algorithm": {
+    "name": "PPO",
+    "learning_rate": 0.0003,
+    "n_steps": 2048,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.0,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "use_sde": false,
+    "sde_sample_freq": -1,
+    "target_kl": null,
+    "device": "auto",
+    "verbose": 1,
+    "seed": null,
+    "policy_kwargs": null,
+    "tensorboard_log": null
+  },
+  "environment": {
+    "name": "LunarLander-v3",
+    "render_mode": null,
+    "max_episode_steps": null,
+    "reward_threshold": null,
+    "wrappers": [],
+    "wrapper_kwargs": {},
+    "record_video": false,
+    "video_folder": null,
+    "video_length": 0
+  },
+  "training": {
+    "total_timesteps": 100000,
+    "eval_freq": 10000,
+    "n_eval_episodes": 10,
+    "eval_log_path": null,
+    "save_freq": 20000,
+    "save_path": null,
+    "save_replay_buffer": false,
+    "monitor_training": true,
+    "log_interval": 1000,
+    "early_stopping": false,
+    "patience": 5,
+    "min_delta": 0.01
+  },
+  "experiment": null,
+  "logging": {
+    "level": "INFO",
+    "log_to_file": true,
+    "log_dir": null,
+    "json_format": false,
+    "console_output": true,
+    "max_bytes": 10485760,
+    "backup_count": 5
+  },
+  "reproducibility": {
+    "seed": 42,
+    "deterministic": true,
+    "benchmark": false,
+    "use_cuda": false
+  }
+}

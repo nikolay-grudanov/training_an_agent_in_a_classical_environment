@@ -1,0 +1,240 @@
+{
+  "experiment_id": "validation_config_validation_demo",
+  "timestamp": "2026-01-14T20:20:16.208732",
+  "strictness_level": "standard",
+  "is_reproducible": false,
+  "confidence_score": 0.6,
+  "runs": [
+    {
+      "run_id": "validation_config_validation_demo_20260114_201957_224842",
+      "seed": 42,
+      "timestamp": "2026-01-14T20:19:57.229548",
+      "config_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+      "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+      "results": {
+        "total_reward": 100.0,
+        "episode_length": 100,
+        "final_obs": [
+          1.1380615234375,
+          1.4341645240783691,
+          0.17764528095722198,
+          0.3459256589412689
+        ]
+      },
+      "metrics": {
+        "rewards": [
+          100.0
+        ],
+        "episode_lengths": [
+          100
+        ]
+      },
+      "metadata": {
+        "test_seed": 42
+      }
+    },
+    {
+      "run_id": "validation_config_validation_demo_20260114_202002_592588",
+      "seed": 42,
+      "timestamp": "2026-01-14T20:20:02.597703",
+      "config_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+      "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+      "results": {
+        "total_reward": 100.0,
+        "episode_length": 100,
+        "final_obs": [
+          1.1380615234375,
+          1.4341645240783691,
+          0.17764528095722198,
+          0.3459256589412689
+        ]
+      },
+      "metrics": {
+        "rewards": [
+          100.0
+        ],
+        "episode_lengths": [
+          100
+        ]
+      },
+      "metadata": {
+        "test_seed": 42
+      }
+    },
+    {
+      "run_id": "validation_config_validation_demo_20260114_202011_193907",
+      "seed": 42,
+      "timestamp": "2026-01-14T20:20:11.198822",
+      "config_hash": "d1a4870fad90967bd361102c065ed0920de407dedc2b7f270dfec6f5be2cffc7",
+      "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+      "results": {
+        "total_reward": 100.0,
+        "episode_length": 100,
+        "final_obs": [
+          1.1380615234375,
+          1.4341645240783691,
+          0.17764528095722198,
+          0.3459256589412689
+        ]
+      },
+      "metrics": {
+        "rewards": [
+          100.0
+        ],
+        "episode_lengths": [
+          100
+        ]
+      },
+      "metadata": {
+        "test_seed": 42
+      }
+    },
+    {
+      "run_id": "validation_config_validation_demo_20260114_202016_203050",
+      "seed": 42,
+      "timestamp": "2026-01-14T20:20:16.208340",
+      "config_hash": "d1a4870fad90967bd361102c065ed0920de407dedc2b7f270dfec6f5be2cffc7",
+      "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+      "results": {
+        "total_reward": 100.0,
+        "episode_length": 100,
+        "final_obs": [
+          1.1380615234375,
+          1.4341645240783691,
+          0.17764528095722198,
+          0.3459256589412689
+        ]
+      },
+      "metrics": {
+        "rewards": [
+          100.0
+        ],
+        "episode_lengths": [
+          100
+        ]
+      },
+      "metadata": {
+        "test_seed": 42
+      }
+    }
+  ],
+  "issues": [
+    {
+      "issue_type": "configuration_mismatch",
+      "severity": "critical",
+      "description": "Различия в конфигурации для запуска validation_config_validation_demo_20260114_202011_193907",
+      "recommendation": "Используйте идентичные конфигурации для всех запусков",
+      "details": {
+        "reference_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+        "run_hash": "d1a4870fad90967bd361102c065ed0920de407dedc2b7f270dfec6f5be2cffc7"
+      },
+      "timestamp": "2026-01-14T20:20:16.208744"
+    },
+    {
+      "issue_type": "configuration_mismatch",
+      "severity": "critical",
+      "description": "Различия в конфигурации для запуска validation_config_validation_demo_20260114_202016_203050",
+      "recommendation": "Используйте идентичные конфигурации для всех запусков",
+      "details": {
+        "reference_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+        "run_hash": "d1a4870fad90967bd361102c065ed0920de407dedc2b7f270dfec6f5be2cffc7"
+      },
+      "timestamp": "2026-01-14T20:20:16.208747"
+    }
+  ],
+  "statistics": {
+    "rewards": {
+      "shapiro_stat": 1.0,
+      "shapiro_p": 1.0,
+      "normality_test_passed": "True",
+      "equality_test": "ANOVA",
+      "equality_stat": 0.0,
+      "equality_p": 1.0,
+      "means_equal": true,
+      "final_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "mean": 100.0,
+      "std": 0.0,
+      "cv": 0.0
+    },
+    "episode_lengths": {
+      "shapiro_stat": 1.0,
+      "shapiro_p": 1.0,
+      "normality_test_passed": "True",
+      "equality_test": "ANOVA",
+      "equality_stat": 0.0,
+      "equality_p": 1.0,
+      "means_equal": true,
+      "final_values": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "mean": 100.0,
+      "std": 0.0,
+      "cv": 0.0
+    }
+  },
+  "recommendations": [
+    "Создайте снимок зависимостей перед началом эксперимента",
+    "Используйте ReproducibilityChecker для регулярной проверки экспериментов"
+  ],
+  "seed_analysis": {
+    "reference_seed": 42,
+    "all_seeds": [
+      42,
+      42,
+      42,
+      42
+    ],
+    "seeds_consistent": true,
+    "unique_seeds": 1,
+    "issues_found": 0
+  },
+  "environment_analysis": {
+    "reference_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+    "environment_consistent": true,
+    "issues_found": 0
+  },
+  "dependency_analysis": {
+    "snapshot_created": true,
+    "snapshot_hash": "a41f385229e0e5b6d4bf18684a47da59be913ae658ec271f7049bcabd3072cc7",
+    "conflicts_detected": 0,
+    "conflicts": [],
+    "ml_libraries": {
+      "matplotlib": "3.9.2",
+      "sb3-contrib": null,
+      "gym": null,
+      "pandas": "2.2.2",
+      "seaborn": "0.13.2",
+      "plotly": "5.24.1",
+      "jupyter": "unknown",
+      "torch": "2.9.1+rocm6.3",
+      "numpy": "1.26.4",
+      "opencv-python": null,
+      "wandb": null,
+      "stable-baselines3": "2.7.1",
+      "gymnasium": "1.2.3",
+      "tensorboard": "2.20.0",
+      "scikit-learn": "1.5.1",
+      "torchaudio": "2.9.1+rocm6.3",
+      "scipy": "1.13.1",
+      "ipython": null,
+      "torchvision": "0.24.1+rocm6.3"
+    },
+    "system_info": {
+      "python_version": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:27:36) [GCC 11.2.0]",
+      "platform": "Linux"
+    }
+  },
+  "algorithm_analysis": {
+    "reference_config_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+    "configurations_consistent": false,
+    "issues_found": 2
+  }
+}

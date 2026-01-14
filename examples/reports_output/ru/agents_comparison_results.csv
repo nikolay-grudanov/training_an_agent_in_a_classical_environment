@@ -1,0 +1,4 @@
+agent,mean_reward,std_reward,min_reward,max_reward,mean_episode_length,std_episode_length,min_episode_length,max_episode_length,success_rate,total_episodes,total_timesteps,evaluation_time
+PPO_Agent,185.7,28.4,150.0,220.0,195.2,32.1,160,230,0.87,100,19520,150.0
+DQN_Agent,142.3,35.6,90.0,190.0,178.9,41.2,120,220,0.73,100,17890,140.0
+A2C_Agent,156.8,31.2,110.0,200.0,188.4,29.7,140,230,0.79,100,18840,145.0

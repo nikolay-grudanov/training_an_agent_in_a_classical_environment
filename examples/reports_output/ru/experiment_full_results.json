@@ -1,0 +1,60 @@
+{
+  "experiment_info": {
+    "name": "LunarLander_Comparison_Experiment",
+    "description": "Сравнение алгоритмов PPO, DQN и A2C на задаче LunarLander-v2",
+    "environment": "LunarLander-v2",
+    "total_timesteps": 100000,
+    "agents": [
+      "PPO_Agent",
+      "DQN_Agent",
+      "A2C_Agent"
+    ],
+    "duration_hours": 2.5,
+    "best_agent": "PPO_Agent",
+    "best_reward": 185.7,
+    "hyperparameters": {
+      "PPO": {
+        "learning_rate": 0.0003,
+        "n_steps": 2048
+      },
+      "DQN": {
+        "learning_rate": 0.0001,
+        "buffer_size": 50000
+      },
+      "A2C": {
+        "learning_rate": 0.0007,
+        "n_steps": 5
+      }
+    },
+    "results_summary": {
+      "total_episodes": 300,
+      "successful_episodes": 239,
+      "average_training_time": "50 minutes per agent"
+    }
+  },
+  "agents_results": {
+    "PPO_Agent": {
+      "mean_reward": 185.7,
+      "std_reward": 28.4,
+      "success_rate": 0.87,
+      "total_episodes": 100
+    },
+    "DQN_Agent": {
+      "mean_reward": 142.3,
+      "std_reward": 35.6,
+      "success_rate": 0.73,
+      "total_episodes": 100
+    },
+    "A2C_Agent": {
+      "mean_reward": 156.8,
+      "std_reward": 31.2,
+      "success_rate": 0.79,
+      "total_episodes": 100
+    }
+  },
+  "metadata": {
+    "generated_by": "ResultsFormatter",
+    "format_version": "1.0",
+    "language": "ru"
+  }
+}

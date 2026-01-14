@@ -1,0 +1,94 @@
+# Test PPO vs A2C Comparison Experiment
+# Быстрая конфигурация для интеграционного тестирования
+
+experiment:
+  name: "test_ppo_vs_a2c_integration"
+  description: "Быстрый интеграционный тест сравнения PPO и A2C алгоритмов"
+  hypothesis: "PPO покажет лучшую стабильность обучения чем A2C в коротком тесте"
+  
+  execution:
+    mode: "sequential"
+    timeout_minutes: 10
+    max_retries: 1
+    enable_monitoring: true
+    save_checkpoints: false
+    
+  output:
+    base_directory: "results/tests/integration"
+    save_models: true
+    save_videos: false  # Отключено для скорости
+    save_plots: true
+    export_format: "json"
+
+baseline:
+  name: "ppo_test_baseline"
+  algorithm: "PPO"
+  environment: "LunarLander-v2"
+  seed: 42
+  training_steps: 5000  # Короткое обучение для тестов
+  evaluation_frequency: 1000
+  
+  hyperparameters:
+    learning_rate: 0.0003
+    n_steps: 512  # Уменьшено для скорости
+    batch_size: 32
+    n_epochs: 4
+    gamma: 0.99
+    gae_lambda: 0.95
+    clip_range: 0.2
+    ent_coef: 0.0
+    vf_coef: 0.5
+    max_grad_norm: 0.5
+
+variant:
+  name: "a2c_test_variant"
+  algorithm: "A2C"
+  environment: "LunarLander-v2"
+  seed: 42
+  training_steps: 5000  # Короткое обучение для тестов
+  evaluation_frequency: 1000
+  
+  hyperparameters:
+    learning_rate: 0.0007
+    n_steps: 5
+    gamma: 0.99
+    gae_lambda: 1.0
+    ent_coef: 0.01
+    vf_coef: 0.25
+    max_grad_norm: 0.5
+
+evaluation:
+  num_episodes: 5  # Минимальное количество для тестов
+  metrics:
+    - "mean_reward"
+    - "std_reward"
+    - "episode_length"
+    - "convergence_steps"
+    - "final_performance"
+    - "stability_score"
+  
+  statistical_tests:
+    significance_level: 0.05
+    use_bonferroni_correction: false  # Упрощено для тестов
+    bootstrap_samples: 100  # Уменьшено для скорости
+    confidence_interval: 0.95
+
+comparison:
+  thresholds:
+    convergence_reward: 50.0  # Низкий порог для тестов
+    minimum_improvement: 0.01
+    stability_threshold: 0.3
+  
+  plots:
+    learning_curves: true
+    reward_distributions: true
+    statistical_comparison: true
+    convergence_analysis: false  # Отключено для скорости
+    save_format: "png"
+    dpi: 150  # Уменьшено для скорости
+    
+  report:
+    generate_html: true
+    generate_markdown: false  # Упрощено для тестов
+    include_raw_data: false
+    include_statistical_details: true

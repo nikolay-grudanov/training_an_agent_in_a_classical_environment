@@ -1,0 +1,300 @@
+{
+  "experiment_ids": [
+    "exp_1",
+    "exp_2",
+    "exp_3",
+    "exp_4"
+  ],
+  "config": {
+    "significance_level": 0.05,
+    "confidence_level": 0.95,
+    "bootstrap_samples": 10000,
+    "multiple_comparison_method": "fdr_bh",
+    "effect_size_method": "cohens_d",
+    "convergence_threshold": null,
+    "convergence_window": 100,
+    "stability_window": 50,
+    "min_sample_size": 10
+  },
+  "performance_metrics": {
+    "exp_1": {
+      "experiment_id": "exp_1",
+      "mean_reward": 111.37230000741003,
+      "std_reward": 23.474153786034716,
+      "final_reward": 144.15197845151505,
+      "max_reward": 157.24293653409586,
+      "min_reward": 66.60305906462514,
+      "convergence_timesteps": null,
+      "sample_efficiency": 0.0,
+      "stability_score": 0.8975976203457056,
+      "success_rate": null,
+      "training_time": 3600
+    },
+    "exp_2": {
+      "experiment_id": "exp_2",
+      "mean_reward": 129.05626329963246,
+      "std_reward": 28.05954604287987,
+      "final_reward": 167.4433141830423,
+      "max_reward": 185.16744874613073,
+      "min_reward": 66.8201120171256,
+      "convergence_timesteps": null,
+      "sample_efficiency": 0.0,
+      "stability_score": 0.888020083717915,
+      "success_rate": null,
+      "training_time": 4200
+    },
+    "exp_3": {
+      "experiment_id": "exp_3",
+      "mean_reward": 146.1497607482058,
+      "std_reward": 33.64839820993986,
+      "final_reward": 180.00557187540943,
+      "max_reward": 211.74452540548816,
+      "min_reward": 70.5509988781131,
+      "convergence_timesteps": null,
+      "sample_efficiency": 0.0,
+      "stability_score": 0.8736094280226394,
+      "success_rate": null,
+      "training_time": 4800
+    },
+    "exp_4": {
+      "experiment_id": "exp_4",
+      "mean_reward": 154.52793652652974,
+      "std_reward": 42.064585500116024,
+      "final_reward": 185.7717752092953,
+      "max_reward": 244.7174274678692,
+      "min_reward": 56.62643548411837,
+      "convergence_timesteps": null,
+      "sample_efficiency": 0.0,
+      "stability_score": 0.851033053193256,
+      "success_rate": null,
+      "training_time": 5400
+    }
+  },
+  "statistical_tests": {
+    "mean_reward": {
+      "exp_1_vs_exp_2": {
+        "test_type": "mann_whitney",
+        "statistic": 646.0,
+        "p_value": 7.623899182789985e-05,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 0.8709337552217865,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -15.684954641525938,
+          -5.859612120609878
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_1_vs_exp_3": {
+        "test_type": "t_test",
+        "statistic": -14.009680124642768,
+        "p_value": 1.4992659638783663e-23,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 2.801936024928554,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -37.337719660630846,
+          -28.066774105536243
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_1_vs_exp_4": {
+        "test_type": "t_test",
+        "statistic": -14.480056067654303,
+        "p_value": 8.50813667743215e-24,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 2.89601121353086,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -50.392535696951505,
+          -38.22305721403928
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_2_vs_exp_3": {
+        "test_type": "t_test",
+        "statistic": -5.563393198837716,
+        "p_value": 6.898342433567312e-07,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 1.1126786397675432,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -23.478522966447372,
+          -11.132655917338527
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_2_vs_exp_4": {
+        "test_type": "t_test",
+        "statistic": -10.020461922450185,
+        "p_value": 5.2695066513982115e-16,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 2.004092384490037,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -31.518015073448154,
+          -21.09583880526249
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_3_vs_exp_4": {
+        "test_type": "t_test",
+        "statistic": -2.5267599802746434,
+        "p_value": 0.0224860968441492,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 0.5053519960549286,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -15.95633137123967,
+          -1.9178484470791801
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      }
+    },
+    "stability_score": {
+      "exp_1_vs_exp_2": {
+        "test_type": "t_test",
+        "statistic": 0.32571764661876956,
+        "p_value": 0.7453435359201764,
+        "significant": false,
+        "alpha": 0.05,
+        "effect_size": 0.06514352932375392,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -0.0313664708674401,
+          0.043681973507281924
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_1_vs_exp_3": {
+        "test_type": "t_test",
+        "statistic": 1.1125310579997985,
+        "p_value": 0.322377577492048,
+        "significant": false,
+        "alpha": 0.05,
+        "effect_size": 0.2225062115999597,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -0.015159315133885791,
+          0.053837129576614455
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_1_vs_exp_4": {
+        "test_type": "t_test",
+        "statistic": 2.6928868790729075,
+        "p_value": 0.01666771649045817,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 0.5385773758145815,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          0.012485799230281931,
+          0.08244022020051889
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_2_vs_exp_3": {
+        "test_type": "t_test",
+        "statistic": 2.4054011885782507,
+        "p_value": 0.027078352933679394,
+        "significant": true,
+        "alpha": 0.05,
+        "effect_size": 0.4810802377156501,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          0.007497158245789212,
+          0.07824272081112117
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_2_vs_exp_4": {
+        "test_type": "t_test",
+        "statistic": 1.459430409416279,
+        "p_value": 0.19708846175156414,
+        "significant": false,
+        "alpha": 0.05,
+        "effect_size": 0.2918860818832558,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -0.007780464625390608,
+          0.05092503717501239
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      },
+      "exp_3_vs_exp_4": {
+        "test_type": "t_test",
+        "statistic": 0.715036837467944,
+        "p_value": 0.5196530751928272,
+        "significant": false,
+        "alpha": 0.05,
+        "effect_size": 0.1430073674935888,
+        "effect_size_method": "cohens_d",
+        "confidence_interval": [
+          -0.022232512084561847,
+          0.04726049890706969
+        ],
+        "sample_size_1": 50,
+        "sample_size_2": 50
+      }
+    }
+  },
+  "rankings": {
+    "mean_reward": [
+      "exp_4",
+      "exp_3",
+      "exp_2",
+      "exp_1"
+    ],
+    "convergence_timesteps": [
+      "exp_1",
+      "exp_2",
+      "exp_3",
+      "exp_4"
+    ],
+    "stability_score": [
+      "exp_1",
+      "exp_2",
+      "exp_3",
+      "exp_4"
+    ],
+    "overall": [
+      "exp_1",
+      "exp_2",
+      "exp_3",
+      "exp_4"
+    ]
+  },
+  "recommendations": [
+    "Лучший эксперимент по общей производительности: exp_1",
+    "Статистически значимое различие по mean_reward: exp_2 превосходит exp_1 (размер эффекта: большой)",
+    "Статистически значимое различие по mean_reward: exp_3 превосходит exp_1 (размер эффекта: большой)",
+    "Статистически значимое различие по mean_reward: exp_4 превосходит exp_1 (размер эффекта: большой)",
+    "Статистически значимое различие по mean_reward: exp_3 превосходит exp_2 (размер эффекта: большой)",
+    "Статистически значимое различие по mean_reward: exp_4 превосходит exp_2 (размер эффекта: большой)",
+    "Статистически значимое различие по mean_reward: exp_4 превосходит exp_3 (размер эффекта: средний)",
+    "Статистически значимое различие по stability_score: exp_1 превосходит exp_4 (размер эффекта: средний)",
+    "Статистически значимое различие по stability_score: exp_2 превосходит exp_3 (размер эффекта: малый)",
+    "Обнаружено много значимых различий (66.7%). Выбор алгоритма критически важен.",
+    "Наиболее стабильный эксперимент: exp_1 (стабильность: 0.898)",
+    "Наиболее эффективный по выборке: exp_1 (эффективность: 0.000)"
+  ],
+  "timestamp": "2026-01-14T18:20:49.860161"
+}

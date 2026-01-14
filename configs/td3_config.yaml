@@ -1,0 +1,123 @@
+# Конфигурация для TD3 агента
+# Twin Delayed Deep Deterministic Policy Gradient для непрерывных сред
+
+# Основные параметры
+algorithm: "TD3"
+env_name: "LunarLander-v3"  # Непрерывная версия LunarLander
+total_timesteps: 200_000
+seed: 42
+
+# Гиперпараметры TD3
+learning_rate: 0.001
+buffer_size: 1_000_000
+learning_starts: 10_000
+batch_size: 256
+tau: 0.005  # Коэффициент мягкого обновления
+gamma: 0.99
+
+# TD3-специфичные параметры
+policy_delay: 2  # Задержка обновления политики
+target_policy_noise: 0.2  # Шум для целевой политики
+target_noise_clip: 0.5  # Ограничение шума целевой политики
+
+# Параметры шума для исследования
+action_noise_type: "normal"  # "normal", "ornstein_uhlenbeck", "none"
+action_noise_std: 0.1
+action_noise_mean: 0.0
+
+# Параметры для Ornstein-Uhlenbeck шума (если используется)
+ou_theta: 0.15
+ou_dt: 0.01
+ou_sigma: 0.2
+
+# Расписания
+use_lr_schedule: true
+lr_schedule_type: "linear"  # "linear", "constant", "exponential"
+lr_final_ratio: 0.1
+
+use_noise_schedule: true
+noise_schedule_type: "linear"  # "linear", "exponential"
+noise_final_ratio: 0.01
+
+# Архитектура сети
+net_arch: [400, 300]  # Размеры скрытых слоев
+activation_fn: "relu"  # "relu", "tanh", "elu"
+
+# Настройки модели
+policy: "MlpPolicy"
+device: "auto"
+verbose: 1
+
+# Нормализация
+normalize_env: true
+norm_obs: true
+norm_reward: false  # Обычно не используется для TD3
+clip_obs: 10.0
+
+# Ранняя остановка
+early_stopping: true
+target_reward: 200.0  # Для LunarLander-v3 continuous
+patience_episodes: 100
+min_improvement: 10.0
+
+# Мониторинг и оценка
+eval_freq: 10_000
+n_eval_episodes: 10
+save_freq: 50_000
+log_interval: 1
+
+# Логирование
+use_tensorboard: true
+tensorboard_log: "results/tensorboard/td3"
+
+# Пути для сохранения
+model_save_path: "results/models/td3_lunarlander.zip"
+
+# Дополнительные параметры
+stats_window_size: 100
+train_freq: 1  # Обучение на каждом шаге
+gradient_steps: 1
+
+# Конфигурации для разных сред
+environments:
+  LunarLander-v3:
+    total_timesteps: 200_000
+    learning_rate: 0.001
+    target_reward: 200.0
+    action_noise_type: "normal"
+    action_noise_std: 0.1
+    
+  Pendulum-v1:
+    total_timesteps: 100_000
+    learning_rate: 0.001
+    target_reward: -200.0  # Для Pendulum цель - минимизация
+    action_noise_type: "normal"
+    action_noise_std: 0.1
+    patience_episodes: 50
+    
+  BipedalWalker-v3:
+    total_timesteps: 500_000
+    learning_rate: 0.0003
+    target_reward: 300.0
+    action_noise_type: "ornstein_uhlenbeck"
+    ou_sigma: 0.2
+    ou_theta: 0.15
+    buffer_size: 1_000_000
+    
+  HalfCheetah-v4:
+    total_timesteps: 1_000_000
+    learning_rate: 0.001
+    target_reward: 4000.0
+    action_noise_type: "normal"
+    action_noise_std: 0.1
+    buffer_size: 1_000_000
+    batch_size: 256
+    
+  Ant-v4:
+    total_timesteps: 1_000_000
+    learning_rate: 0.001
+    target_reward: 6000.0
+    action_noise_type: "normal"
+    action_noise_std: 0.1
+    buffer_size: 1_000_000
+    batch_size: 256

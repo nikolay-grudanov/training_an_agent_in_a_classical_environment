@@ -1,0 +1,203 @@
+# Конфигурация SAC агента для непрерывных сред
+# Оптимизированные параметры для различных задач
+
+# Базовые параметры
+algorithm: "SAC"
+env_name: "LunarLander-v3"  # Непрерывная версия LunarLander
+total_timesteps: 100000
+seed: 42
+
+# SAC-специфичные гиперпараметры
+learning_rate: 0.0003
+buffer_size: 1000000
+learning_starts: 10000
+batch_size: 256
+tau: 0.005  # Коэффициент мягкого обновления
+gamma: 0.99
+train_freq: 1
+gradient_steps: 1
+
+# Настройка энтропии
+ent_coef: "auto"  # Автоматическая настройка коэффициента энтропии
+target_entropy: "auto"  # Автоматическое определение целевой энтропии
+ent_coef_lr: 0.0003  # Learning rate для коэффициента энтропии
+
+# Параметры сетей
+policy_lr: 0.0003  # Learning rate для актора
+qf_lr: 0.0003      # Learning rate для критика
+net_arch: [256, 256]  # Архитектура скрытых слоев
+activation_fn: "relu"  # Функция активации: relu, tanh, elu
+
+# Расписание learning rate
+use_lr_schedule: false
+lr_schedule_type: "linear"  # linear, constant, exponential
+lr_final_ratio: 0.1
+
+# Нормализация (обычно не требуется для SAC)
+normalize_env: false
+norm_obs: false
+norm_reward: false
+clip_obs: 10.0
+clip_reward: 10.0
+
+# Шум для исследования (опционально)
+action_noise_type: null  # null, "normal", "ornstein_uhlenbeck"
+action_noise_std: 0.1
+
+# Ранняя остановка
+early_stopping: true
+target_reward: 200.0  # Целевая награда для остановки
+patience_episodes: 100  # Терпение в эпизодах
+min_improvement: 5.0    # Минимальное улучшение
+
+# Мониторинг и логирование
+use_tensorboard: true
+tensorboard_log: "./logs/sac_lunarlander"
+stats_window_size: 100
+verbose: 1
+
+# Оценка и сохранение
+eval_freq: 10000
+n_eval_episodes: 10
+save_freq: 25000
+model_save_path: "./models/sac_lunarlander.zip"
+
+# Дополнительные параметры
+policy: "MlpPolicy"
+device: "auto"
+use_sde: false
+sde_sample_freq: -1
+use_sde_at_warmup: false
+optimize_memory_usage: false
+
+# Настройки политики
+policy_kwargs:
+  net_arch: [256, 256]
+  activation_fn: "relu"
+
+---
+# Альтернативные конфигурации для разных сред
+
+# Конфигурация для Pendulum-v1
+pendulum_config:
+  algorithm: "SAC"
+  env_name: "Pendulum-v1"
+  total_timesteps: 50000
+  seed: 42
+  
+  # Оптимизированные параметры для Pendulum
+  learning_rate: 0.001
+  buffer_size: 200000
+  learning_starts: 1000
+  batch_size: 256
+  tau: 0.02
+  gamma: 0.98
+  
+  # Сеть меньшего размера
+  net_arch: [128, 128]
+  activation_fn: "relu"
+  
+  # Шум для лучшего исследования
+  action_noise_type: "normal"
+  action_noise_std: 0.1
+  
+  # Целевая награда (отрицательная для Pendulum)
+  target_reward: -200.0
+  patience_episodes: 50
+  
+  # Пути
+  tensorboard_log: "./logs/sac_pendulum"
+  model_save_path: "./models/sac_pendulum.zip"
+
+# Конфигурация для BipedalWalker-v3
+bipedalwalker_config:
+  algorithm: "SAC"
+  env_name: "BipedalWalker-v3"
+  total_timesteps: 1000000
+  seed: 42
+  
+  # Параметры для сложной среды
+  learning_rate: 0.0003
+  buffer_size: 1000000
+  learning_starts: 10000
+  batch_size: 256
+  tau: 0.005
+  gamma: 0.99
+  
+  # Большая сеть для сложной задачи
+  net_arch: [400, 300]
+  activation_fn: "relu"
+  
+  # Без дополнительного шума
+  action_noise_type: null
+  
+  # Высокая целевая награда
+  target_reward: 300.0
+  patience_episodes: 200
+  
+  # Пути
+  tensorboard_log: "./logs/sac_bipedalwalker"
+  model_save_path: "./models/sac_bipedalwalker.zip"
+
+# Конфигурация для MountainCarContinuous-v0
+mountaincar_config:
+  algorithm: "SAC"
+  env_name: "MountainCarContinuous-v0"
+  total_timesteps: 100000
+  seed: 42
+  
+  # Параметры для простой среды
+  learning_rate: 0.001
+  buffer_size: 50000
+  learning_starts: 1000
+  batch_size: 128
+  tau: 0.01
+  gamma: 0.99
+  
+  # Компактная сеть
+  net_arch: [128, 128]
+  activation_fn: "tanh"
+  
+  # Шум для исследования
+  action_noise_type: "normal"
+  action_noise_std: 0.2
+  
+  # Целевая награда
+  target_reward: 90.0
+  patience_episodes: 50
+  
+  # Пути
+  tensorboard_log: "./logs/sac_mountaincar"
+  model_save_path: "./models/sac_mountaincar.zip"
+
+# Конфигурация для экспериментов с гиперпараметрами
+experimental_config:
+  algorithm: "SAC"
+  env_name: "Pendulum-v1"
+  total_timesteps: 30000
+  seed: 42
+  
+  # Экспериментальные параметры
+  learning_rate: 0.0001  # Низкий LR
+  buffer_size: 100000
+  learning_starts: 5000
+  batch_size: 512        # Большой batch
+  tau: 0.001             # Медленное обновление
+  gamma: 0.95            # Низкий discount factor
+  
+  # Фиксированная энтропия
+  ent_coef: 0.1
+  target_entropy: -1.0
+  
+  # Большая сеть
+  net_arch: [512, 512, 256]
+  activation_fn: "elu"
+  
+  # Нормализация
+  normalize_env: true
+  norm_obs: true
+  norm_reward: true
+  
+  # Пути
+  tensorboard_log: "./logs/sac_experimental"
+  model_save_path: "./models/sac_experimental.zip"

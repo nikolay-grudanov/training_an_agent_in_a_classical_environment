@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-01-14T20:00:22.057076",
+  "experiment_name": "reproducibility_report_demo",
+  "is_valid": true,
+  "warnings": [
+    "device='auto' может привести к различному поведению на разных системах. Рекомендуется явно указать 'cpu' или 'cuda'",
+    "CUDA доступна, но use_cuda=False. Убедитесь, что это намеренно"
+  ],
+  "seeds": {
+    "main_seed": 42,
+    "reproducibility_seed": 42,
+    "algorithm_seed": 42,
+    "experiment_seeds": null,
+    "seeds_consistent": true
+  },
+  "determinism": {
+    "deterministic_mode": true,
+    "benchmark_mode": false,
+    "cuda_enabled": false,
+    "enforce_consistency": true,
+    "validate_determinism": true
+  },
+  "algorithm": {
+    "algorithm_name": "PPO",
+    "use_sde": false,
+    "device": "auto",
+    "policy_kwargs": null
+  },
+  "system": {
+    "python_version": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:27:36) [GCC 11.2.0]",
+    "platform": "Linux-6.17.13-1-MANJARO-x86_64-with-glibc2.42",
+    "architecture": [
+      "64bit",
+      "ELF"
+    ],
+    "torch_version": "2.9.1+rocm6.3",
+    "cuda_available": true,
+    "cuda_version": null,
+    "cudnn_version": 3003000,
+    "numpy_version": "1.26.4",
+    "gymnasium_version": "1.2.3"
+  },
+  "recommendations": [
+    "Явно укажите device ('cpu' или 'cuda') вместо 'auto'"
+  ]
+}

@@ -1,0 +1,95 @@
+# PPO vs A2C Comparison Experiment
+# This configuration compares PPO and A2C algorithms on LunarLander-v2
+
+experiment:
+  name: "ppo_vs_a2c_lunarlander"
+  description: "Controlled comparison between PPO and A2C algorithms on LunarLander-v2 environment"
+  hypothesis: "PPO will achieve higher sample efficiency and more stable learning than A2C"
+  
+  execution:
+    mode: "sequential"
+    timeout_minutes: 45
+    max_retries: 2
+    enable_monitoring: true
+    save_checkpoints: true
+    
+  output:
+    base_directory: "results/experiments/ppo_vs_a2c"
+    save_models: true
+    save_videos: true
+    save_plots: true
+    export_format: "both"
+
+baseline:
+  name: "ppo_baseline"
+  algorithm: "PPO"
+  environment: "LunarLander-v2"
+  seed: 42
+  training_steps: 100000
+  evaluation_frequency: 10000
+  
+  hyperparameters:
+    learning_rate: 0.0003
+    n_steps: 2048
+    batch_size: 64
+    n_epochs: 10
+    gamma: 0.99
+    gae_lambda: 0.95
+    clip_range: 0.2
+    ent_coef: 0.0
+    vf_coef: 0.5
+    max_grad_norm: 0.5
+
+variant:
+  name: "a2c_variant"
+  algorithm: "A2C"
+  environment: "LunarLander-v2"
+  seed: 42
+  training_steps: 100000
+  evaluation_frequency: 10000
+  
+  hyperparameters:
+    learning_rate: 0.0007
+    n_steps: 5
+    gamma: 0.99
+    gae_lambda: 1.0
+    ent_coef: 0.01
+    vf_coef: 0.25
+    max_grad_norm: 0.5
+
+evaluation:
+  num_episodes: 20
+  metrics:
+    - "mean_reward"
+    - "std_reward"
+    - "episode_length"
+    - "convergence_steps"
+    - "final_performance"
+    - "peak_performance"
+    - "stability_score"
+  
+  statistical_tests:
+    significance_level: 0.05
+    use_bonferroni_correction: true
+    bootstrap_samples: 1000
+    confidence_interval: 0.95
+
+comparison:
+  thresholds:
+    convergence_reward: 200.0
+    minimum_improvement: 0.05
+    stability_threshold: 0.15
+  
+  plots:
+    learning_curves: true
+    reward_distributions: true
+    statistical_comparison: true
+    convergence_analysis: true
+    save_format: "png"
+    dpi: 300
+    
+  report:
+    generate_html: true
+    generate_markdown: true
+    include_raw_data: true
+    include_statistical_details: true

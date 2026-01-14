@@ -1,0 +1,119 @@
+{
+  "experiment_id": "validation_config_validation_demo",
+  "timestamp": "2026-01-14T20:20:02.598242",
+  "strictness_level": "standard",
+  "is_reproducible": true,
+  "confidence_score": 1.0,
+  "runs": [
+    {
+      "run_id": "validation_config_validation_demo_20260114_201957_224842",
+      "seed": 42,
+      "timestamp": "2026-01-14T20:19:57.229548",
+      "config_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+      "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+      "results": {
+        "total_reward": 100.0,
+        "episode_length": 100,
+        "final_obs": [
+          1.1380615234375,
+          1.4341645240783691,
+          0.17764528095722198,
+          0.3459256589412689
+        ]
+      },
+      "metrics": {
+        "rewards": [
+          100.0
+        ],
+        "episode_lengths": [
+          100
+        ]
+      },
+      "metadata": {
+        "test_seed": 42
+      }
+    },
+    {
+      "run_id": "validation_config_validation_demo_20260114_202002_592588",
+      "seed": 42,
+      "timestamp": "2026-01-14T20:20:02.597703",
+      "config_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+      "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+      "results": {
+        "total_reward": 100.0,
+        "episode_length": 100,
+        "final_obs": [
+          1.1380615234375,
+          1.4341645240783691,
+          0.17764528095722198,
+          0.3459256589412689
+        ]
+      },
+      "metrics": {
+        "rewards": [
+          100.0
+        ],
+        "episode_lengths": [
+          100
+        ]
+      },
+      "metadata": {
+        "test_seed": 42
+      }
+    }
+  ],
+  "issues": [],
+  "statistics": {},
+  "recommendations": [],
+  "seed_analysis": {
+    "reference_seed": 42,
+    "all_seeds": [
+      42,
+      42
+    ],
+    "seeds_consistent": true,
+    "unique_seeds": 1,
+    "issues_found": 0
+  },
+  "environment_analysis": {
+    "reference_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+    "environment_consistent": true,
+    "issues_found": 0
+  },
+  "dependency_analysis": {
+    "snapshot_created": true,
+    "snapshot_hash": "9acc4dca11f84d47f3e8f8de7dc2a145464a4705b898801a57614bc32f789641",
+    "conflicts_detected": 0,
+    "conflicts": [],
+    "ml_libraries": {
+      "matplotlib": "3.9.2",
+      "sb3-contrib": null,
+      "gym": null,
+      "pandas": "2.2.2",
+      "seaborn": "0.13.2",
+      "plotly": "5.24.1",
+      "jupyter": "unknown",
+      "torch": "2.9.1+rocm6.3",
+      "numpy": "1.26.4",
+      "opencv-python": null,
+      "wandb": null,
+      "stable-baselines3": "2.7.1",
+      "gymnasium": "1.2.3",
+      "tensorboard": "2.20.0",
+      "scikit-learn": "1.5.1",
+      "torchaudio": "2.9.1+rocm6.3",
+      "scipy": "1.13.1",
+      "ipython": null,
+      "torchvision": "0.24.1+rocm6.3"
+    },
+    "system_info": {
+      "python_version": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:27:36) [GCC 11.2.0]",
+      "platform": "Linux"
+    }
+  },
+  "algorithm_analysis": {
+    "reference_config_hash": "d2998e4dc0a6751d5c93c8e4f570c139ed1fe25faaa2b2811b8ab774292f7588",
+    "configurations_consistent": true,
+    "issues_found": 0
+  }
+}

@@ -1,0 +1,439 @@
+openapi: 3.0.0
+info:
+  title: RL Agent Training API
+  description: API for managing reinforcement learning experiments, training agents, and retrieving results
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /experiments:
+    post:
+      summary: Create a new experiment
+      description: Creates a new RL training experiment with specified configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentConfig'
+      responses:
+        '201':
+          description: Experiment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '400':
+          description: Invalid experiment configuration
+          
+    get:
+      summary: List all experiments
+      description: Retrieve a list of all experiments with optional filtering
+      parameters:
+        - name: status
+          in: query
+          description: Filter experiments by status
+          schema:
+            type: string
+            enum: [running, completed, failed, paused]
+        - name: algorithm
+          in: query
+          description: Filter experiments by algorithm
+          schema:
+            type: string
+            enum: [PPO, A2C, SAC, TD3]
+      responses:
+        '200':
+          description: List of experiments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Experiment'
+
+  /experiments/{experimentId}:
+    get:
+      summary: Get experiment details
+      description: Retrieve detailed information about a specific experiment
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          description: Unique identifier of the experiment
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '404':
+          description: Experiment not found
+          
+    put:
+      summary: Update experiment
+      description: Update the configuration or status of an experiment
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          description: Unique identifier of the experiment
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentUpdate'
+      responses:
+        '200':
+          description: Experiment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '404':
+          description: Experiment not found
+
+  /experiments/{experimentId}/train:
+    post:
+      summary: Start training for an experiment
+      description: Begin the training process for a configured experiment
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          description: Unique identifier of the experiment
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingResponse'
+        '400':
+          description: Experiment not properly configured
+        '404':
+          description: Experiment not found
+
+  /experiments/{experimentId}/metrics:
+    get:
+      summary: Get training metrics
+      description: Retrieve training metrics for an experiment
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          description: Unique identifier of the experiment
+          schema:
+            type: string
+        - name: from_timestep
+          in: query
+          description: Starting timestep for metrics retrieval
+          schema:
+            type: integer
+        - name: to_timestep
+          in: query
+          description: Ending timestep for metrics retrieval
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Training metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '404':
+          description: Experiment not found
+
+  /experiments/{experimentId}/results:
+    get:
+      summary: Get experiment results
+      description: Retrieve final results of a completed experiment
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          description: Unique identifier of the experiment
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Results'
+        '404':
+          description: Experiment not found or not completed
+
+  /environments:
+    get:
+      summary: List available environments
+      description: Retrieve a list of all available RL environments
+      responses:
+        '200':
+          description: List of available environments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Environment'
+
+  /algorithms:
+    get:
+      summary: List available algorithms
+      description: Retrieve a list of all available RL algorithms
+      responses:
+        '200':
+          description: List of available algorithms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Algorithm'
+
+components:
+  schemas:
+    ExperimentConfig:
+      type: object
+      required:
+        - name
+        - algorithm
+        - environment
+        - hyperparameters
+        - seed
+      properties:
+        name:
+          type: string
+          description: Human-readable name for the experiment
+        algorithm:
+          type: string
+          description: RL algorithm to use
+          enum: [PPO, A2C, SAC, TD3]
+        environment:
+          type: string
+          description: Environment to train in
+          enum: [LunarLander-v2, MountainCarContinuous-v0, Acrobot-v1, Pendulum-v1]
+        hyperparameters:
+          type: object
+          description: Algorithm-specific hyperparameters
+        seed:
+          type: integer
+          description: Random seed for reproducibility
+        description:
+          type: string
+          description: Detailed description of the experiment
+        hypothesis:
+          type: string
+          description: Hypothesis being tested in this experiment
+
+    Experiment:
+      type: object
+      required:
+        - id
+        - name
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the experiment
+        name:
+          type: string
+          description: Human-readable name for the experiment
+        status:
+          type: string
+          description: Current status of the experiment
+          enum: [created, running, completed, failed, paused]
+        algorithm:
+          type: string
+          description: RL algorithm being used
+        environment:
+          type: string
+          description: Environment being used
+        hyperparameters:
+          type: object
+          description: Algorithm-specific hyperparameters
+        seed:
+          type: integer
+          description: Random seed for reproducibility
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the experiment was created
+        started_at:
+          type: string
+          format: date-time
+          description: Timestamp when the experiment started
+        completed_at:
+          type: string
+          format: date-time
+          description: Timestamp when the experiment completed
+        metrics:
+          $ref: '#/components/schemas/MetricsSummary'
+        results:
+          $ref: '#/components/schemas/Results'
+
+    ExperimentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          description: New status for the experiment
+          enum: [running, paused, cancelled]
+        hyperparameters:
+          type: object
+          description: Updated hyperparameters
+
+    TrainingResponse:
+      type: object
+      required:
+        - experiment_id
+        - status
+      properties:
+        experiment_id:
+          type: string
+          description: ID of the experiment being trained
+        status:
+          type: string
+          description: Current status of the training process
+        message:
+          type: string
+          description: Additional information about the training process
+
+    MetricsResponse:
+      type: object
+      required:
+        - experiment_id
+        - metrics
+      properties:
+        experiment_id:
+          type: string
+          description: ID of the experiment
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metric'
+        summary:
+          $ref: '#/components/schemas/MetricsSummary'
+
+    Metric:
+      type: object
+      required:
+        - timestep
+        - episode
+        - reward
+      properties:
+        timestep:
+          type: integer
+          description: Training timestep
+        episode:
+          type: integer
+          description: Episode number
+        reward:
+          type: number
+          description: Reward value
+        loss:
+          type: number
+          description: Loss value during training
+        episode_length:
+          type: integer
+          description: Length of the episode
+
+    MetricsSummary:
+      type: object
+      properties:
+        avg_reward_last_100:
+          type: number
+          description: Average reward over the last 100 episodes
+        total_timesteps:
+          type: integer
+          description: Total number of timesteps trained
+        best_reward:
+          type: number
+          description: Best reward achieved
+        convergence_timesteps:
+          type: integer
+          description: Timesteps to reach convergence (if applicable)
+
+    Results:
+      type: object
+      required:
+        - experiment_id
+        - final_evaluation
+      properties:
+        experiment_id:
+          type: string
+          description: ID of the experiment
+        final_evaluation:
+          type: object
+          description: Results from final evaluation across 10-20 episodes
+          properties:
+            avg_reward:
+              type: number
+              description: Average reward across evaluation episodes
+            std_reward:
+              type: number
+              description: Standard deviation of rewards
+            num_episodes:
+              type: integer
+              description: Number of episodes in evaluation
+        model_path:
+          type: string
+          description: Path to the saved trained model
+        video_path:
+          type: string
+          description: Path to the agent demonstration video
+        graph_path:
+          type: string
+          description: Path to the performance graph
+        pip_freeze:
+          type: string
+          description: Output of pip freeze command for reproducibility
+
+    Environment:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: Name of the environment
+        description:
+          type: string
+          description: Description of the environment
+        observation_space:
+          type: object
+          description: Details about the observation space
+        action_space:
+          type: object
+          description: Details about the action space
+
+    Algorithm:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: Name of the algorithm
+        description:
+          type: string
+          description: Description of the algorithm
+        default_hyperparameters:
+          type: object
+          description: Default hyperparameters for the algorithm

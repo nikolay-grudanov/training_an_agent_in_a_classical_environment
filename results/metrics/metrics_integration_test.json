@@ -1,0 +1,1440 @@
+{
+  "experiment_id": "integration_test",
+  "export_timestamp": "2026-01-14T23:28:30.238382",
+  "total_timesteps": 99,
+  "total_episodes": 9,
+  "metrics": {
+    "episode_reward": [
+      {
+        "timestep": 0,
+        "episode": 0,
+        "value": 8.153533507778192,
+        "timestamp": "2026-01-14T23:28:30.236588",
+        "metadata": {}
+      },
+      {
+        "timestep": 1,
+        "episode": 0,
+        "value": 7.296630788767333,
+        "timestamp": "2026-01-14T23:28:30.236622",
+        "metadata": {}
+      },
+      {
+        "timestep": 2,
+        "episode": 0,
+        "value": 11.082003745207258,
+        "timestamp": "2026-01-14T23:28:30.236629",
+        "metadata": {}
+      },
+      {
+        "timestep": 3,
+        "episode": 0,
+        "value": 10.265872370445383,
+        "timestamp": "2026-01-14T23:28:30.236634",
+        "metadata": {}
+      },
+      {
+        "timestep": 4,
+        "episode": 0,
+        "value": 10.190641613895439,
+        "timestamp": "2026-01-14T23:28:30.236639",
+        "metadata": {}
+      },
+      {
+        "timestep": 5,
+        "episode": 0,
+        "value": 10.35807359309793,
+        "timestamp": "2026-01-14T23:28:30.236644",
+        "metadata": {}
+      },
+      {
+        "timestep": 6,
+        "episode": 0,
+        "value": 7.5360837485079575,
+        "timestamp": "2026-01-14T23:28:30.236648",
+        "metadata": {}
+      },
+      {
+        "timestep": 7,
+        "episode": 0,
+        "value": 10.290453554258693,
+        "timestamp": "2026-01-14T23:28:30.236653",
+        "metadata": {}
+      },
+      {
+        "timestep": 8,
+        "episode": 0,
+        "value": 9.039754820407413,
+        "timestamp": "2026-01-14T23:28:30.236657",
+        "metadata": {}
+      },
+      {
+        "timestep": 9,
+        "episode": 0,
+        "value": 14.596937723469667,
+        "timestamp": "2026-01-14T23:28:30.236661",
+        "metadata": {}
+      },
+      {
+        "timestep": 10,
+        "episode": 1,
+        "value": 7.908174662285804,
+        "timestamp": "2026-01-14T23:28:30.236666",
+        "metadata": {}
+      },
+      {
+        "timestep": 11,
+        "episode": 1,
+        "value": 6.438886633579035,
+        "timestamp": "2026-01-14T23:28:30.236670",
+        "metadata": {}
+      },
+      {
+        "timestep": 12,
+        "episode": 1,
+        "value": 8.11061862492714,
+        "timestamp": "2026-01-14T23:28:30.236679",
+        "metadata": {}
+      },
+      {
+        "timestep": 13,
+        "episode": 1,
+        "value": 14.605823795446225,
+        "timestamp": "2026-01-14T23:28:30.236684",
+        "metadata": {}
+      },
+      {
+        "timestep": 14,
+        "episode": 1,
+        "value": 9.384428766640376,
+        "timestamp": "2026-01-14T23:28:30.236688",
+        "metadata": {}
+      },
+      {
+        "timestep": 15,
+        "episode": 1,
+        "value": 8.682203156047594,
+        "timestamp": "2026-01-14T23:28:30.236692",
+        "metadata": {}
+      },
+      {
+        "timestep": 16,
+        "episode": 1,
+        "value": 7.361304221725189,
+        "timestamp": "2026-01-14T23:28:30.236697",
+        "metadata": {}
+      },
+      {
+        "timestep": 17,
+        "episode": 1,
+        "value": 9.547509561982647,
+        "timestamp": "2026-01-14T23:28:30.236701",
+        "metadata": {}
+      },
+      {
+        "timestep": 18,
+        "episode": 1,
+        "value": 10.760395702011927,
+        "timestamp": "2026-01-14T23:28:30.236705",
+        "metadata": {}
+      },
+      {
+        "timestep": 19,
+        "episode": 1,
+        "value": 11.221171490567647,
+        "timestamp": "2026-01-14T23:28:30.236709",
+        "metadata": {}
+      },
+      {
+        "timestep": 20,
+        "episode": 2,
+        "value": 12.572537226809203,
+        "timestamp": "2026-01-14T23:28:30.236714",
+        "metadata": {}
+      },
+      {
+        "timestep": 21,
+        "episode": 2,
+        "value": 12.124419701827424,
+        "timestamp": "2026-01-14T23:28:30.236718",
+        "metadata": {}
+      },
+      {
+        "timestep": 22,
+        "episode": 2,
+        "value": 9.859668577082706,
+        "timestamp": "2026-01-14T23:28:30.236723",
+        "metadata": {}
+      },
+      {
+        "timestep": 23,
+        "episode": 2,
+        "value": 6.678078132968017,
+        "timestamp": "2026-01-14T23:28:30.236727",
+        "metadata": {}
+      },
+      {
+        "timestep": 24,
+        "episode": 2,
+        "value": 11.63696946927708,
+        "timestamp": "2026-01-14T23:28:30.236731",
+        "metadata": {}
+      },
+      {
+        "timestep": 25,
+        "episode": 2,
+        "value": 10.267695308492,
+        "timestamp": "2026-01-14T23:28:30.236736",
+        "metadata": {}
+      },
+      {
+        "timestep": 26,
+        "episode": 2,
+        "value": 7.837886919183475,
+        "timestamp": "2026-01-14T23:28:30.236740",
+        "metadata": {}
+      },
+      {
+        "timestep": 27,
+        "episode": 2,
+        "value": 12.106305706665808,
+        "timestamp": "2026-01-14T23:28:30.236744",
+        "metadata": {}
+      },
+      {
+        "timestep": 28,
+        "episode": 2,
+        "value": 12.258138875070285,
+        "timestamp": "2026-01-14T23:28:30.236749",
+        "metadata": {}
+      },
+      {
+        "timestep": 29,
+        "episode": 2,
+        "value": 9.839168452582015,
+        "timestamp": "2026-01-14T23:28:30.236753",
+        "metadata": {}
+      },
+      {
+        "timestep": 30,
+        "episode": 3,
+        "value": 11.876567611951995,
+        "timestamp": "2026-01-14T23:28:30.236757",
+        "metadata": {}
+      },
+      {
+        "timestep": 31,
+        "episode": 3,
+        "value": 8.967910543565253,
+        "timestamp": "2026-01-14T23:28:30.236762",
+        "metadata": {}
+      },
+      {
+        "timestep": 32,
+        "episode": 3,
+        "value": 7.1896801552710805,
+        "timestamp": "2026-01-14T23:28:30.236766",
+        "metadata": {}
+      },
+      {
+        "timestep": 33,
+        "episode": 3,
+        "value": 11.00206668703469,
+        "timestamp": "2026-01-14T23:28:30.236770",
+        "metadata": {}
+      },
+      {
+        "timestep": 34,
+        "episode": 3,
+        "value": 10.444267543267426,
+        "timestamp": "2026-01-14T23:28:30.236775",
+        "metadata": {}
+      },
+      {
+        "timestep": 35,
+        "episode": 3,
+        "value": 9.042502756673045,
+        "timestamp": "2026-01-14T23:28:30.236779",
+        "metadata": {}
+      },
+      {
+        "timestep": 36,
+        "episode": 3,
+        "value": 9.47794549350641,
+        "timestamp": "2026-01-14T23:28:30.236783",
+        "metadata": {}
+      },
+      {
+        "timestep": 37,
+        "episode": 3,
+        "value": 10.269969441639377,
+        "timestamp": "2026-01-14T23:28:30.236788",
+        "metadata": {}
+      },
+      {
+        "timestep": 38,
+        "episode": 3,
+        "value": 8.698830316886287,
+        "timestamp": "2026-01-14T23:28:30.236792",
+        "metadata": {}
+      },
+      {
+        "timestep": 39,
+        "episode": 3,
+        "value": 12.087091818573107,
+        "timestamp": "2026-01-14T23:28:30.236796",
+        "metadata": {}
+      },
+      {
+        "timestep": 40,
+        "episode": 4,
+        "value": 10.534100531738517,
+        "timestamp": "2026-01-14T23:28:30.236801",
+        "metadata": {}
+      },
+      {
+        "timestep": 41,
+        "episode": 4,
+        "value": 11.779261591246874,
+        "timestamp": "2026-01-14T23:28:30.236805",
+        "metadata": {}
+      },
+      {
+        "timestep": 42,
+        "episode": 4,
+        "value": 10.51232291686765,
+        "timestamp": "2026-01-14T23:28:30.236809",
+        "metadata": {}
+      },
+      {
+        "timestep": 43,
+        "episode": 4,
+        "value": 9.96023677942227,
+        "timestamp": "2026-01-14T23:28:30.236814",
+        "metadata": {}
+      },
+      {
+        "timestep": 44,
+        "episode": 4,
+        "value": 11.281807698818472,
+        "timestamp": "2026-01-14T23:28:30.236818",
+        "metadata": {}
+      },
+      {
+        "timestep": 45,
+        "episode": 4,
+        "value": 9.656173257856484,
+        "timestamp": "2026-01-14T23:28:30.236824",
+        "metadata": {}
+      },
+      {
+        "timestep": 46,
+        "episode": 4,
+        "value": 12.446341901182915,
+        "timestamp": "2026-01-14T23:28:30.236829",
+        "metadata": {}
+      },
+      {
+        "timestep": 47,
+        "episode": 4,
+        "value": 8.633136419739754,
+        "timestamp": "2026-01-14T23:28:30.236833",
+        "metadata": {}
+      },
+      {
+        "timestep": 48,
+        "episode": 4,
+        "value": 14.5977962472385,
+        "timestamp": "2026-01-14T23:28:30.236838",
+        "metadata": {}
+      },
+      {
+        "timestep": 49,
+        "episode": 4,
+        "value": 9.274322879120682,
+        "timestamp": "2026-01-14T23:28:30.236842",
+        "metadata": {}
+      },
+      {
+        "timestep": 50,
+        "episode": 5,
+        "value": 9.467365342954594,
+        "timestamp": "2026-01-14T23:28:30.236846",
+        "metadata": {}
+      },
+      {
+        "timestep": 51,
+        "episode": 5,
+        "value": 8.670930140715575,
+        "timestamp": "2026-01-14T23:28:30.236850",
+        "metadata": {}
+      },
+      {
+        "timestep": 52,
+        "episode": 5,
+        "value": 6.277302192646353,
+        "timestamp": "2026-01-14T23:28:30.236854",
+        "metadata": {}
+      },
+      {
+        "timestep": 53,
+        "episode": 5,
+        "value": 9.400522846781595,
+        "timestamp": "2026-01-14T23:28:30.236859",
+        "metadata": {}
+      },
+      {
+        "timestep": 54,
+        "episode": 5,
+        "value": 6.1326433977848795,
+        "timestamp": "2026-01-14T23:28:30.236863",
+        "metadata": {}
+      },
+      {
+        "timestep": 55,
+        "episode": 5,
+        "value": 7.585208336707251,
+        "timestamp": "2026-01-14T23:28:30.236867",
+        "metadata": {}
+      },
+      {
+        "timestep": 56,
+        "episode": 5,
+        "value": 11.968644796953168,
+        "timestamp": "2026-01-14T23:28:30.236871",
+        "metadata": {}
+      },
+      {
+        "timestep": 57,
+        "episode": 5,
+        "value": 9.572022311548983,
+        "timestamp": "2026-01-14T23:28:30.236875",
+        "metadata": {}
+      },
+      {
+        "timestep": 58,
+        "episode": 5,
+        "value": 14.619445510812373,
+        "timestamp": "2026-01-14T23:28:30.236880",
+        "metadata": {}
+      },
+      {
+        "timestep": 59,
+        "episode": 5,
+        "value": 8.67220617290667,
+        "timestamp": "2026-01-14T23:28:30.236884",
+        "metadata": {}
+      },
+      {
+        "timestep": 60,
+        "episode": 6,
+        "value": 10.332904416426112,
+        "timestamp": "2026-01-14T23:28:30.236888",
+        "metadata": {}
+      },
+      {
+        "timestep": 61,
+        "episode": 6,
+        "value": 10.984902528016299,
+        "timestamp": "2026-01-14T23:28:30.236892",
+        "metadata": {}
+      },
+      {
+        "timestep": 62,
+        "episode": 6,
+        "value": 9.16826531717643,
+        "timestamp": "2026-01-14T23:28:30.236897",
+        "metadata": {}
+      },
+      {
+        "timestep": 63,
+        "episode": 6,
+        "value": 9.791900486400726,
+        "timestamp": "2026-01-14T23:28:30.236901",
+        "metadata": {}
+      },
+      {
+        "timestep": 64,
+        "episode": 6,
+        "value": 11.03054570597353,
+        "timestamp": "2026-01-14T23:28:30.236905",
+        "metadata": {}
+      },
+      {
+        "timestep": 65,
+        "episode": 6,
+        "value": 12.388363925102137,
+        "timestamp": "2026-01-14T23:28:30.236909",
+        "metadata": {}
+      },
+      {
+        "timestep": 66,
+        "episode": 6,
+        "value": 15.003396425720886,
+        "timestamp": "2026-01-14T23:28:30.236913",
+        "metadata": {}
+      },
+      {
+        "timestep": 67,
+        "episode": 6,
+        "value": 10.939241578751009,
+        "timestamp": "2026-01-14T23:28:30.236918",
+        "metadata": {}
+      },
+      {
+        "timestep": 68,
+        "episode": 6,
+        "value": 11.591813009694949,
+        "timestamp": "2026-01-14T23:28:30.236922",
+        "metadata": {}
+      },
+      {
+        "timestep": 69,
+        "episode": 6,
+        "value": 12.0970618770152,
+        "timestamp": "2026-01-14T23:28:30.236926",
+        "metadata": {}
+      },
+      {
+        "timestep": 70,
+        "episode": 7,
+        "value": 8.895553911438057,
+        "timestamp": "2026-01-14T23:28:30.236930",
+        "metadata": {}
+      },
+      {
+        "timestep": 71,
+        "episode": 7,
+        "value": 11.265863635511021,
+        "timestamp": "2026-01-14T23:28:30.236935",
+        "metadata": {}
+      },
+      {
+        "timestep": 72,
+        "episode": 7,
+        "value": 5.508665602012328,
+        "timestamp": "2026-01-14T23:28:30.236940",
+        "metadata": {}
+      },
+      {
+        "timestep": 73,
+        "episode": 7,
+        "value": 8.243257625814431,
+        "timestamp": "2026-01-14T23:28:30.236944",
+        "metadata": {}
+      },
+      {
+        "timestep": 74,
+        "episode": 7,
+        "value": 10.57173078144981,
+        "timestamp": "2026-01-14T23:28:30.236948",
+        "metadata": {}
+      },
+      {
+        "timestep": 75,
+        "episode": 7,
+        "value": 10.668913579974049,
+        "timestamp": "2026-01-14T23:28:30.236952",
+        "metadata": {}
+      },
+      {
+        "timestep": 76,
+        "episode": 7,
+        "value": 8.29888708267561,
+        "timestamp": "2026-01-14T23:28:30.236956",
+        "metadata": {}
+      },
+      {
+        "timestep": 77,
+        "episode": 7,
+        "value": 10.209470597276262,
+        "timestamp": "2026-01-14T23:28:30.236961",
+        "metadata": {}
+      },
+      {
+        "timestep": 78,
+        "episode": 7,
+        "value": 10.0911843289401,
+        "timestamp": "2026-01-14T23:28:30.236965",
+        "metadata": {}
+      },
+      {
+        "timestep": 79,
+        "episode": 7,
+        "value": 8.738015740252106,
+        "timestamp": "2026-01-14T23:28:30.236969",
+        "metadata": {}
+      },
+      {
+        "timestep": 80,
+        "episode": 8,
+        "value": 10.08654338948858,
+        "timestamp": "2026-01-14T23:28:30.236973",
+        "metadata": {}
+      },
+      {
+        "timestep": 81,
+        "episode": 8,
+        "value": 12.06094684087166,
+        "timestamp": "2026-01-14T23:28:30.236977",
+        "metadata": {}
+      },
+      {
+        "timestep": 82,
+        "episode": 8,
+        "value": 12.647749607574426,
+        "timestamp": "2026-01-14T23:28:30.236981",
+        "metadata": {}
+      },
+      {
+        "timestep": 83,
+        "episode": 8,
+        "value": 7.736367715734609,
+        "timestamp": "2026-01-14T23:28:30.236986",
+        "metadata": {}
+      },
+      {
+        "timestep": 84,
+        "episode": 8,
+        "value": 11.167856370651927,
+        "timestamp": "2026-01-14T23:28:30.236990",
+        "metadata": {}
+      },
+      {
+        "timestep": 85,
+        "episode": 8,
+        "value": 9.28141581842588,
+        "timestamp": "2026-01-14T23:28:30.236994",
+        "metadata": {}
+      },
+      {
+        "timestep": 86,
+        "episode": 8,
+        "value": 11.865993285301137,
+        "timestamp": "2026-01-14T23:28:30.236998",
+        "metadata": {}
+      },
+      {
+        "timestep": 87,
+        "episode": 8,
+        "value": 10.843369847824519,
+        "timestamp": "2026-01-14T23:28:30.237002",
+        "metadata": {}
+      },
+      {
+        "timestep": 88,
+        "episode": 8,
+        "value": 11.640964362394728,
+        "timestamp": "2026-01-14T23:28:30.237006",
+        "metadata": {}
+      },
+      {
+        "timestep": 89,
+        "episode": 8,
+        "value": 11.014548062214596,
+        "timestamp": "2026-01-14T23:28:30.237011",
+        "metadata": {}
+      },
+      {
+        "timestep": 90,
+        "episode": 9,
+        "value": 12.017041649557164,
+        "timestamp": "2026-01-14T23:28:30.237015",
+        "metadata": {}
+      },
+      {
+        "timestep": 91,
+        "episode": 9,
+        "value": 13.06337760248183,
+        "timestamp": "2026-01-14T23:28:30.237019",
+        "metadata": {}
+      },
+      {
+        "timestep": 92,
+        "episode": 9,
+        "value": 9.665763839366292,
+        "timestamp": "2026-01-14T23:28:30.237024",
+        "metadata": {}
+      },
+      {
+        "timestep": 93,
+        "episode": 9,
+        "value": 10.293427372866645,
+        "timestamp": "2026-01-14T23:28:30.237028",
+        "metadata": {}
+      },
+      {
+        "timestep": 94,
+        "episode": 9,
+        "value": 13.134615733277904,
+        "timestamp": "2026-01-14T23:28:30.237032",
+        "metadata": {}
+      },
+      {
+        "timestep": 95,
+        "episode": 9,
+        "value": 10.686218165903517,
+        "timestamp": "2026-01-14T23:28:30.237036",
+        "metadata": {}
+      },
+      {
+        "timestep": 96,
+        "episode": 9,
+        "value": 11.305069387518959,
+        "timestamp": "2026-01-14T23:28:30.237041",
+        "metadata": {}
+      },
+      {
+        "timestep": 97,
+        "episode": 9,
+        "value": 6.214908029392072,
+        "timestamp": "2026-01-14T23:28:30.237045",
+        "metadata": {}
+      },
+      {
+        "timestep": 98,
+        "episode": 9,
+        "value": 11.29096836228215,
+        "timestamp": "2026-01-14T23:28:30.237050",
+        "metadata": {}
+      },
+      {
+        "timestep": 99,
+        "episode": 9,
+        "value": 14.32650944661092,
+        "timestamp": "2026-01-14T23:28:30.237054",
+        "metadata": {}
+      }
+    ],
+    "episode_length": [
+      {
+        "timestep": 0,
+        "episode": 0,
+        "value": 108,
+        "timestamp": "2026-01-14T23:28:30.236617",
+        "metadata": {}
+      },
+      {
+        "timestep": 1,
+        "episode": 0,
+        "value": 88,
+        "timestamp": "2026-01-14T23:28:30.236627",
+        "metadata": {}
+      },
+      {
+        "timestep": 2,
+        "episode": 0,
+        "value": 104,
+        "timestamp": "2026-01-14T23:28:30.236632",
+        "metadata": {}
+      },
+      {
+        "timestep": 3,
+        "episode": 0,
+        "value": 73,
+        "timestamp": "2026-01-14T23:28:30.236637",
+        "metadata": {}
+      },
+      {
+        "timestep": 4,
+        "episode": 0,
+        "value": 82,
+        "timestamp": "2026-01-14T23:28:30.236642",
+        "metadata": {}
+      },
+      {
+        "timestep": 5,
+        "episode": 0,
+        "value": 85,
+        "timestamp": "2026-01-14T23:28:30.236647",
+        "metadata": {}
+      },
+      {
+        "timestep": 6,
+        "episode": 0,
+        "value": 130,
+        "timestamp": "2026-01-14T23:28:30.236651",
+        "metadata": {}
+      },
+      {
+        "timestep": 7,
+        "episode": 0,
+        "value": 111,
+        "timestamp": "2026-01-14T23:28:30.236655",
+        "metadata": {}
+      },
+      {
+        "timestep": 8,
+        "episode": 0,
+        "value": 122,
+        "timestamp": "2026-01-14T23:28:30.236660",
+        "metadata": {}
+      },
+      {
+        "timestep": 9,
+        "episode": 0,
+        "value": 122,
+        "timestamp": "2026-01-14T23:28:30.236664",
+        "metadata": {}
+      },
+      {
+        "timestep": 10,
+        "episode": 1,
+        "value": 110,
+        "timestamp": "2026-01-14T23:28:30.236668",
+        "metadata": {}
+      },
+      {
+        "timestep": 11,
+        "episode": 1,
+        "value": 92,
+        "timestamp": "2026-01-14T23:28:30.236677",
+        "metadata": {}
+      },
+      {
+        "timestep": 12,
+        "episode": 1,
+        "value": 84,
+        "timestamp": "2026-01-14T23:28:30.236682",
+        "metadata": {}
+      },
+      {
+        "timestep": 13,
+        "episode": 1,
+        "value": 52,
+        "timestamp": "2026-01-14T23:28:30.236687",
+        "metadata": {}
+      },
+      {
+        "timestep": 14,
+        "episode": 1,
+        "value": 108,
+        "timestamp": "2026-01-14T23:28:30.236691",
+        "metadata": {}
+      },
+      {
+        "timestep": 15,
+        "episode": 1,
+        "value": 98,
+        "timestamp": "2026-01-14T23:28:30.236695",
+        "metadata": {}
+      },
+      {
+        "timestep": 16,
+        "episode": 1,
+        "value": 111,
+        "timestamp": "2026-01-14T23:28:30.236699",
+        "metadata": {}
+      },
+      {
+        "timestep": 17,
+        "episode": 1,
+        "value": 129,
+        "timestamp": "2026-01-14T23:28:30.236704",
+        "metadata": {}
+      },
+      {
+        "timestep": 18,
+        "episode": 1,
+        "value": 70,
+        "timestamp": "2026-01-14T23:28:30.236708",
+        "metadata": {}
+      },
+      {
+        "timestep": 19,
+        "episode": 1,
+        "value": 130,
+        "timestamp": "2026-01-14T23:28:30.236712",
+        "metadata": {}
+      },
+      {
+        "timestep": 20,
+        "episode": 2,
+        "value": 119,
+        "timestamp": "2026-01-14T23:28:30.236716",
+        "metadata": {}
+      },
+      {
+        "timestep": 21,
+        "episode": 2,
+        "value": 121,
+        "timestamp": "2026-01-14T23:28:30.236721",
+        "metadata": {}
+      },
+      {
+        "timestep": 22,
+        "episode": 2,
+        "value": 64,
+        "timestamp": "2026-01-14T23:28:30.236725",
+        "metadata": {}
+      },
+      {
+        "timestep": 23,
+        "episode": 2,
+        "value": 108,
+        "timestamp": "2026-01-14T23:28:30.236730",
+        "metadata": {}
+      },
+      {
+        "timestep": 24,
+        "episode": 2,
+        "value": 63,
+        "timestamp": "2026-01-14T23:28:30.236734",
+        "metadata": {}
+      },
+      {
+        "timestep": 25,
+        "episode": 2,
+        "value": 128,
+        "timestamp": "2026-01-14T23:28:30.236738",
+        "metadata": {}
+      },
+      {
+        "timestep": 26,
+        "episode": 2,
+        "value": 97,
+        "timestamp": "2026-01-14T23:28:30.236743",
+        "metadata": {}
+      },
+      {
+        "timestep": 27,
+        "episode": 2,
+        "value": 121,
+        "timestamp": "2026-01-14T23:28:30.236747",
+        "metadata": {}
+      },
+      {
+        "timestep": 28,
+        "episode": 2,
+        "value": 88,
+        "timestamp": "2026-01-14T23:28:30.236751",
+        "metadata": {}
+      },
+      {
+        "timestep": 29,
+        "episode": 2,
+        "value": 148,
+        "timestamp": "2026-01-14T23:28:30.236756",
+        "metadata": {}
+      },
+      {
+        "timestep": 30,
+        "episode": 3,
+        "value": 66,
+        "timestamp": "2026-01-14T23:28:30.236760",
+        "metadata": {}
+      },
+      {
+        "timestep": 31,
+        "episode": 3,
+        "value": 63,
+        "timestamp": "2026-01-14T23:28:30.236764",
+        "metadata": {}
+      },
+      {
+        "timestep": 32,
+        "episode": 3,
+        "value": 109,
+        "timestamp": "2026-01-14T23:28:30.236768",
+        "metadata": {}
+      },
+      {
+        "timestep": 33,
+        "episode": 3,
+        "value": 94,
+        "timestamp": "2026-01-14T23:28:30.236773",
+        "metadata": {}
+      },
+      {
+        "timestep": 34,
+        "episode": 3,
+        "value": 89,
+        "timestamp": "2026-01-14T23:28:30.236777",
+        "metadata": {}
+      },
+      {
+        "timestep": 35,
+        "episode": 3,
+        "value": 139,
+        "timestamp": "2026-01-14T23:28:30.236782",
+        "metadata": {}
+      },
+      {
+        "timestep": 36,
+        "episode": 3,
+        "value": 64,
+        "timestamp": "2026-01-14T23:28:30.236786",
+        "metadata": {}
+      },
+      {
+        "timestep": 37,
+        "episode": 3,
+        "value": 53,
+        "timestamp": "2026-01-14T23:28:30.236790",
+        "metadata": {}
+      },
+      {
+        "timestep": 38,
+        "episode": 3,
+        "value": 131,
+        "timestamp": "2026-01-14T23:28:30.236795",
+        "metadata": {}
+      },
+      {
+        "timestep": 39,
+        "episode": 3,
+        "value": 82,
+        "timestamp": "2026-01-14T23:28:30.236799",
+        "metadata": {}
+      },
+      {
+        "timestep": 40,
+        "episode": 4,
+        "value": 115,
+        "timestamp": "2026-01-14T23:28:30.236804",
+        "metadata": {}
+      },
+      {
+        "timestep": 41,
+        "episode": 4,
+        "value": 104,
+        "timestamp": "2026-01-14T23:28:30.236808",
+        "metadata": {}
+      },
+      {
+        "timestep": 42,
+        "episode": 4,
+        "value": 62,
+        "timestamp": "2026-01-14T23:28:30.236812",
+        "metadata": {}
+      },
+      {
+        "timestep": 43,
+        "episode": 4,
+        "value": 62,
+        "timestamp": "2026-01-14T23:28:30.236816",
+        "metadata": {}
+      },
+      {
+        "timestep": 44,
+        "episode": 4,
+        "value": 88,
+        "timestamp": "2026-01-14T23:28:30.236823",
+        "metadata": {}
+      },
+      {
+        "timestep": 45,
+        "episode": 4,
+        "value": 95,
+        "timestamp": "2026-01-14T23:28:30.236827",
+        "metadata": {}
+      },
+      {
+        "timestep": 46,
+        "episode": 4,
+        "value": 142,
+        "timestamp": "2026-01-14T23:28:30.236831",
+        "metadata": {}
+      },
+      {
+        "timestep": 47,
+        "episode": 4,
+        "value": 111,
+        "timestamp": "2026-01-14T23:28:30.236836",
+        "metadata": {}
+      },
+      {
+        "timestep": 48,
+        "episode": 4,
+        "value": 105,
+        "timestamp": "2026-01-14T23:28:30.236840",
+        "metadata": {}
+      },
+      {
+        "timestep": 49,
+        "episode": 4,
+        "value": 59,
+        "timestamp": "2026-01-14T23:28:30.236844",
+        "metadata": {}
+      },
+      {
+        "timestep": 50,
+        "episode": 5,
+        "value": 133,
+        "timestamp": "2026-01-14T23:28:30.236849",
+        "metadata": {}
+      },
+      {
+        "timestep": 51,
+        "episode": 5,
+        "value": 54,
+        "timestamp": "2026-01-14T23:28:30.236853",
+        "metadata": {}
+      },
+      {
+        "timestep": 52,
+        "episode": 5,
+        "value": 117,
+        "timestamp": "2026-01-14T23:28:30.236857",
+        "metadata": {}
+      },
+      {
+        "timestep": 53,
+        "episode": 5,
+        "value": 67,
+        "timestamp": "2026-01-14T23:28:30.236861",
+        "metadata": {}
+      },
+      {
+        "timestep": 54,
+        "episode": 5,
+        "value": 137,
+        "timestamp": "2026-01-14T23:28:30.236865",
+        "metadata": {}
+      },
+      {
+        "timestep": 55,
+        "episode": 5,
+        "value": 117,
+        "timestamp": "2026-01-14T23:28:30.236870",
+        "metadata": {}
+      },
+      {
+        "timestep": 56,
+        "episode": 5,
+        "value": 95,
+        "timestamp": "2026-01-14T23:28:30.236874",
+        "metadata": {}
+      },
+      {
+        "timestep": 57,
+        "episode": 5,
+        "value": 137,
+        "timestamp": "2026-01-14T23:28:30.236878",
+        "metadata": {}
+      },
+      {
+        "timestep": 58,
+        "episode": 5,
+        "value": 74,
+        "timestamp": "2026-01-14T23:28:30.236882",
+        "metadata": {}
+      },
+      {
+        "timestep": 59,
+        "episode": 5,
+        "value": 120,
+        "timestamp": "2026-01-14T23:28:30.236887",
+        "metadata": {}
+      },
+      {
+        "timestep": 60,
+        "episode": 6,
+        "value": 123,
+        "timestamp": "2026-01-14T23:28:30.236891",
+        "metadata": {}
+      },
+      {
+        "timestep": 61,
+        "episode": 6,
+        "value": 147,
+        "timestamp": "2026-01-14T23:28:30.236895",
+        "metadata": {}
+      },
+      {
+        "timestep": 62,
+        "episode": 6,
+        "value": 52,
+        "timestamp": "2026-01-14T23:28:30.236899",
+        "metadata": {}
+      },
+      {
+        "timestep": 63,
+        "episode": 6,
+        "value": 55,
+        "timestamp": "2026-01-14T23:28:30.236903",
+        "metadata": {}
+      },
+      {
+        "timestep": 64,
+        "episode": 6,
+        "value": 136,
+        "timestamp": "2026-01-14T23:28:30.236908",
+        "metadata": {}
+      },
+      {
+        "timestep": 65,
+        "episode": 6,
+        "value": 98,
+        "timestamp": "2026-01-14T23:28:30.236912",
+        "metadata": {}
+      },
+      {
+        "timestep": 66,
+        "episode": 6,
+        "value": 110,
+        "timestamp": "2026-01-14T23:28:30.236916",
+        "metadata": {}
+      },
+      {
+        "timestep": 67,
+        "episode": 6,
+        "value": 84,
+        "timestamp": "2026-01-14T23:28:30.236920",
+        "metadata": {}
+      },
+      {
+        "timestep": 68,
+        "episode": 6,
+        "value": 137,
+        "timestamp": "2026-01-14T23:28:30.236924",
+        "metadata": {}
+      },
+      {
+        "timestep": 69,
+        "episode": 6,
+        "value": 52,
+        "timestamp": "2026-01-14T23:28:30.236929",
+        "metadata": {}
+      },
+      {
+        "timestep": 70,
+        "episode": 7,
+        "value": 138,
+        "timestamp": "2026-01-14T23:28:30.236934",
+        "metadata": {}
+      },
+      {
+        "timestep": 71,
+        "episode": 7,
+        "value": 122,
+        "timestamp": "2026-01-14T23:28:30.236938",
+        "metadata": {}
+      },
+      {
+        "timestep": 72,
+        "episode": 7,
+        "value": 141,
+        "timestamp": "2026-01-14T23:28:30.236942",
+        "metadata": {}
+      },
+      {
+        "timestep": 73,
+        "episode": 7,
+        "value": 78,
+        "timestamp": "2026-01-14T23:28:30.236946",
+        "metadata": {}
+      },
+      {
+        "timestep": 74,
+        "episode": 7,
+        "value": 89,
+        "timestamp": "2026-01-14T23:28:30.236951",
+        "metadata": {}
+      },
+      {
+        "timestep": 75,
+        "episode": 7,
+        "value": 74,
+        "timestamp": "2026-01-14T23:28:30.236955",
+        "metadata": {}
+      },
+      {
+        "timestep": 76,
+        "episode": 7,
+        "value": 137,
+        "timestamp": "2026-01-14T23:28:30.236959",
+        "metadata": {}
+      },
+      {
+        "timestep": 77,
+        "episode": 7,
+        "value": 128,
+        "timestamp": "2026-01-14T23:28:30.236963",
+        "metadata": {}
+      },
+      {
+        "timestep": 78,
+        "episode": 7,
+        "value": 86,
+        "timestamp": "2026-01-14T23:28:30.236967",
+        "metadata": {}
+      },
+      {
+        "timestep": 79,
+        "episode": 7,
+        "value": 109,
+        "timestamp": "2026-01-14T23:28:30.236971",
+        "metadata": {}
+      },
+      {
+        "timestep": 80,
+        "episode": 8,
+        "value": 107,
+        "timestamp": "2026-01-14T23:28:30.236976",
+        "metadata": {}
+      },
+      {
+        "timestep": 81,
+        "episode": 8,
+        "value": 116,
+        "timestamp": "2026-01-14T23:28:30.236980",
+        "metadata": {}
+      },
+      {
+        "timestep": 82,
+        "episode": 8,
+        "value": 140,
+        "timestamp": "2026-01-14T23:28:30.236984",
+        "metadata": {}
+      },
+      {
+        "timestep": 83,
+        "episode": 8,
+        "value": 126,
+        "timestamp": "2026-01-14T23:28:30.236988",
+        "metadata": {}
+      },
+      {
+        "timestep": 84,
+        "episode": 8,
+        "value": 68,
+        "timestamp": "2026-01-14T23:28:30.236992",
+        "metadata": {}
+      },
+      {
+        "timestep": 85,
+        "episode": 8,
+        "value": 129,
+        "timestamp": "2026-01-14T23:28:30.236996",
+        "metadata": {}
+      },
+      {
+        "timestep": 86,
+        "episode": 8,
+        "value": 108,
+        "timestamp": "2026-01-14T23:28:30.237001",
+        "metadata": {}
+      },
+      {
+        "timestep": 87,
+        "episode": 8,
+        "value": 97,
+        "timestamp": "2026-01-14T23:28:30.237005",
+        "metadata": {}
+      },
+      {
+        "timestep": 88,
+        "episode": 8,
+        "value": 138,
+        "timestamp": "2026-01-14T23:28:30.237009",
+        "metadata": {}
+      },
+      {
+        "timestep": 89,
+        "episode": 8,
+        "value": 102,
+        "timestamp": "2026-01-14T23:28:30.237014",
+        "metadata": {}
+      },
+      {
+        "timestep": 90,
+        "episode": 9,
+        "value": 87,
+        "timestamp": "2026-01-14T23:28:30.237018",
+        "metadata": {}
+      },
+      {
+        "timestep": 91,
+        "episode": 9,
+        "value": 109,
+        "timestamp": "2026-01-14T23:28:30.237022",
+        "metadata": {}
+      },
+      {
+        "timestep": 92,
+        "episode": 9,
+        "value": 102,
+        "timestamp": "2026-01-14T23:28:30.237026",
+        "metadata": {}
+      },
+      {
+        "timestep": 93,
+        "episode": 9,
+        "value": 79,
+        "timestamp": "2026-01-14T23:28:30.237030",
+        "metadata": {}
+      },
+      {
+        "timestep": 94,
+        "episode": 9,
+        "value": 61,
+        "timestamp": "2026-01-14T23:28:30.237035",
+        "metadata": {}
+      },
+      {
+        "timestep": 95,
+        "episode": 9,
+        "value": 88,
+        "timestamp": "2026-01-14T23:28:30.237039",
+        "metadata": {}
+      },
+      {
+        "timestep": 96,
+        "episode": 9,
+        "value": 144,
+        "timestamp": "2026-01-14T23:28:30.237044",
+        "metadata": {}
+      },
+      {
+        "timestep": 97,
+        "episode": 9,
+        "value": 147,
+        "timestamp": "2026-01-14T23:28:30.237048",
+        "metadata": {}
+      },
+      {
+        "timestep": 98,
+        "episode": 9,
+        "value": 84,
+        "timestamp": "2026-01-14T23:28:30.237052",
+        "metadata": {}
+      },
+      {
+        "timestep": 99,
+        "episode": 9,
+        "value": 119,
+        "timestamp": "2026-01-14T23:28:30.238375",
+        "metadata": {}
+      }
+    ]
+  },
+  "summaries": {
+    "episode_reward": {
+      "name": "episode_reward",
+      "count": 100,
+      "mean": 10.242735871377796,
+      "std": 2.0260627372024516,
+      "min": 5.508665602012328,
+      "max": 15.003396425720886,
+      "median": 10.280211497949036,
+      "q25": 8.949821385533454,
+      "q75": 11.603102124590482,
+      "last_value": 14.32650944661092,
+      "last_timestep": 99
+    },
+    "episode_length": {
+      "name": "episode_length",
+      "count": 100,
+      "mean": 101.97,
+      "std": 27.219443065721986,
+      "min": 52,
+      "max": 148,
+      "median": 106.0,
+      "q25": 83.5,
+      "q75": 122.25,
+      "last_value": 119,
+      "last_timestep": 99
+    }
+  }
+}

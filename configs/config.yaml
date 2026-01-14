@@ -1,0 +1,32 @@
+# Main configuration file for RL Agent Training System
+# This file defines the default configuration structure
+
+defaults:
+  - algorithm: ppo
+  - environment: lunar_lander
+  - training: default
+  - _self_
+
+# Global settings
+seed: 42
+experiment_name: "default_experiment"
+output_dir: "results"
+
+# Logging configuration
+logging:
+  level: INFO
+  log_to_file: true
+  log_dir: "${output_dir}/logs"
+
+# Reproducibility settings
+reproducibility:
+  seed: ${seed}
+  deterministic: true
+  benchmark: false
+
+# Hydra configuration
+hydra:
+  run:
+    dir: "${output_dir}/hydra_outputs/${now:%Y-%m-%d_%H-%M-%S}"
+  job:
+    chdir: false

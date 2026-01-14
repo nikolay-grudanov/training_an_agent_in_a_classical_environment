@@ -1,0 +1,25 @@
+[
+  {
+    "filename": "checkpoint_1000_20260114_155927.pt",
+    "path": "demo_checkpoints/demo_experiment/checkpoint_1000_20260114_155927.pt",
+    "metadata": {
+      "experiment_id": "demo_experiment",
+      "timestamp": "2026-01-14T15:59:27.423000",
+      "timestep": 1000,
+      "episode": 50,
+      "reward": 25.5,
+      "model_class": "PPO",
+      "algorithm": "PPO",
+      "environment": "LunarLander-v3",
+      "seed": 42,
+      "hyperparameters": {
+        "learning_rate": 0.0003
+      },
+      "file_hash": "f8448f2445b134b81e40f7df379faab0",
+      "file_size": 2661,
+      "python_version": "3.12.7",
+      "torch_version": "2.9.1+rocm6.3"
+    },
+    "created_at": "2026-01-14T15:59:27.429502"
+  }
+]

@@ -1,0 +1,180 @@
+{
+  "experiment_id": "demo_experiment",
+  "export_timestamp": "2026-01-14T15:59:27.422437",
+  "total_timesteps": 900,
+  "total_episodes": 9,
+  "metrics": {
+    "reward": [
+      {
+        "timestep": 0,
+        "episode": 0,
+        "value": 0.0,
+        "timestamp": "2026-01-14T15:59:27.420815",
+        "metadata": {}
+      },
+      {
+        "timestep": 100,
+        "episode": 1,
+        "value": 2.5,
+        "timestamp": "2026-01-14T15:59:27.420838",
+        "metadata": {}
+      },
+      {
+        "timestep": 200,
+        "episode": 2,
+        "value": 5.0,
+        "timestamp": "2026-01-14T15:59:27.420845",
+        "metadata": {}
+      },
+      {
+        "timestep": 300,
+        "episode": 3,
+        "value": 7.5,
+        "timestamp": "2026-01-14T15:59:27.420849",
+        "metadata": {}
+      },
+      {
+        "timestep": 400,
+        "episode": 4,
+        "value": 10.0,
+        "timestamp": "2026-01-14T15:59:27.420854",
+        "metadata": {}
+      },
+      {
+        "timestep": 500,
+        "episode": 5,
+        "value": 12.5,
+        "timestamp": "2026-01-14T15:59:27.420858",
+        "metadata": {}
+      },
+      {
+        "timestep": 600,
+        "episode": 6,
+        "value": 15.0,
+        "timestamp": "2026-01-14T15:59:27.420863",
+        "metadata": {}
+      },
+      {
+        "timestep": 700,
+        "episode": 7,
+        "value": 17.5,
+        "timestamp": "2026-01-14T15:59:27.420867",
+        "metadata": {}
+      },
+      {
+        "timestep": 800,
+        "episode": 8,
+        "value": 20.0,
+        "timestamp": "2026-01-14T15:59:27.420870",
+        "metadata": {}
+      },
+      {
+        "timestep": 900,
+        "episode": 9,
+        "value": 22.5,
+        "timestamp": "2026-01-14T15:59:27.420873",
+        "metadata": {}
+      }
+    ],
+    "loss": [
+      {
+        "timestep": 0,
+        "episode": 0,
+        "value": 1.0,
+        "timestamp": "2026-01-14T15:59:27.420833",
+        "metadata": {}
+      },
+      {
+        "timestep": 100,
+        "episode": 1,
+        "value": 0.5,
+        "timestamp": "2026-01-14T15:59:27.420842",
+        "metadata": {}
+      },
+      {
+        "timestep": 200,
+        "episode": 2,
+        "value": 0.3333333333333333,
+        "timestamp": "2026-01-14T15:59:27.420847",
+        "metadata": {}
+      },
+      {
+        "timestep": 300,
+        "episode": 3,
+        "value": 0.25,
+        "timestamp": "2026-01-14T15:59:27.420852",
+        "metadata": {}
+      },
+      {
+        "timestep": 400,
+        "episode": 4,
+        "value": 0.2,
+        "timestamp": "2026-01-14T15:59:27.420856",
+        "metadata": {}
+      },
+      {
+        "timestep": 500,
+        "episode": 5,
+        "value": 0.16666666666666666,
+        "timestamp": "2026-01-14T15:59:27.420859",
+        "metadata": {}
+      },
+      {
+        "timestep": 600,
+        "episode": 6,
+        "value": 0.14285714285714285,
+        "timestamp": "2026-01-14T15:59:27.420864",
+        "metadata": {}
+      },
+      {
+        "timestep": 700,
+        "episode": 7,
+        "value": 0.125,
+        "timestamp": "2026-01-14T15:59:27.420868",
+        "metadata": {}
+      },
+      {
+        "timestep": 800,
+        "episode": 8,
+        "value": 0.1111111111111111,
+        "timestamp": "2026-01-14T15:59:27.420871",
+        "metadata": {}
+      },
+      {
+        "timestep": 900,
+        "episode": 9,
+        "value": 0.1,
+        "timestamp": "2026-01-14T15:59:27.420875",
+        "metadata": {}
+      }
+    ]
+  },
+  "summaries": {
+    "reward": {
+      "name": "reward",
+      "count": 10,
+      "mean": 11.25,
+      "std": 7.5691258852437295,
+      "min": 0.0,
+      "max": 22.5,
+      "median": 11.25,
+      "q25": 5.625,
+      "q75": 16.875,
+      "last_value": 22.5,
+      "last_timestep": 900
+    },
+    "loss": {
+      "name": "loss",
+      "count": 10,
+      "mean": 0.2928968253968254,
+      "std": 0.27726486091644825,
+      "min": 0.1,
+      "max": 1.0,
+      "median": 0.18333333333333335,
+      "q25": 0.1294642857142857,
+      "q75": 0.3125,
+      "last_value": 0.1,
+      "last_timestep": 900
+    }
+  }
+}

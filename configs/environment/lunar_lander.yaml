@@ -1,0 +1,22 @@
+# LunarLander Environment Configuration
+# @package environment
+
+name: "LunarLander-v3"
+render_mode: null
+continuous: false
+gravity: -10.0
+enable_wind: false
+wind_power: 15.0
+turbulence_power: 1.5
+
+# Wrapper configurations
+wrappers: []
+
+# Environment-specific settings
+max_episode_steps: 1000
+reward_threshold: 200.0
+
+# For video recording
+record_video: false
+video_folder: "${output_dir}/videos"
+video_length: 0  # 0 means record entire episode

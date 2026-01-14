@@ -1,0 +1,76 @@
+# Конфигурация A2C агента для среды LunarLander-v3
+# Оптимизированные гиперпараметры для стабильного обучения
+
+# Основные параметры
+algorithm: "A2C"
+env_name: "LunarLander-v3"
+total_timesteps: 200000
+seed: 42
+
+# Гиперпараметры A2C
+learning_rate: 0.0007  # 7e-4
+n_steps: 5  # A2C использует меньше шагов чем PPO
+gamma: 0.99
+gae_lambda: 1.0  # A2C обычно использует 1.0
+ent_coef: 0.01
+vf_coef: 0.25  # Меньший коэффициент для value function
+max_grad_norm: 0.5
+rms_prop_eps: 0.00001  # 1e-5
+use_rms_prop: true  # A2C обычно использует RMSprop
+
+# Расписание learning rate
+use_lr_schedule: true
+lr_schedule_type: "linear"  # "linear", "constant", "exponential"
+lr_final_ratio: 0.1
+
+# Параметры сети
+policy: "MlpPolicy"
+net_arch:
+  - pi: [64, 64]
+    vf: [64, 64]
+activation_fn: "tanh"  # "tanh", "relu", "elu"
+ortho_init: true
+log_std_init: 0.0
+
+# Нормализация среды
+normalize_env: true
+norm_obs: true
+norm_reward: true
+clip_obs: 10.0
+clip_reward: 10.0
+
+# Ранняя остановка
+early_stopping: true
+target_reward: 200.0  # Для LunarLander-v3
+patience_episodes: 100  # Больше терпения для A2C
+min_improvement: 2.0  # Меньшее улучшение для A2C
+
+# Мониторинг и оценка
+eval_freq: 10000
+n_eval_episodes: 10
+save_freq: 50000
+log_interval: 1
+
+# Логирование
+use_tensorboard: true
+verbose: 1
+
+# Пути для сохранения
+model_save_path: "results/models/a2c_lunar_lander.zip"
+tensorboard_log: "results/logs/a2c_tensorboard/"
+
+# Дополнительные параметры
+device: "cpu"  # "cpu" или "cuda"
+use_sde: false
+sde_sample_freq: -1
+normalize_advantage: false  # A2C обычно не нормализует advantage
+stats_window_size: 100
+
+# Политика
+policy_kwargs:
+  net_arch:
+    - pi: [64, 64]
+      vf: [64, 64]
+  activation_fn: "tanh"
+  ortho_init: true
+  log_std_init: 0.0

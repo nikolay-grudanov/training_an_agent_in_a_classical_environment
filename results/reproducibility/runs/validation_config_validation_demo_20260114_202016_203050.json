@@ -1,0 +1,28 @@
+{
+  "run_id": "validation_config_validation_demo_20260114_202016_203050",
+  "seed": 42,
+  "timestamp": "2026-01-14T20:20:16.208340",
+  "config_hash": "d1a4870fad90967bd361102c065ed0920de407dedc2b7f270dfec6f5be2cffc7",
+  "environment_hash": "a410e2511fe81917b5ca9c197dbdce5b59a1e640dfc459affaf56ab5c7939548",
+  "results": {
+    "total_reward": 100.0,
+    "episode_length": 100,
+    "final_obs": [
+      1.1380615234375,
+      1.4341645240783691,
+      0.17764528095722198,
+      0.3459256589412689
+    ]
+  },
+  "metrics": {
+    "rewards": [
+      100.0
+    ],
+    "episode_lengths": [
+      100
+    ]
+  },
+  "metadata": {
+    "test_seed": 42
+  }
+}
