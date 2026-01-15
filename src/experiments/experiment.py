@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from src.utils.config import RLConfig
-from src.utils.logging import get_experiment_logger
+from src.utils.rl_logging import get_experiment_logger
 
 
 class ExperimentStatus(Enum):

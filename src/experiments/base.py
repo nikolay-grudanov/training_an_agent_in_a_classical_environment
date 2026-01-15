@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from ..utils.config import RLConfig
-from ..utils.logging import get_experiment_logger
+from ..utils.rl_logging import get_experiment_logger
 from ..utils.metrics import MetricsTracker
 from ..utils.seeding import SeedManager
 

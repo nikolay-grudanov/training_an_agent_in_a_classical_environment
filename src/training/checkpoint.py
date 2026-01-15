@@ -318,7 +318,7 @@ def create_model(
 
 
 if __name__ == "__main__":
-    from src.utils.logging_config import setup_logging
+    from src.utils.logging_setup import setup_logging
     from src.utils.seeding import set_seed
     import gymnasium as gym
 

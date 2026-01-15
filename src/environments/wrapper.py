@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 import gymnasium as gym
 import numpy as np
 
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 
 logger = get_logger(__name__)
 

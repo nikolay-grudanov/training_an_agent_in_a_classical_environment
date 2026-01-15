@@ -28,7 +28,7 @@ from stable_baselines3.common.base_class import BaseAlgorithm
 
 from src.training.checkpoint import CheckpointManager, CheckpointConfig
 from src.training.metrics_collector import MetricsCollector, MetricsCollectorConfig
-from src.utils.logging_config import setup_logging
+from src.utils.logging_setup import setup_logging
 from src.utils.seeding import set_seed
 
 logger = logging.getLogger(__name__)

@@ -1,323 +1,422 @@
-"""Cleanup module core - Configuration and root directory analysis.
+"""Cleanup module core - Configuration constants and rules.
 
-Per contracts/cleanup_system.md:
-- Define allowed files and directories
-- Implement root directory scanner
-- Create CleanupConfig dataclass
+This module defines the cleanup rules for the RL project, including:
+- Items to keep in root directory
+- Directories and files to remove
+- File categorization rules
 """
 
 import logging
-from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Final
 
 logger = logging.getLogger(__name__)
 
 
-class CleanupAction(Enum):
-    """Types of cleanup actions."""
+class FileCategory(Enum):
+    """Categories for file categorization during cleanup.
 
-    MOVE = "moved"
-    REMOVE = "removed"
-    ARCHIVE = "archived"
-    SKIP = "skipped"
+    Attributes:
+        KEEP: File should be kept in place
+        REMOVE: File should be removed
+        ARCHIVE: File should be archived
+    """
 
-
-class CleanupStatus(Enum):
-    """Status of cleanup operation."""
-
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    DRY_RUN = "dry_run"
+    KEEP = "keep"
+    REMOVE = "remove"
+    ARCHIVE = "archive"
 
 
-@dataclass
-class CleanupConfig:
-    """Configuration for project cleanup process."""
+class DirCategory(Enum):
+    """Categories for directory categorization during cleanup.
 
-    # Allowed items in root directory
-    allowed_files: list[str] = field(
-        default_factory=lambda: [
-            "requirements.txt",
-            "README.md",
-            ".gitignore",
-        ]
-    )
-    allowed_directories: list[str] = field(
-        default_factory=lambda: [
-            "src/",
-            "tests/",
-            "results/",
-            "specs/",
-        ]
-    )
-    dry_run: bool = False
-    force: bool = False
-    verbose: bool = False
+    Attributes:
+        KEEP: Directory should be kept
+        REMOVE: Directory should be removed
+        ARCHIVE: Directory should be archived
+        PROTECTED: Directory is protected and cannot be removed
+    """
 
-    # File categorization rules
-    move_to_src: list[str] = field(
-        default_factory=lambda: [
-            "*.py",
-            "example_*.py",
-        ]
-    )
-    move_to_tests: list[str] = field(
-        default_factory=lambda: [
-            "test_*.py",
-        ]
-    )
-    remove_patterns: list[str] = field(
-        default_factory=lambda: [
-            "verify_setup.py",
-            "test_installation.py",
-            "*.tmp",
-            "*.bak",
-            ".jupyter_ystore.db",
-        ]
-    )
-    archive_patterns: list[str] = field(
-        default_factory=lambda: [
-            "info_project.md",
-            "*_SUMMARY.md",
-            "demo_*",
-        ]
-    )
+    KEEP = "keep"
+    REMOVE = "remove"
+    ARCHIVE = "archive"
+    PROTECTED = "protected"
 
 
-@dataclass
-class FileItem:
-    """Represents a file or directory in the project."""
+# Root directory items to keep
+KEEP_ROOT_ITEMS: Final = [
+    "README.md",
+    "requirements.txt",
+    ".gitignore",
+    "pytest.ini",
+    "AGENTS.md",
+    "src/",
+    "tests/",
+    "results/",
+    "specs/",
+]
 
-    path: Path
-    is_directory: bool
-    size: Optional[int] = None
-    modified_time: Optional[float] = None
+# Root directories to remove
+REMOVE_ROOT_DIRS: Final = [
+    "configs/",
+    "data/",
+    "demo_checkpoints/",
+    "docs/",
+    "examples/",
+    "logs/",
+    "notebooks/",
+    "scripts/",
+]
 
+# Root files to remove (all .md except README.md and AGENTS.md)
+REMOVE_ROOT_FILES: Final = [
+    "*.md",  # Will be filtered to exclude README.md and AGENTS.md
+    "*.py",  # All Python files in root
+    "*.png",  # Test/demo images
+    "*.json",  # Audit reports and test files
+    "environment.yml",
+    ".env.example",
+    "install.sh",
+    "Makefile",
+    ".jupyter_ystore.db",
+]
 
-@dataclass
-class CleanupActionItem:
-    """Represents a planned cleanup action."""
+# Root files to explicitly keep (exceptions to patterns above)
+KEEP_ROOT_FILES_EXCEPTIONS: Final = [
+    "README.md",
+    "AGENTS.md",
+]
 
-    action: CleanupAction
-    source: Path
-    destination: Optional[Path] = None
-    status: CleanupStatus = CleanupStatus.PENDING
-    reason: Optional[str] = None
+# Source directories to remove
+REMOVE_SRC_DIRS: Final = [
+    "src/api/",
+    "src/visualization/",
+]
 
+# Source directories to keep
+KEEP_SRC_DIRS: Final = [
+    "src/training/",
+    "src/agents/",
+    "src/utils/",
+    "src/environments/",
+    "src/audit/",
+    "src/cleanup/",
+]
 
-class RootDirectoryAnalyzer:
-    """Analyzes root directory and identifies items for cleanup."""
+# Source files to remove
+REMOVE_SRC_FILES: Final = [
+    "src/utils/rl_logging.py",
+    "src/utils/logging_setup.py",
+]
 
-    def __init__(self, config: CleanupConfig):
-        self.config = config
-        self.root_path = Path(".").resolve()
+# Protected directories that should never be removed
+PROTECTED_DIRECTORIES: Final = [
+    ".git/",
+    "src/",
+]
 
-    def scan_root(self) -> tuple[list[FileItem], list[FileItem]]:
-        """Scan root directory and separate allowed vs unexpected items.
+# Protected files that should never be removed
+PROTECTED_FILES: Final = [
+    ".gitignore",
+    "pytest.ini",
+]
 
-        Returns:
-            Tuple of (allowed_items, unexpected_items)
-        """
-        allowed_items = []
-        unexpected_items = []
+# Backup directory for cleanup operations
+BACKUP_DIR: Final = Path("results/cleanup_backups")
 
-        for item in sorted(self.root_path.iterdir()):
-            file_item = FileItem(
-                path=item,
-                is_directory=item.is_dir(),
-                size=item.stat().st_size if item.is_file() else None,
-                modified_time=item.stat().st_mtime if item.exists() else None,
-            )
-
-            # Check if item is allowed
-            if self._is_allowed(item):
-                allowed_items.append(file_item)
-            else:
-                unexpected_items.append(file_item)
-
-        return allowed_items, unexpected_items
-
-    def _is_allowed(self, item: Path) -> bool:
-        """Check if item is allowed in root directory.
-
-        Args:
-            item: Path to check
-
-        Returns:
-            True if item is allowed
-        """
-        name = item.name
-
-        # Check allowed files
-        if not item.is_dir():
-            if name in self.config.allowed_files:
-                return True
-
-        # Check allowed directories
-        if item.is_dir():
-            if name in self.config.allowed_directories:
-                return True
-            # Add trailing slash for directory comparison
-            if f"{name}/" in self.config.allowed_directories:
-                return True
-
-        return False
-
-    def categorize_items(
-        self, items: list[FileItem]
-    ) -> list[CleanupActionItem]:
-        """Categorize items into cleanup actions.
-
-        Args:
-            items: List of items to categorize
-
-        Returns:
-            List of cleanup actions
-        """
-        actions = []
-
-        for item in items:
-            action = self._categorize_item(item)
-            if action:
-                actions.append(action)
-
-        return actions
-
-    def _categorize_item(self, item: FileItem) -> Optional[CleanupActionItem]:
-        """Categorize a single item.
-
-        Args:
-            item: File item to categorize
-
-        Returns:
-            CleanupActionItem or None if no action needed
-        """
-        name = item.path.name
-
-        # Check if should be removed
-        for pattern in self.config.remove_patterns:
-            if self._matches_pattern(name, pattern):
-                return CleanupActionItem(
-                    action=CleanupAction.REMOVE,
-                    source=item.path,
-                    reason=f"Matches remove pattern: {pattern}",
-                )
-
-        # Check if should be archived
-        for pattern in self.config.archive_patterns:
-            if self._matches_pattern(name, pattern):
-                return CleanupActionItem(
-                    action=CleanupAction.ARCHIVE,
-                    source=item.path,
-                    destination=Path("docs/archives/") / name,
-                    reason=f"Matches archive pattern: {pattern}",
-                )
-
-        # Check if should be moved to src/
-        for pattern in self.config.move_to_src:
-            if self._matches_pattern(name, pattern):
-                return CleanupActionItem(
-                    action=CleanupAction.MOVE,
-                    source=item.path,
-                    destination=Path("src/") / name,
-                    reason=f"Matches move to src pattern: {pattern}",
-                )
-
-        # Check if should be moved to tests/
-        for pattern in self.config.move_to_tests:
-            if self._matches_pattern(name, pattern):
-                return CleanupActionItem(
-                    action=CleanupAction.MOVE,
-                    source=item.path,
-                    destination=Path("tests/") / name,
-                    reason=f"Matches move to tests pattern: {pattern}",
-                )
-
-        # Default: skip if it's an allowed item
-        if self._is_allowed(item.path):
-            return CleanupActionItem(
-                action=CleanupAction.SKIP,
-                source=item.path,
-                reason="Allowed in root directory",
-            )
-
-        # Unknown item - skip with warning
-        logger.warning(f"Unknown item: {item.path}")
-        return CleanupActionItem(
-            action=CleanupAction.SKIP,
-            source=item.path,
-            reason="Unknown item - manually review",
-        )
-
-    def _matches_pattern(self, name: str, pattern: str) -> bool:
-        """Check if name matches pattern (supports wildcards).
-
-        Args:
-            name: File/directory name
-            pattern: Pattern to match (supports * wildcard)
-
-        Returns:
-            True if pattern matches name
-        """
-        import fnmatch
-
-        return fnmatch.fnmatch(name, pattern)
+# Validation paths that must exist after cleanup
+VALIDATION_PATHS: Final = [
+    Path("src/training/"),
+    Path("tests/"),
+]
 
 
-def analyze_root_directory(
-    config: Optional[CleanupConfig] = None,
-) -> tuple[list[FileItem], list[FileItem], list[CleanupActionItem]]:
-    """Analyze root directory for cleanup.
-
-    Args:
-        config: Cleanup configuration (uses default if not provided)
+def get_keep_root_items() -> list[str]:
+    """Get list of root items to keep.
 
     Returns:
-        Tuple of (allowed_items, unexpected_items, cleanup_actions)
+        List of root items that should be preserved.
     """
-    if config is None:
-        config = CleanupConfig()
+    return KEEP_ROOT_ITEMS.copy()
 
-    analyzer = RootDirectoryAnalyzer(config)
-    allowed, unexpected = analyzer.scan_root()
 
-    # Categorize unexpected items
-    cleanup_actions = analyzer.categorize_items(unexpected)
+def get_remove_root_dirs() -> list[str]:
+    """Get list of root directories to remove.
 
-    return allowed, unexpected, cleanup_actions
+    Returns:
+        List of root directories that should be removed.
+    """
+    return REMOVE_ROOT_DIRS.copy()
+
+
+def get_remove_root_files() -> list[str]:
+    """Get list of root files to remove.
+
+    Returns:
+        List of root file patterns that should be removed.
+    """
+    return REMOVE_ROOT_FILES.copy()
+
+
+def get_keep_root_files_exceptions() -> list[str]:
+    """Get list of root files to keep despite matching remove patterns.
+
+    Returns:
+        List of root files that are exceptions to remove patterns.
+    """
+    return KEEP_ROOT_FILES_EXCEPTIONS.copy()
+
+
+def get_remove_src_dirs() -> list[str]:
+    """Get list of source directories to remove.
+
+    Returns:
+        List of source directories that should be removed.
+    """
+    return REMOVE_SRC_DIRS.copy()
+
+
+def get_keep_src_dirs() -> list[str]:
+    """Get list of source directories to keep.
+
+    Returns:
+        List of source directories that should be preserved.
+    """
+    return KEEP_SRC_DIRS.copy()
+
+
+def get_remove_src_files() -> list[str]:
+    """Get list of source files to remove.
+
+    Returns:
+        List of source files that should be removed.
+    """
+    return REMOVE_SRC_FILES.copy()
+
+
+def get_protected_directories() -> list[str]:
+    """Get list of protected directories.
+
+    Returns:
+        List of directories that should never be removed.
+    """
+    return PROTECTED_DIRECTORIES.copy()
+
+
+def get_protected_files() -> list[str]:
+    """Get list of protected files.
+
+    Returns:
+        List of files that should never be removed.
+    """
+    return PROTECTED_FILES.copy()
+
+
+def get_backup_dir() -> Path:
+    """Get backup directory path.
+
+    Returns:
+        Path to backup directory.
+    """
+    return BACKUP_DIR
+
+
+def get_validation_paths() -> list[Path]:
+    """Get list of paths that must exist after cleanup.
+
+    Returns:
+        List of paths that must be validated after cleanup.
+    """
+    return VALIDATION_PATHS.copy()
+
+
+def is_protected(path: Path) -> bool:
+    """Check if a path is protected.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is protected, False otherwise.
+    """
+    # Check if it's a protected directory (by name)
+    for protected_dir in PROTECTED_DIRECTORIES:
+        if path.name == protected_dir.rstrip("/"):
+            return True
+
+    # Check if it's a protected file (by name)
+    for protected_file in PROTECTED_FILES:
+        if path.name == protected_file:
+            return True
+
+    return False
+
+
+def is_keep_root_item(path: Path) -> bool:
+    """Check if a path is a keep root item.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is a keep root item, False otherwise.
+    """
+    name = path.name
+
+    # Check exact match
+    if name in KEEP_ROOT_ITEMS:
+        return True
+
+    # Check directory with trailing slash
+    if path.is_dir():
+        if f"{name}/" in KEEP_ROOT_ITEMS:
+            return True
+
+    return False
+
+
+def is_remove_root_dir(path: Path) -> bool:
+    """Check if a path is a remove root directory.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is a remove root directory, False otherwise.
+    """
+    name = path.name
+
+    # Check exact match
+    if name in [d.rstrip("/") for d in REMOVE_ROOT_DIRS]:
+        return True
+
+    # Check with trailing slash
+    if f"{name}/" in REMOVE_ROOT_DIRS:
+        return True
+
+    return False
+
+
+def is_remove_root_file(path: Path) -> bool:
+    """Check if a path is a remove root file.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is a remove root file, False otherwise.
+    """
+    if path.is_dir():
+        return False
+
+    name = path.name
+
+    # Check exceptions first
+    if name in KEEP_ROOT_FILES_EXCEPTIONS:
+        return False
+
+    # Check patterns
+    import fnmatch
+
+    for pattern in REMOVE_ROOT_FILES:
+        if fnmatch.fnmatch(name, pattern):
+            return True
+
+    return False
+
+
+def is_remove_src_dir(path: Path) -> bool:
+    """Check if a path is a remove source directory.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is a remove source directory, False otherwise.
+    """
+    # Check if path is under src/
+    try:
+        relative = path.relative_to(Path("src/"))
+    except ValueError:
+        return False
+
+    # Check if it matches any remove pattern
+    for remove_dir in REMOVE_SRC_DIRS:
+        remove_path = Path(remove_dir.rstrip("/"))
+        try:
+            if relative == remove_path.relative_to(Path("src/")):
+                return True
+        except ValueError:
+            continue
+
+    return False
+
+
+def is_keep_src_dir(path: Path) -> bool:
+    """Check if a path is a keep source directory.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is a keep source directory, False otherwise.
+    """
+    if not path.is_dir():
+        return False
+
+    # Check if path is under src/
+    try:
+        relative = path.relative_to(Path("src/"))
+    except ValueError:
+        return False
+
+    # Check if it matches any keep pattern
+    for keep_dir in KEEP_SRC_DIRS:
+        keep_path = Path(keep_dir.rstrip("/"))
+        try:
+            if relative == keep_path.relative_to(Path("src/")):
+                return True
+        except ValueError:
+            continue
+
+    return False
+
+
+def is_remove_src_file(path: Path) -> bool:
+    """Check if a path is a remove source file.
+
+    Args:
+        path: Path to check.
+
+    Returns:
+        True if path is a remove source file, False otherwise.
+    """
+    if path.is_dir():
+        return False
+
+    # Check if path is under src/
+    try:
+        path.relative_to(Path("src/"))
+    except ValueError:
+        return False
+
+    # Check exact match
+    for remove_file in REMOVE_SRC_FILES:
+        if path == Path(remove_file):
+            return True
+
+    return False
 
 
 if __name__ == "__main__":
-    from src.utils.logging_config import setup_logging
-
-    setup_logging()
-    logger = logging.getLogger(__name__)
-
-    print("Analyzing root directory for cleanup...")
-
-    config = CleanupConfig()
-    analyzer = RootDirectoryAnalyzer(config)
-
-    allowed, unexpected, actions = analyze_root_directory(config)
-
-    print(f"\n📁 Allowed items ({len(allowed)}):")
-    for item in allowed:
-        icon = "📁" if item.is_directory else "📄"
-        print(f"   {icon} {item.path.name}")
-
-    print(f"\n⚠️  Items to clean up ({len(unexpected)}):")
-    for action in actions:
-        if action.action == CleanupAction.MOVE:
-            print(f"   [→ MOVE] {action.source.name} → {action.destination}")
-        elif action.action == CleanupAction.REMOVE:
-            print(f"   [✗ REMOVE] {action.source.name}")
-        elif action.action == CleanupAction.ARCHIVE:
-            print(f"   [📦 ARCHIVE] {action.source.name}")
-        else:
-            print(f"   [→ SKIP] {action.source.name}")
-
-    print(f"\n✅ Analysis complete!")
+    print("Cleanup Core Module")
+    print(f"Keep root items: {len(KEEP_ROOT_ITEMS)}")
+    print(f"Remove root dirs: {len(REMOVE_ROOT_DIRS)}")
+    print(f"Remove root files: {len(REMOVE_ROOT_FILES)}")
+    print(f"Remove src dirs: {len(REMOVE_SRC_DIRS)}")
+    print(f"Keep src dirs: {len(KEEP_SRC_DIRS)}")
+    print(f"Remove src files: {len(REMOVE_SRC_FILES)}")
+    print(f"Protected directories: {len(PROTECTED_DIRECTORIES)}")
+    print(f"Protected files: {len(PROTECTED_FILES)}")
+    print(f"Validation paths: {len(VALIDATION_PATHS)}")

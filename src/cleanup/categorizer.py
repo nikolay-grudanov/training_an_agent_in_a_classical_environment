@@ -1,216 +1,445 @@
-"""Cleanup module - File categorization utilities.
+"""Cleanup module - File and directory categorization.
 
-Per cleanup_system.md contract:
-- Categorize files for cleanup actions
-- Handle edge cases (files in use, permissions)
+This module provides the CleanupCategorizer class that determines
+which files and directories should be kept, removed, or archived.
 """
 
 import fnmatch
 import logging
-import shutil
-from enum import Enum
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Final
+
+from .core import (
+    FileCategory,
+    DirCategory,
+    get_keep_root_items,
+    get_remove_root_dirs,
+    get_remove_root_files,
+    get_keep_root_files_exceptions,
+    get_remove_src_dirs,
+    get_keep_src_dirs,
+    get_remove_src_files,
+    get_protected_directories,
+    get_protected_files,
+    is_protected,
+    is_keep_root_item,
+    is_remove_root_dir,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class FileCategory(Enum):
-    """Categories for file categorization."""
+@dataclass
+class CategorizationResult:
+    """Result of file/directory categorization.
 
-    KEEP = "keep"  # Keep in place (allowed files)
-    MOVE_TO_SRC = "move_to_src"
-    MOVE_TO_TESTS = "move_to_tests"
-    MOVE_TO_RESULTS = "move_to_results"
-    MOVE_TO_DOCS = "move_to_docs"
-    REMOVE = "remove"
-    ARCHIVE = "archive"
-    SKIP = "skip"  # Skip (unknown/protected)
+    Attributes:
+        path: The path being categorized.
+        category: The category (KEEP, REMOVE, ARCHIVE, PROTECTED).
+        reason: The reason for this categorization.
+    """
+
+    path: Path
+    category: FileCategory | DirCategory
+    reason: str
 
 
-class FileCategorizer:
-    """Categorizes files based on cleanup rules."""
+class CleanupCategorizer:
+    """Categorizes files and directories for cleanup operations.
 
-    def __init__(self):
-        # Allowed items in root (from spec)
-        self.allowed_files = {
-            "requirements.txt",
-            "README.md",
-            ".gitignore",
-        }
-        self.allowed_directories = {
-            "src/",
-            "tests/",
-            "results/",
-            "specs/",
-        }
+    This class determines which files and directories should be kept,
+    removed, or archived based on the cleanup rules defined in core.py.
+    """
 
-        # Removal patterns
-        self.remove_patterns = {
-            "verify_setup.py",
-            "test_installation.py",
-            "*.tmp",
-            "*.bak",
-            ".jupyter_ystore.db",
-        }
-
-        # Archive patterns
-        self.archive_patterns = {
-            "info_project.md",
-            "*_SUMMARY.md",
-            "*_COMPLETION_REPORT.md",
-            "QWEN.md",
-            "README_UTILS.md",
-            "TRAIN_LOOP_README.md",
-        }
-
-        # Move to src patterns
-        self.move_to_src_patterns = {
-            "*.py",
-            "example_*.py",
-        }
-
-        # Move to tests patterns
-        self.move_to_tests_patterns = {
-            "test_*.py",
-        }
-
-        # Move to results patterns
-        self.move_to_results_patterns = {
-            "demo_checkpoints/",
-            "demo_experiment/",
-        }
-
-    def categorize(self, path: Path) -> FileCategory:
-        """Determine category for a file or directory.
+    def __init__(self, root_path: Path = Path(".")) -> None:
+        """Initialize the categorizer.
 
         Args:
-            path: Path to categorize
+            root_path: Root path of the project (default: current directory).
+        """
+        self.root_path: Final = root_path.resolve()
+        self._keep_root_items: Final = get_keep_root_items()
+        self._remove_root_dirs: Final = get_remove_root_dirs()
+        self._remove_root_files: Final = get_remove_root_files()
+        self._keep_root_files_exceptions: Final = get_keep_root_files_exceptions()
+        self._remove_src_dirs: Final = get_remove_src_dirs()
+        self._keep_src_dirs: Final = get_keep_src_dirs()
+        self._remove_src_files: Final = get_remove_src_files()
+        self._protected_directories: Final = get_protected_directories()
+        self._protected_files: Final = get_protected_files()
+
+    def categorize_file(self, path: Path) -> CategorizationResult:
+        """Determine if a file should be kept, removed, or archived.
+
+        Args:
+            path: Path to the file.
 
         Returns:
-            FileCategory for the path
+            CategorizationResult with the category and reason.
+
+        Raises:
+            ValueError: If path is not a file.
         """
-        name = path.name
-
-        # Check if it's an allowed file
-        if not path.is_dir():
-            if name in self.allowed_files:
-                return FileCategory.KEEP
-
-        # Check if it's an allowed directory
         if path.is_dir():
-            if name in self.allowed_directories:
-                return FileCategory.KEEP
-            # Check with trailing slash
-            if f"{name}/" in self.allowed_directories:
-                return FileCategory.KEEP
+            raise ValueError(f"Path {path} is a directory, not a file")
 
-        # Check remove patterns (high priority)
-        for pattern in self.remove_patterns:
-            if self._matches(name, pattern):
-                return FileCategory.REMOVE
+        # Check if protected
+        if is_protected(path):
+            return CategorizationResult(
+                path=path,
+                category=FileCategory.KEEP,
+                reason="Protected file",
+            )
 
-        # Check move to tests patterns BEFORE *.py (more specific)
-        for pattern in self.move_to_tests_patterns:
-            if self._matches(name, pattern):
-                return FileCategory.MOVE_TO_TESTS
+        # Resolve path to absolute
+        abs_path = path.resolve()
 
-        # Check move to src patterns (general *.py)
-        for pattern in self.move_to_src_patterns:
-            if self._matches(name, pattern):
-                return FileCategory.MOVE_TO_SRC
+        # Check if it's a root file
+        try:
+            relative = abs_path.relative_to(self.root_path)
+        except ValueError:
+            # Path is not under root, keep it
+            return CategorizationResult(
+                path=path,
+                category=FileCategory.KEEP,
+                reason="Not under project root",
+            )
 
-        # Check archive patterns
-        for pattern in self.archive_patterns:
-            if self._matches(name, pattern):
-                return FileCategory.ARCHIVE
+        # Check if it's a source file
+        try:
+            relative.relative_to(Path("src/"))
+        except ValueError:
+            # Not under src/, check root file rules
+            return self._categorize_root_file(path, relative)
+        else:
+            # Under src/, check source file rules
+            return self._categorize_src_file(path, relative)
 
-        # Check move to results patterns
-        for pattern in self.move_to_results_patterns:
-            if self._matches(name, pattern):
-                return FileCategory.MOVE_TO_RESULTS
-
-        # Unknown item - skip with warning
-        if not path.is_dir() or name not in [".git", ".vscode", ".idea"]:
-            logger.warning(f"Unknown item, skipping: {path}")
-        return FileCategory.SKIP
-
-    def get_destination(self, path: Path, category: FileCategory) -> Optional[Path]:
-        """Get destination path for a categorized item.
+    def categorize_directory(self, path: Path) -> CategorizationResult:
+        """Determine if a directory should be kept, removed, or archived.
 
         Args:
-            path: Original path
-            category: File category
+            path: Path to the directory.
 
         Returns:
-            Destination path or None
+            CategorizationResult with the category and reason.
+
+        Raises:
+            ValueError: If path is not a directory.
+        """
+        if not path.is_dir():
+            raise ValueError(f"Path {path} is not a directory")
+
+        # Check if protected
+        if is_protected(path):
+            return CategorizationResult(
+                path=path,
+                category=DirCategory.PROTECTED,
+                reason="Protected directory",
+            )
+
+        # Check if it's a root directory (relative path or under root)
+        try:
+            relative = path.relative_to(self.root_path)
+        except ValueError:
+            # Path is not under root, categorize based on name only
+            return self._categorize_root_directory(path, path)
+
+        # Check if it's a source directory
+        try:
+            relative.relative_to(Path("src/"))
+        except ValueError:
+            # Not under src/, check root directory rules
+            return self._categorize_root_directory(path, relative)
+        else:
+            # Under src/, check source directory rules
+            return self._categorize_src_directory(path, relative)
+
+    def get_all_items_to_remove(self) -> list[Path]:
+        """Get all items marked for removal.
+
+        Returns:
+            List of paths that should be removed.
+        """
+        items_to_remove: list[Path] = []
+
+        # Scan root directory
+        for item in self.root_path.iterdir():
+            if item.is_file():
+                result = self.categorize_file(item)
+                if result.category == FileCategory.REMOVE:
+                    items_to_remove.append(item)
+            elif item.is_dir():
+                result = self.categorize_directory(item)
+                if result.category == DirCategory.REMOVE:
+                    items_to_remove.append(item)
+
+        # Scan src/ subdirectories
+        src_path = self.root_path / "src"
+        if src_path.exists() and src_path.is_dir():
+            for item in src_path.rglob("*"):
+                if item.is_file():
+                    result = self.categorize_file(item)
+                    if result.category == FileCategory.REMOVE:
+                        items_to_remove.append(item)
+                elif item.is_dir():
+                    result = self.categorize_directory(item)
+                    if result.category == DirCategory.REMOVE:
+                        items_to_remove.append(item)
+
+        return items_to_remove
+
+    def get_removal_summary(self) -> dict[str, int | list[str]]:
+        """Get a summary of items to remove by category.
+
+        Returns:
+            Dictionary with counts and lists of items by category.
+        """
+        items_to_remove = self.get_all_items_to_remove()
+
+        files: list[str] = []
+        directories: list[str] = []
+        root_items: list[str] = []
+        src_items: list[str] = []
+
+        for item in items_to_remove:
+            if item.is_file():
+                files.append(str(item))
+            else:
+                directories.append(str(item))
+
+            # Check if root or src item
+            try:
+                item.relative_to(self.root_path / "src")
+                src_items.append(str(item))
+            except ValueError:
+                try:
+                    item.relative_to(self.root_path)
+                    root_items.append(str(item))
+                except ValueError:
+                    pass
+
+        summary: dict[str, int | list[str]] = {
+            "total_count": len(items_to_remove),
+            "files": files,
+            "directories": directories,
+            "root_items": root_items,
+            "src_items": src_items,
+        }
+
+        return summary
+
+    def _categorize_root_file(
+        self, path: Path, relative: Path
+    ) -> CategorizationResult:
+        """Categorize a file in the root directory.
+
+        Args:
+            path: Full path to the file.
+            relative: Path relative to root.
+
+        Returns:
+            CategorizationResult with the category and reason.
         """
         name = path.name
 
-        if category == FileCategory.MOVE_TO_SRC:
-            return Path("src/") / name
-        elif category == FileCategory.MOVE_TO_TESTS:
-            return Path("tests/") / name
-        elif category == FileCategory.MOVE_TO_RESULTS:
-            return Path("results/") / name
-        elif category == FileCategory.ARCHIVE:
-            return Path("docs/archives/") / name
-        else:
-            return None
+        # Check exceptions first
+        if name in self._keep_root_files_exceptions:
+            return CategorizationResult(
+                path=path,
+                category=FileCategory.KEEP,
+                reason="Exception to remove patterns",
+            )
 
-    def _matches(self, name: str, pattern: str) -> bool:
-        """Check if name matches pattern (supports wildcards).
+        # Check remove patterns
+        for pattern in self._remove_root_files:
+            if fnmatch.fnmatch(name, pattern):
+                return CategorizationResult(
+                    path=path,
+                    category=FileCategory.REMOVE,
+                    reason=f"Matches remove pattern: {pattern}",
+                )
+
+        # Default to keep
+        return CategorizationResult(
+            path=path,
+            category=FileCategory.KEEP,
+            reason="Not matching any remove pattern",
+        )
+
+    def _categorize_src_file(
+        self, path: Path, relative: Path
+    ) -> CategorizationResult:
+        """Categorize a file in the src/ directory.
 
         Args:
-            name: File/directory name
-            pattern: Pattern with potential wildcards
+            path: Full path to the file.
+            relative: Path relative to root.
 
         Returns:
-            True if pattern matches name
+            CategorizationResult with the category and reason.
         """
-        return fnmatch.fnmatch(name, pattern)
+        # Check if it's a remove source file by relative path
+        for remove_file_pattern in self._remove_src_files:
+            # Convert pattern to relative path under root
+            remove_path = Path(remove_file_pattern)
+            # Compare full relative paths
+            if relative == remove_path:
+                return CategorizationResult(
+                    path=path,
+                    category=FileCategory.REMOVE,
+                    reason="In remove source files list",
+                )
+
+        # Default to keep
+        return CategorizationResult(
+            path=path,
+            category=FileCategory.KEEP,
+            reason="Not in remove source files list",
+        )
+
+    def _categorize_root_directory(
+        self, path: Path, relative: Path
+    ) -> CategorizationResult:
+        """Categorize a directory in the root directory.
+
+        Args:
+            path: Full path to the directory.
+            relative: Path relative to root.
+
+        Returns:
+            CategorizationResult with the category and reason.
+        """
+        # Check if it's a remove root directory
+        if is_remove_root_dir(path):
+            return CategorizationResult(
+                path=path,
+                category=DirCategory.REMOVE,
+                reason="In remove root directories list",
+            )
+
+        # Check if it's a keep root item
+        if is_keep_root_item(path):
+            return CategorizationResult(
+                path=path,
+                category=DirCategory.KEEP,
+                reason="In keep root items list",
+            )
+
+        # Default to keep
+        return CategorizationResult(
+            path=path,
+            category=DirCategory.KEEP,
+            reason="Not in remove root directories list",
+        )
+
+    def _categorize_src_directory(
+        self, path: Path, relative: Path
+    ) -> CategorizationResult:
+        """Categorize a directory in the src/ directory.
+
+        Args:
+            path: Full path to the directory.
+            relative: Path relative to root.
+
+        Returns:
+            CategorizationResult with the category and reason.
+        """
+        # Check if it's a remove source directory by relative path
+        for remove_dir_pattern in self._remove_src_dirs:
+            # Convert pattern to relative path under root
+            remove_path = Path(remove_dir_pattern.rstrip("/"))
+            # Compare full relative paths
+            if relative == remove_path:
+                return CategorizationResult(
+                    path=path,
+                    category=DirCategory.REMOVE,
+                    reason="In remove source directories list",
+                )
+
+        # Check if it's a keep source directory
+        for keep_dir_pattern in self._keep_src_dirs:
+            # Convert pattern to relative path under root
+            keep_path = Path(keep_dir_pattern.rstrip("/"))
+            # Compare full relative paths
+            if relative == keep_path:
+                return CategorizationResult(
+                    path=path,
+                    category=DirCategory.KEEP,
+                    reason="In keep source directories list",
+                )
+
+        # Default to keep
+        return CategorizationResult(
+            path=path,
+            category=DirCategory.KEEP,
+            reason="Not in remove source directories list",
+        )
 
 
-def categorize_file(path: Path) -> tuple[FileCategory, Optional[Path]]:
-    """Categorize a single file or directory.
+def categorize_file(path: Path) -> CategorizationResult:
+    """Categorize a single file.
 
     Args:
-        path: Path to categorize
+        path: Path to the file.
 
     Returns:
-        Tuple of (FileCategory, destination_path)
+        CategorizationResult with the category and reason.
     """
-    categorizer = FileCategorizer()
-    category = categorizer.categorize(path)
-    destination = categorizer.get_destination(path, category)
-    return category, destination
+    categorizer = CleanupCategorizer()
+    return categorizer.categorize_file(path)
+
+
+def categorize_directory(path: Path) -> CategorizationResult:
+    """Categorize a single directory.
+
+    Args:
+        path: Path to the directory.
+
+    Returns:
+        CategorizationResult with the category and reason.
+    """
+    categorizer = CleanupCategorizer()
+    return categorizer.categorize_directory(path)
 
 
 if __name__ == "__main__":
-    from src.utils.logging_config import setup_logging
+    from src.utils.logging_setup import setup_logging
 
     setup_logging()
 
-    print("Testing file categorization...")
+    print("Testing CleanupCategorizer...")
 
-    categorizer = FileCategorizer()
+    categorizer = CleanupCategorizer()
+
+    # Test categorization
     test_paths = [
-        Path("requirements.txt"),
         Path("README.md"),
-        Path("src/"),
+        Path("requirements.txt"),
         Path("example_training.py"),
-        Path("test_ppo_agent.py"),
-        Path("verify_setup.py"),
-        Path("info_project.md"),
-        Path("demo_checkpoints/"),
-        Path("QWEN.md"),
-        Path("unknown_file.txt"),
+        Path("configs/"),
+        Path("src/api/"),
+        Path("src/training/"),
+        Path("src/utils/logging.py"),
     ]
 
     for path in test_paths:
         if path.exists():
-            category, dest = categorize_file(path)
-            arrow = "→" if dest else ""
-            print(f"   {path.name:30} → {category.value:15} {arrow} {dest or ''}")
+            if path.is_file():
+                result = categorizer.categorize_file(path)
+            else:
+                result = categorizer.categorize_directory(path)
 
-    print("\n✅ Categorization complete!")
+            print(f"   {path}: {result.category.value} - {result.reason}")
+
+    # Get removal summary
+    summary = categorizer.get_removal_summary()
+    print("\nRemoval Summary:")
+    print(f"   Total items to remove: {summary['total_count']}")
+    print(f"   Files: {len(summary['files']) if isinstance(summary['files'], list) else 0}")
+    print(f"   Directories: {len(summary['directories']) if isinstance(summary['directories'], list) else 0}")
+    print(f"   Root items: {len(summary['root_items']) if isinstance(summary['root_items'], list) else 0}")
+    print(f"   Source items: {len(summary['src_items']) if isinstance(summary['src_items'], list) else 0}")
+
+    print("\n✅ Categorization test complete!")

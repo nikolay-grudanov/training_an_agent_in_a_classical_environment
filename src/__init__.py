@@ -12,7 +12,7 @@ __email__ = "team@rl-training.com"
 # Основные компоненты системы
 from .utils.seeding import set_seed, SeedManager
 from .utils.config import RLConfig, load_config
-from .utils.logging import setup_logging, get_experiment_logger
+from .utils.rl_logging import setup_logging, get_experiment_logger
 from .utils.metrics import MetricsTracker, get_metrics_tracker
 from .utils.checkpointing import CheckpointManager, create_checkpoint_metadata
 from .experiments.base import ExperimentManager, create_experiment

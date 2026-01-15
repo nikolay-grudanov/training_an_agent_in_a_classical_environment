@@ -15,7 +15,7 @@ import pandas as pd
 from scipy import stats
 
 from src.agents.base import Agent
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 from src.utils.seeding import set_seed
 
 

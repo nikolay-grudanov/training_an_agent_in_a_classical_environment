@@ -35,7 +35,7 @@ from src.experiments.config import Configuration
 from src.experiments.experiment import Experiment, ExperimentStatus
 from src.training.trainer import Trainer, TrainerConfig, TrainingResult
 from src.utils.checkpointing import CheckpointManager
-from src.utils.logging import get_experiment_logger
+from src.utils.rl_logging import get_experiment_logger
 from src.utils.metrics import MetricsTracker
 from src.utils.seeding import set_seed, SeedManager
 

@@ -24,7 +24,7 @@ from src.evaluation.evaluator import (
     EvaluationMetrics,
     Evaluator,
 )
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 from src.utils.seeding import set_seed
 
 logger = get_logger(__name__)

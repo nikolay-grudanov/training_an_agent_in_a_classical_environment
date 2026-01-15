@@ -26,7 +26,7 @@ from src.training.trainer import (
     TrainingMode,
     create_trainer_from_config,
 )
-from src.utils.logging import setup_logging
+from src.utils.rl_logging import setup_logging
 from src.utils.config import (
     get_config_loader,
     create_default_configs,

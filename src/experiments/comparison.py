@@ -24,7 +24,7 @@ from sklearn.metrics import auc
 
 from src.experiments.experiment import Experiment
 from src.utils.config import RLConfig
-from src.utils.logging import get_experiment_logger
+from src.utils.rl_logging import get_experiment_logger
 from src.utils.metrics import MetricsTracker
 
 logger = logging.getLogger(__name__)

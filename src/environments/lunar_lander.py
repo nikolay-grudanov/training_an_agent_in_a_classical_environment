@@ -10,7 +10,7 @@ import gymnasium as gym
 import numpy as np
 
 from src.environments.wrapper import EnvironmentWrapper
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 
 logger = get_logger(__name__)
 

@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Union
 import psutil
 import yaml
 
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 
 logger = get_logger(__name__)
 

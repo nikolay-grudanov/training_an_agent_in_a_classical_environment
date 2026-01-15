@@ -371,7 +371,7 @@ class Trainer:
         set_seed(config.seed)
         
         # Инициализация логирования
-        from src.utils.logging import get_experiment_logger
+        from src.utils.rl_logging import get_experiment_logger
         self.logger = get_experiment_logger(
             experiment_id=self.experiment_name,
         )

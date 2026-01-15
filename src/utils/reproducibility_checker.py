@@ -20,7 +20,7 @@ from scipy import stats
 from src.utils.dependency_tracker import DependencyTracker
 from src.utils.seeding import SeedManager, set_seed
 from src.utils.config import RLConfig
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 
 logger = get_logger(__name__)
 

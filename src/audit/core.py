@@ -191,7 +191,7 @@ def discover_python_files(scope: Path) -> list[Path]:
 
 if __name__ == "__main__":
     # Test the audit module
-    from src.utils.logging_config import setup_logging
+    from src.utils.logging_setup import setup_logging
 
     logger = setup_logging()
     logger.info("Testing audit module...")

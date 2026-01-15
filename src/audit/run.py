@@ -12,7 +12,7 @@ from pathlib import Path
 from .core import AuditConfig, test_module_import, run_smoke_test, discover_python_files
 from .assessor import assess_module
 from .report_generator import AuditReportGenerator, generate_audit_report
-from src.utils.logging_config import setup_logging, get_logger
+from src.utils.logging_setup import setup_logging, get_logger
 
 
 def parse_args() -> argparse.Namespace:

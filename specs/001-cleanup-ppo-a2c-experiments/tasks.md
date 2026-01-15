@@ -125,26 +125,26 @@ Phase 7: Polish & Cross-Cutting ──────► Final validation
 
 **Parallel Execution Example**: T008 and T009 can run in parallel (different components)
 
-- [ ] T008 [P] [US1] Create audit module in src/audit/:
+- [X] T008 [P] [US1] Create audit module in src/audit/:
   - Create `src/audit/core.py` with `AuditConfig` dataclass
   - Implement `test_module_import(module_path: Path)` using importlib.util per research.md
   - Implement smoke test execution for basic functionality verification
   - Handle import errors and capture detailed error messages
 
-- [ ] T009 [P] [US1] Implement module assessment logic:
+- [X] T009 [P] [US1] Implement module assessment logic:
   - Create `src/audit/assessor.py` with `ModuleAssessment` dataclass
   - Implement status determination (working/broken/needs_fixing) per FR-012
   - Implement status icon assignment (✅/❌/⚠️)
   - Add notes generation for issues and fixes needed
 
-- [ ] T010 [P] [US1] Generate audit report per FR-002 and contract:
+- [X] T010 [P] [US1] Generate audit report per FR-002 and contract:
   - Create `src/audit/report_generator.py`
   - Generate Markdown report (`АУДИТ.md`) with table format per research.md
   - Generate JSON report (`audit_report.json`) per data-model.md
   - Include summary statistics (total, working, broken, needs_fixing)
   - Add metadata (date, auditor, scope, version)
 
-- [ ] T011 [US1] Create audit CLI entry point:
+- [X] T011 [US1] Create audit CLI entry point:
   - Create `src/audit/run.py` with CLI interface per contracts/audit_system.md
   - Implement `--scope` option (default: src/)
   - Implement `--output` option (default: АУДИТ.md)
@@ -152,7 +152,7 @@ Phase 7: Polish & Cross-Cutting ──────► Final validation
   - Implement `--verbose` flag for DEBUG-level logging
   - Implement `--skip-smoke-tests` flag
 
-- [ ] T012 [US1] Create unit tests for audit module:
+- [X] T012 [US1] Create unit tests for audit module:
   - Create `tests/unit/test_audit_core.py` for import testing logic
   - Create `tests/unit/test_audit_assessor.py` for status determination
   - Create `tests/unit/test_audit_report_generator.py` for report generation

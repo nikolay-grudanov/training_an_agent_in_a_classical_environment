@@ -23,7 +23,7 @@ import pandas as pd
 from src.experiments.comparison import ComparisonResult, ExperimentComparator
 from src.experiments.experiment import Experiment
 from src.utils.dependency_tracker import DependencyTracker, create_experiment_snapshot
-from src.utils.logging import get_experiment_logger
+from src.utils.rl_logging import get_experiment_logger
 
 logger = get_experiment_logger(__name__)
 
