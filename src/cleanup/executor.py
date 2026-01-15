@@ -342,9 +342,7 @@ class CleanupExecutor:
 
         return report
 
-    def save_project_structure_report(
-        self, output_path: Path | None = None
-    ) -> Path:
+    def save_project_structure_report(self, output_path: Path | None = None) -> Path:
         """Generate and save project structure report to JSON.
 
         Args:

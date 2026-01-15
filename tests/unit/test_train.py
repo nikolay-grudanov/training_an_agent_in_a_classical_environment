@@ -42,7 +42,11 @@ class TestPPOTrainerInit:
 
     def test_init_creates_experiment_dir(self) -> None:
         """Test that initialization creates experiment directory."""
-        with patch("gymnasium.make"), patch("src.training.train.PPO"), tempfile.TemporaryDirectory() as tmpdir:
+        with (
+            patch("gymnasium.make"),
+            patch("src.training.train.PPO"),
+            tempfile.TemporaryDirectory() as tmpdir,
+        ):
             with patch("pathlib.Path.mkdir"):
                 trainer = PPOTrainer(algo="ppo", seed=42)
                 assert trainer.exp_dir == Path("results/experiments/ppo_seed42")
@@ -217,7 +221,9 @@ class TestResultsSaving:
             mock_stats.reward_std = 10.0
             mock_stats.episode_length_mean = 200.0
             mock_stats.total_episodes = 50
-            trainer.metrics_collector.calculate_statistics = MagicMock(return_value=mock_stats)
+            trainer.metrics_collector.calculate_statistics = MagicMock(
+                return_value=mock_stats
+            )
 
             # Set times
             from datetime import datetime

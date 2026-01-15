@@ -1,0 +1,607 @@
+openapi: 3.0.0
+info:
+  title: RL Experiments Training API
+  description: API for training, evaluating, and managing RL agents for LunarLander experiments
+  version: 1.0.0
+  contact:
+    name: RL Training Team
+    email: research@example.com
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: http://localhost:8000
+    description: Production server
+
+tags:
+  - name: training
+    description: Training operations for RL agents
+  - name: evaluation
+    description: Evaluation and metrics collection
+  - name: experiments
+    description: Experiment management
+  - name: artifacts
+    description: Generated artifacts (graphs, videos, reports)
+
+paths:
+  /api/v1/training:
+    post:
+      tags:
+        - training
+      summary: Start a new training run
+      description: Initiates training for an RL agent with specified configuration
+      operationId: startTraining
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+      responses:
+        '202':
+          description: Training started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingResponse'
+        '400':
+          description: Invalid configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Experiment already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/training/{experiment_id}:
+    get:
+      tags:
+        - training
+      summary: Get training status
+      description: Returns current status and progress of a training run
+      operationId: getTrainingStatus
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique experiment identifier
+      responses:
+        '200':
+          description: Training status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatus'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - training
+      summary: Stop training
+      description: Gracefully stops running training and saves checkpoint
+      operationId: stopTraining
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique experiment identifier
+      responses:
+        '200':
+          description: Training stopped successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatus'
+        '404':
+          description: Experiment not found
+
+  /api/v1/training/{experiment_id}/resume:
+    post:
+      tags:
+        - training
+      description: Resumes training from the latest checkpoint
+      operationId: resumeTraining
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                additional_timesteps:
+                  type: integer
+                  description: Extra timesteps to train (default: same as original)
+      responses:
+        '202':
+          description: Training resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingResponse'
+
+  /api/v1/evaluation:
+    post:
+      tags:
+        - evaluation
+      summary: Evaluate a trained agent
+      description: Runs evaluation episodes on a trained model and returns metrics
+      operationId: evaluateAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationRequest'
+      responses:
+        '200':
+          description: Evaluation complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResult'
+        '400':
+          description: Invalid request
+        '404':
+          description: Model not found
+
+  /api/v1/experiments:
+    get:
+      tags:
+        - experiments
+      summary: List all experiments
+      description: Returns a list of all experiments with their status
+      operationId: listExperiments
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [running, completed, failed, interrupted]
+          description: Filter by status
+        - name: algorithm
+          in: query
+          schema:
+            type: string
+            enum: [PPO, A2C]
+          description: Filter by algorithm
+      responses:
+        '200':
+          description: List of experiments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExperimentSummary'
+
+  /api/v1/experiments/{experiment_id}:
+    get:
+      tags:
+        - experiments
+      summary: Get experiment details
+      operationId: getExperiment
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentDetails'
+
+  /api/v1/artifacts/graphs/{experiment_id}:
+    get:
+      tags:
+        - artifacts
+      summary: Get performance graphs
+      description: Returns available graphs for an experiment
+      operationId: getGraphs
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [learning_curve, comparison, aggregate]
+      responses:
+        '200':
+          description: Graph metadata and download links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  graphs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GraphInfo'
+
+  /api/v1/artifacts/video/{experiment_id}:
+    get:
+      tags:
+        - artifacts
+      summary: Get demonstration video
+      description: Returns video file or download link for a trained agent
+      operationId: getVideo
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: episodes
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 5
+          description: Number of episodes to render
+      responses:
+        '200':
+          description: Video file (MP4)
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+        '202':
+          description: Video generation in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoGenerationStatus'
+        '404':
+          description: Experiment not found
+
+  /api/v1/reports/{experiment_id}:
+    get:
+      tags:
+        - artifacts
+      summary: Get experiment report
+      description: Returns markdown report for an experiment
+      operationId: getReport
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Markdown report
+          content:
+            text/markdown:
+              schema:
+                type: string
+        '404':
+          description: Report not generated yet
+
+components:
+  schemas:
+    TrainingRequest:
+      type: object
+      required:
+        - algorithm
+        - environment
+        - timesteps
+        - seed
+      properties:
+        algorithm:
+          type: string
+          enum: [PPO, A2C]
+          description: RL algorithm to use
+        environment:
+          type: string
+          default: LunarLander-v3
+          description: Gymnasium environment ID
+        timesteps:
+          type: integer
+          minimum: 1000
+          maximum: 1000000
+          description: Total training timesteps
+        seed:
+          type: integer
+          minimum: 0
+          maximum: 4294967295
+          description: Random seed for reproducibility
+        gamma:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.99
+          description: Discount factor
+        learning_rate:
+          type: number
+          minimum: 0.0
+          description: Learning rate (default used if not specified)
+        checkpoint_freq:
+          type: integer
+          minimum: 1000
+          default: 50000
+          description: Checkpoint save frequency in timesteps
+        experiment_type:
+          type: string
+          enum: [baseline, hyperparameter]
+          default: baseline
+          description: Type of experiment
+        hypothesis:
+          type: string
+          maxLength: 500
+          description: Expected outcome for this experiment
+
+    TrainingResponse:
+      type: object
+      required:
+        - experiment_id
+        - status
+        - estimated_duration_seconds
+      properties:
+        experiment_id:
+          type: string
+          format: uuid
+          description: Unique experiment identifier
+        status:
+          type: string
+          enum: [started, resumed]
+        estimated_duration_seconds:
+          type: integer
+          description: Estimated training time in seconds
+        checkpoint_path:
+          type: string
+          format: uri
+          description: Path to first checkpoint
+        config_path:
+          type: string
+          format: uri
+          description: Path to saved configuration
+
+    TrainingStatus:
+      type: object
+      required:
+        - experiment_id
+        - status
+        - timesteps_completed
+        - current_reward_mean
+      properties:
+        experiment_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [running, completed, failed, interrupted]
+        algorithm:
+          type: string
+        environment:
+          type: string
+        timesteps_completed:
+          type: integer
+        timesteps_total:
+          type: integer
+        current_reward_mean:
+          type: number
+        current_reward_std:
+          type: number
+        episodes_completed:
+          type: integer
+        walltime_elapsed_seconds:
+          type: integer
+        last_checkpoint_path:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        error_message:
+          type: string
+
+    EvaluationRequest:
+      type: object
+      required:
+        - model_path
+      properties:
+        model_path:
+          type: string
+          format: uri
+          description: Path to trained model
+        n_episodes:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 10
+          description: Number of evaluation episodes
+        render_video:
+          type: boolean
+          default: false
+          description: Whether to render demonstration video
+        video_path:
+          type: string
+          format: uri
+          description: Output path for video (if render_video=true)
+
+    EvaluationResult:
+      type: object
+      required:
+        - agent_id
+        - episodes_evaluated
+        - reward_mean
+      properties:
+        agent_id:
+          type: string
+          format: uuid
+        episodes_evaluated:
+          type: integer
+        reward_mean:
+          type: number
+        reward_std:
+          type: number
+        reward_min:
+          type: number
+        reward_max:
+          type: number
+        success_rate:
+          type: number
+          description: Percentage of successful landings (reward >= 200)
+        convergence_achieved:
+          type: boolean
+        episode_lengths:
+          type: array
+          items:
+            type: integer
+        video_path:
+          type: string
+          format: uri
+          description: Path to generated video (if requested)
+
+    ExperimentSummary:
+      type: object
+      required:
+        - experiment_id
+        - algorithm
+        - status
+        - created_at
+      properties:
+        experiment_id:
+          type: string
+          format: uuid
+        algorithm:
+          type: string
+        status:
+          type: string
+        final_reward_mean:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    ExperimentDetails:
+      type: object
+      required:
+        - experiment_id
+        - configuration
+        - status
+      allOf:
+        - $ref: '#/components/schemas/ExperimentSummary'
+        - type: object
+          properties:
+            configuration:
+              $ref: '#/components/schemas/TrainingRequest'
+            metrics_history:
+              type: array
+              items:
+                $ref: '#/components/schemas/MetricPoint'
+            model_path:
+              type: string
+              format: uri
+            graphs:
+              type: array
+              items:
+                $ref: '#/components/schemas/GraphInfo'
+            video_path:
+              type: string
+              format: uri
+
+    MetricPoint:
+      type: object
+      required:
+        - timesteps
+        - reward_mean
+      properties:
+        timesteps:
+          type: integer
+        walltime:
+          type: number
+        reward_mean:
+          type: number
+        reward_std:
+          type: number
+        episode_count:
+          type: integer
+        fps:
+          type: number
+
+    GraphInfo:
+      type: object
+      required:
+        - type
+        - file_path
+      properties:
+        type:
+          type: string
+          enum: [learning_curve, comparison, aggregate]
+        file_path:
+          type: string
+          format: uri
+        width:
+          type: integer
+        height:
+          type: integer
+        dpi:
+          type: integer
+
+    VideoGenerationStatus:
+      type: object
+      required:
+        - status
+        - estimated_time_seconds
+      properties:
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        estimated_time_seconds:
+          type: integer
+        progress_percent:
+          type: number
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

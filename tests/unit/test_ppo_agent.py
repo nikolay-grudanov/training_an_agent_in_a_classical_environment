@@ -16,7 +16,12 @@ from gymnasium import spaces
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
 
-from src.agents.ppo_agent import PPOAgent, PPOConfig, PPOMetricsCallback, EarlyStoppingCallback
+from src.agents.ppo_agent import (
+    PPOAgent,
+    PPOConfig,
+    PPOMetricsCallback,
+    EarlyStoppingCallback,
+)
 from src.utils import MetricsTracker
 
 
@@ -136,7 +141,9 @@ class TestPPOMetricsCallback:
         assert callback.episode_rewards == [100.0, 150.0]
         assert callback.episode_lengths == [200, 180]
 
-    def test_metrics_logging(self, callback: PPOMetricsCallback, metrics_tracker: MetricsTracker) -> None:
+    def test_metrics_logging(
+        self, callback: PPOMetricsCallback, metrics_tracker: MetricsTracker
+    ) -> None:
         """Тест логирования метрик."""
         # Подготовка данных
         callback.episode_rewards = [100.0, 150.0, 120.0]
@@ -365,7 +372,7 @@ class TestPPOAgent:
 
         # Проверка значений в начале и конце
         initial_lr = lr_schedule(1.0)  # progress_remaining = 1.0
-        final_lr = lr_schedule(0.0)    # progress_remaining = 0.0
+        final_lr = lr_schedule(0.0)  # progress_remaining = 0.0
 
         assert initial_lr == config.learning_rate
         # Проверяем, что final_lr близко к ожидаемому значению (с учетом возможных вычислительных погрешностей)
@@ -550,6 +557,7 @@ class TestPPOAgent:
 
         # Используем side_effect с функцией, чтобы отслеживать вызовы
         call_count = 0
+
         def side_effect_func(*args, **kwargs):
             nonlocal call_count
             call_count += 1
@@ -570,7 +578,9 @@ class TestPPOAgent:
 
         assert agent.is_trained is False
         assert agent.model is new_model  # После сброса должна быть новая модель
-        assert agent.model is not original_model_ref  # Новая модель отличается от старой
+        assert (
+            agent.model is not original_model_ref
+        )  # Новая модель отличается от старой
         mock_vec_env.close.assert_called()
 
 
@@ -592,11 +602,12 @@ def test_reproducibility_with_different_seeds(seed: int) -> None:
         normalize_env=False,
     )
 
-    with patch("src.agents.ppo_agent.PPO") as mock_ppo_class, \
-         patch("src.agents.ppo_agent.make_vec_env") as mock_make_vec_env, \
-         patch("src.utils.get_experiment_logger"), \
-         patch("src.utils.get_metrics_tracker"):
-
+    with (
+        patch("src.agents.ppo_agent.PPO") as mock_ppo_class,
+        patch("src.agents.ppo_agent.make_vec_env") as mock_make_vec_env,
+        patch("src.utils.get_experiment_logger"),
+        patch("src.utils.get_metrics_tracker"),
+    ):
         mock_vec_env = MagicMock(spec=DummyVecEnv)
         mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
         mock_vec_env.action_space = spaces.Discrete(2)

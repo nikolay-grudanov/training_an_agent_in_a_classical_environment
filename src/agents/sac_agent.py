@@ -82,7 +82,7 @@ class SACConfig(AgentConfig):
     qf_lr: float = 3e-4  # Learning rate для критика
     net_arch: Optional[List[int]] = None
     activation_fn: str = "relu"  # "relu", "tanh", "elu"
-    
+
     # Расписание learning rate
     use_lr_schedule: bool = False
     lr_schedule_type: str = "linear"  # "linear", "constant", "exponential"
@@ -137,9 +137,7 @@ class SACConfig(AgentConfig):
             )
 
         if self.train_freq <= 0:
-            raise ValueError(
-                f"train_freq должен быть > 0, получен: {self.train_freq}"
-            )
+            raise ValueError(f"train_freq должен быть > 0, получен: {self.train_freq}")
 
         if self.gradient_steps <= 0:
             raise ValueError(
@@ -255,12 +253,12 @@ class SACMetricsCallback(BaseCallback):
         if hasattr(self.model, "logger") and self.model.logger is not None:
             sac_metrics = [
                 "train/actor_loss",
-                "train/critic_loss", 
+                "train/critic_loss",
                 "train/ent_coef",
                 "train/ent_coef_loss",
                 "train/learning_rate",
             ]
-            
+
             for key in sac_metrics:
                 if key in self.model.logger.name_to_value:
                     clean_key = key.replace("train/", "")
@@ -509,7 +507,7 @@ class SACAgent(Agent):
             raise ValueError("Среда не инициализирована")
 
         action_space = self.env.action_space
-        
+
         if self.config.action_noise_type == "normal":
             # Нормальный шум
             noise = NormalActionNoise(
@@ -520,12 +518,12 @@ class SACAgent(Agent):
                 f"Создан нормальный шум для действий с σ={self.config.action_noise_std}"
             )
             return noise
-        
+
         elif self.config.action_noise_type == "ornstein_uhlenbeck":
             # Ornstein-Uhlenbeck шум (требует дополнительный импорт)
             try:
                 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
-                
+
                 noise = OrnsteinUhlenbeckActionNoise(
                     mean=np.zeros(action_space.shape),
                     sigma=self.config.action_noise_std * np.ones(action_space.shape),
@@ -960,7 +958,10 @@ class SACAgent(Agent):
             }
 
         # Информация о replay buffer если доступна
-        if hasattr(self.model, "replay_buffer") and self.model.replay_buffer is not None:
+        if (
+            hasattr(self.model, "replay_buffer")
+            and self.model.replay_buffer is not None
+        ):
             info["replay_buffer_info"] = {
                 "buffer_size": self.model.replay_buffer.buffer_size,
                 "size": self.model.replay_buffer.size(),

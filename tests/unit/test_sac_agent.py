@@ -13,7 +13,12 @@ import pytest
 import torch
 from gymnasium.spaces import Box, Discrete
 
-from src.agents.sac_agent import SACAgent, SACConfig, SACMetricsCallback, SACEarlyStoppingCallback
+from src.agents.sac_agent import (
+    SACAgent,
+    SACConfig,
+    SACMetricsCallback,
+    SACEarlyStoppingCallback,
+)
 from src.utils import MetricsTracker
 
 
@@ -23,7 +28,7 @@ class TestSACConfig:
     def test_default_config(self) -> None:
         """Тест создания конфигурации с параметрами по умолчанию."""
         config = SACConfig(env_name="LunarLander-v3")
-        
+
         assert config.algorithm == "SAC"
         assert config.env_name == "LunarLander-v3"
         assert config.learning_rate == 3e-4
@@ -56,7 +61,7 @@ class TestSACConfig:
             early_stopping=False,
             target_reward=100.0,
         )
-        
+
         assert config.env_name == "Pendulum-v1"
         assert config.learning_rate == 1e-3
         assert config.buffer_size == 500_000
@@ -78,7 +83,7 @@ class TestSACConfig:
             net_arch=[64, 64],
             activation_fn="elu",
         )
-        
+
         assert "net_arch" in config.policy_kwargs
         assert "activation_fn" in config.policy_kwargs
         assert config.policy_kwargs["net_arch"] == [64, 64]
@@ -93,7 +98,7 @@ class TestSACConfig:
         """Тест валидации параметра tau."""
         with pytest.raises(ValueError, match="tau должен быть в \\(0, 1\\]"):
             SACConfig(env_name="LunarLander-v3", tau=0.0)
-        
+
         with pytest.raises(ValueError, match="tau должен быть в \\(0, 1\\]"):
             SACConfig(env_name="LunarLander-v3", tau=1.5)
 
@@ -119,7 +124,9 @@ class TestSACConfig:
 
     def test_invalid_target_entropy(self) -> None:
         """Тест валидации целевой энтропии."""
-        with pytest.raises(ValueError, match="target_entropy должен быть 'auto' или числом"):
+        with pytest.raises(
+            ValueError, match="target_entropy должен быть 'auto' или числом"
+        ):
             SACConfig(env_name="LunarLander-v3", target_entropy="invalid")
 
     def test_invalid_activation_fn(self) -> None:
@@ -153,7 +160,7 @@ class TestSACMetricsCallback:
             log_freq=1000,
             verbose=1,
         )
-        
+
         assert callback.metrics_tracker is metrics_tracker
         assert callback.log_freq == 1000
         assert callback.verbose == 1
@@ -164,13 +171,13 @@ class TestSACMetricsCallback:
         """Тест _on_step без эпизодов."""
         metrics_tracker = Mock(spec=MetricsTracker)
         callback = SACMetricsCallback(metrics_tracker, log_freq=1000)
-        
+
         # Мок модели без эпизодов
         callback.model = Mock()
         callback.model.ep_info_buffer = []
         callback.n_calls = 1000
         callback.num_timesteps = 1000
-        
+
         result = callback._on_step()
         assert result is True
         assert len(callback.episode_rewards) == 0
@@ -179,7 +186,7 @@ class TestSACMetricsCallback:
         """Тест _on_step с эпизодами."""
         metrics_tracker = Mock(spec=MetricsTracker)
         callback = SACMetricsCallback(metrics_tracker, log_freq=1000)
-        
+
         # Мок модели с эпизодами
         callback.model = Mock()
         callback.model.ep_info_buffer = [
@@ -193,13 +200,13 @@ class TestSACMetricsCallback:
         }
         callback.n_calls = 1000
         callback.num_timesteps = 1000
-        
+
         result = callback._on_step()
         assert result is True
         assert len(callback.episode_rewards) == 2
         assert callback.episode_rewards == [100.0, 150.0]
         assert callback.episode_lengths == [200, 250]
-        
+
         # Проверка вызова add_metric
         assert metrics_tracker.add_metric.called
 
@@ -216,7 +223,7 @@ class TestSACEarlyStoppingCallback:
             check_freq=10000,
             verbose=1,
         )
-        
+
         assert callback.target_reward == 200.0
         assert callback.patience_episodes == 100
         assert callback.min_improvement == 5.0
@@ -229,7 +236,7 @@ class TestSACEarlyStoppingCallback:
         """Тест _on_step когда не время проверки."""
         callback = SACEarlyStoppingCallback(target_reward=200.0, check_freq=10000)
         callback.n_calls = 5000
-        
+
         result = callback._on_step()
         assert result is True
 
@@ -239,7 +246,7 @@ class TestSACEarlyStoppingCallback:
         callback.n_calls = 10000
         callback.model = Mock()
         callback.model.ep_info_buffer = []
-        
+
         result = callback._on_step()
         assert result is True
 
@@ -249,17 +256,19 @@ class TestSACEarlyStoppingCallback:
         callback.n_calls = 10000
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 100.0, "l": 200}]  # Только 1 эпизод
-        
+
         result = callback._on_step()
         assert result is True
 
     def test_on_step_target_reached(self) -> None:
         """Тест _on_step при достижении целевой награды."""
-        callback = SACEarlyStoppingCallback(target_reward=200.0, check_freq=10000, verbose=1)
+        callback = SACEarlyStoppingCallback(
+            target_reward=200.0, check_freq=10000, verbose=1
+        )
         callback.n_calls = 10000
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 250.0, "l": 200} for _ in range(20)]
-        
+
         result = callback._on_step()
         assert result is False  # Остановить обучение
 
@@ -274,7 +283,7 @@ class TestSACEarlyStoppingCallback:
         callback.best_mean_reward = 100.0
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 110.0, "l": 200} for _ in range(20)]
-        
+
         result = callback._on_step()
         assert result is True
         assert callback.best_mean_reward == 110.0
@@ -294,7 +303,7 @@ class TestSACEarlyStoppingCallback:
         callback.last_check_episode = 0
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 140.0, "l": 200} for _ in range(20)]
-        
+
         result = callback._on_step()
         assert result is True
         assert callback.episodes_without_improvement == 70  # 50 + 20
@@ -314,7 +323,7 @@ class TestSACEarlyStoppingCallback:
         callback.last_check_episode = 0
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 140.0, "l": 200} for _ in range(20)]
-        
+
         result = callback._on_step()
         assert result is False  # Остановить обучение
 
@@ -347,12 +356,16 @@ class TestSACAgent:
             verbose=0,
         )
 
-    def test_init_with_valid_config(self, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_init_with_valid_config(
+        self, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест инициализации с корректной конфигурацией."""
-        with patch("src.agents.sac_agent.make_vec_env"), \
-             patch("src.agents.sac_agent.SAC"):
+        with (
+            patch("src.agents.sac_agent.make_vec_env"),
+            patch("src.agents.sac_agent.SAC"),
+        ):
             agent = SACAgent(config=sac_config, env=mock_env)
-            
+
             assert isinstance(agent.config, SACConfig)
             assert agent.env is mock_env
             assert agent.is_trained is False
@@ -361,9 +374,9 @@ class TestSACAgent:
     def test_init_with_invalid_config_type(self, mock_env: Mock) -> None:
         """Тест инициализации с некорректным типом конфигурации."""
         from src.agents.base import AgentConfig
-        
+
         invalid_config = AgentConfig(algorithm="SAC", env_name="LunarLander-v3")
-        
+
         with pytest.raises(ValueError, match="Ожидается SACConfig"):
             SACAgent(config=invalid_config, env=mock_env)
 
@@ -372,153 +385,174 @@ class TestSACAgent:
         discrete_env = Mock()
         discrete_env.action_space = Discrete(4)
         discrete_env.observation_space = Box(low=-np.inf, high=np.inf, shape=(8,))
-        
-        with pytest.raises(ValueError, match="Алгоритм SAC не поддерживает дискретные действия"):
+
+        with pytest.raises(
+            ValueError, match="Алгоритм SAC не поддерживает дискретные действия"
+        ):
             SACAgent(config=sac_config, env=discrete_env)
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_create_action_noise_normal(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_create_action_noise_normal(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест создания нормального шума для действий."""
         sac_config.action_noise_type = "normal"
         sac_config.action_noise_std = 0.1
-        
+
         agent = SACAgent(config=sac_config, env=mock_env)
-        
+
         assert agent.action_noise is not None
         assert hasattr(agent.action_noise, "_sigma")
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_create_action_noise_none(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_create_action_noise_none(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест отсутствия шума для действий."""
         sac_config.action_noise_type = None
-        
+
         agent = SACAgent(config=sac_config, env=mock_env)
-        
+
         assert agent.action_noise is None
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_learning_rate_schedule_linear(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_learning_rate_schedule_linear(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест создания линейного расписания learning rate."""
         sac_config.use_lr_schedule = True
         sac_config.lr_schedule_type = "linear"
-        
+
         agent = SACAgent(config=sac_config, env=mock_env)
         lr_schedule = agent._create_learning_rate_schedule()
-        
+
         assert callable(lr_schedule)
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_learning_rate_schedule_constant(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_learning_rate_schedule_constant(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест константного learning rate."""
         sac_config.use_lr_schedule = False
-        
+
         agent = SACAgent(config=sac_config, env=mock_env)
         lr_schedule = agent._create_learning_rate_schedule()
-        
+
         assert lr_schedule == sac_config.learning_rate
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_predict_not_trained(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_predict_not_trained(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест предсказания на необученной модели."""
         agent = SACAgent(config=sac_config, env=mock_env)
         agent.is_trained = False
-        
+
         observation = np.zeros(8)
-        
+
         with pytest.raises(RuntimeError, match="Модель не обучена"):
             agent.predict(observation)
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_predict_trained(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_predict_trained(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест предсказания на обученной модели."""
         agent = SACAgent(config=sac_config, env=mock_env)
         agent.is_trained = True
-        
+
         # Мок предсказания модели
         expected_action = np.array([0.5, -0.3])
         agent.model.predict.return_value = (expected_action, None)
-        
+
         observation = np.zeros(8)
         action, state = agent.predict(observation, deterministic=True)
-        
+
         assert np.array_equal(action, expected_action)
         assert state is None
         agent.model.predict.assert_called_once_with(observation, deterministic=True)
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_train_success(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_train_success(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест успешного обучения."""
         agent = SACAgent(config=sac_config, env=mock_env)
-        
+
         # Мок обучения
         agent.model.learn.return_value = agent.model
-        
+
         # Мок оценки
         with patch.object(agent, "evaluate") as mock_evaluate:
             mock_evaluate.return_value = {
                 "mean_reward": 150.0,
                 "std_reward": 25.0,
             }
-            
+
             result = agent.train(total_timesteps=1000)
-            
+
             assert result.success is True
             assert result.total_timesteps == 1000
             assert result.final_mean_reward == 150.0
             assert result.final_std_reward == 25.0
             assert agent.is_trained is True
-            
+
             agent.model.learn.assert_called_once()
             mock_evaluate.assert_called_once()
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_train_failure(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_train_failure(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест неудачного обучения."""
         agent = SACAgent(config=sac_config, env=mock_env)
-        
+
         # Мок ошибки обучения
         agent.model.learn.side_effect = RuntimeError("Training failed")
-        
+
         with pytest.raises(RuntimeError, match="Ошибка обучения SAC агента"):
             agent.train(total_timesteps=1000)
-        
+
         assert agent.training_result is not None
         assert agent.training_result.success is False
         assert "Training failed" in agent.training_result.error_message
 
     @patch("src.agents.sac_agent.make_vec_env")
     @patch("src.agents.sac_agent.SAC")
-    def test_save_and_load(self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock) -> None:
+    def test_save_and_load(
+        self, mock_sac, mock_make_vec_env, sac_config: SACConfig, mock_env: Mock
+    ) -> None:
         """Тест сохранения и загрузки модели."""
         agent = SACAgent(config=sac_config, env=mock_env)
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = Path(temp_dir) / "test_sac_model.zip"
-            
+
             # Мок сохранения
             agent.model.save = Mock()
-            
-            with patch("builtins.open", create=True), \
-                 patch("yaml.dump"):
+
+            with patch("builtins.open", create=True), patch("yaml.dump"):
                 agent.save(str(model_path))
                 agent.model.save.assert_called_once()
 
     def test_get_model_info(self, sac_config: SACConfig, mock_env: Mock) -> None:
         """Тест получения информации о модели."""
-        with patch("src.agents.sac_agent.make_vec_env"), \
-             patch("src.agents.sac_agent.SAC"):
+        with (
+            patch("src.agents.sac_agent.make_vec_env"),
+            patch("src.agents.sac_agent.SAC"),
+        ):
             agent = SACAgent(config=sac_config, env=mock_env)
-            
+
             info = agent.get_model_info()
-            
+
             assert "algorithm" in info
             assert "buffer_size" in info
             assert "batch_size" in info
@@ -529,18 +563,19 @@ class TestSACAgent:
 
     def test_reset_model(self, sac_config: SACConfig, mock_env: Mock) -> None:
         """Тест сброса модели."""
-        with patch("src.agents.sac_agent.make_vec_env") as mock_make_vec_env, \
-             patch("src.agents.sac_agent.SAC") as mock_sac:
-            
+        with (
+            patch("src.agents.sac_agent.make_vec_env") as mock_make_vec_env,
+            patch("src.agents.sac_agent.SAC") as mock_sac,
+        ):
             # Мок векторизованной среды с методом close
             mock_vec_env = Mock()
             mock_make_vec_env.return_value = mock_vec_env
-            
+
             agent = SACAgent(config=sac_config, env=mock_env)
             agent.is_trained = True
-            
+
             agent.reset_model()
-            
+
             assert agent.is_trained is False
             assert agent.model is not None
             mock_vec_env.close.assert_called_once()
@@ -556,24 +591,23 @@ def test_sac_agent_reproducibility(seed: int) -> None:
         verbose=0,
         eval_freq=0,  # Отключено для тестов
     )
-    
+
     mock_env = Mock()
     mock_env.action_space = Box(low=-1.0, high=1.0, shape=(2,))
     mock_env.observation_space = Box(low=-np.inf, high=np.inf, shape=(8,))
-    
-    with patch("src.agents.sac_agent.make_vec_env"), \
-         patch("src.agents.sac_agent.SAC"):
+
+    with patch("src.agents.sac_agent.make_vec_env"), patch("src.agents.sac_agent.SAC"):
         agent = SACAgent(config=config, env=mock_env)
-        
+
         assert agent.config.seed == seed
 
 
 def test_sac_config_inheritance() -> None:
     """Тест наследования SACConfig от AgentConfig."""
     from src.agents.base import AgentConfig
-    
+
     config = SACConfig(env_name="LunarLander-v3")
-    
+
     assert isinstance(config, AgentConfig)
     assert hasattr(config, "algorithm")
     assert hasattr(config, "env_name")

@@ -4,7 +4,6 @@ Tests for CleanupExecutor class with temp directories.
 """
 
 import json
-import os
 import tarfile
 import tempfile
 from pathlib import Path
@@ -16,7 +15,6 @@ from src.cleanup.executor import (
     CleanupResult,
     DryRunResult,
 )
-from src.cleanup.core import FileCategory, DirCategory
 
 
 class TestCleanupExecutor:
@@ -26,7 +24,9 @@ class TestCleanupExecutor:
         """Test CleanupExecutor initialization."""
         executor = CleanupExecutor()
         assert executor.root_path == Path(".").resolve()
-        assert executor.backup_dir == Path(".").resolve() / "results" / "cleanup_backups"
+        assert (
+            executor.backup_dir == Path(".").resolve() / "results" / "cleanup_backups"
+        )
         assert executor.validation_paths is not None
 
     def test_init_with_custom_root(self) -> None:

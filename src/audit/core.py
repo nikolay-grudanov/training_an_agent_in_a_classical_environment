@@ -8,8 +8,7 @@ Per research.md decisions:
 
 import importlib.util
 import sys
-import traceback
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -123,12 +122,21 @@ def run_smoke_test(module_path: Path) -> SmokeTestResult:
             smoke_tests_passed.append("has_main_function")
 
         # Test 2: Check if module has classes (if any)
-        classes = [name for name in dir(module) if name.startswith("_") is False and isinstance(getattr(module, name, None), type)]
+        classes = [
+            name
+            for name in dir(module)
+            if name.startswith("_") is False
+            and isinstance(getattr(module, name, None), type)
+        ]
         if classes:
             smoke_tests_passed.append(f"has_classes:{len(classes)}")
 
         # Test 3: Check if module has functions
-        functions = [name for name in dir(module) if name.startswith("_") is False and callable(getattr(module, name, None))]
+        functions = [
+            name
+            for name in dir(module)
+            if name.startswith("_") is False and callable(getattr(module, name, None))
+        ]
         if functions:
             smoke_tests_passed.append(f"has_functions:{len(functions)}")
 
@@ -201,11 +209,15 @@ if __name__ == "__main__":
     if test_file.exists():
         print(f"\nTesting import: {test_file}")
         import_result = test_module_import(test_file)
-        print(f"  Import: {'✅ Success' if import_result.success else f'❌ {import_result.error_type}: {import_result.error_message}'}")
+        print(
+            f"  Import: {'✅ Success' if import_result.success else f'❌ {import_result.error_type}: {import_result.error_message}'}"
+        )
 
         if not import_result.success or True:
             smoke_result = run_smoke_test(test_file)
-            print(f"  Smoke test: {'✅ Success' if smoke_result.success else f'❌ {smoke_result.error_type}: {smoke_result.error_message}'}")
+            print(
+                f"  Smoke test: {'✅ Success' if smoke_result.success else f'❌ {smoke_result.error_type}: {smoke_result.error_message}'}"
+            )
     else:
         print(f"Test file not found: {test_file}")
 

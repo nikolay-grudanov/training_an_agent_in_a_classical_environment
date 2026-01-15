@@ -6,27 +6,30 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 # Мокаем внешние зависимости перед импортом
-with patch.dict('sys.modules', {
-    'gymnasium': MagicMock(),
-    'stable_baselines3': MagicMock(),
-    'stable_baselines3.common.callbacks': MagicMock(),
-    'typer': MagicMock(),
-    'rich': MagicMock(),
-    'rich.console': MagicMock(),
-    'rich.table': MagicMock(),
-    'rich.progress': MagicMock(),
-    'rich.panel': MagicMock(),
-}):
+with patch.dict(
+    "sys.modules",
+    {
+        "gymnasium": MagicMock(),
+        "stable_baselines3": MagicMock(),
+        "stable_baselines3.common.callbacks": MagicMock(),
+        "typer": MagicMock(),
+        "rich": MagicMock(),
+        "rich.console": MagicMock(),
+        "rich.table": MagicMock(),
+        "rich.progress": MagicMock(),
+        "rich.panel": MagicMock(),
+    },
+):
     from src.training.trainer import TrainerConfig, TrainingMode
 
 
 class TestTrainerConfig:
     """Тесты для TrainerConfig."""
-    
+
     def test_default_config(self):
         """Тест создания конфигурации по умолчанию."""
         config = TrainerConfig()
-        
+
         assert config.experiment_name == "default_experiment"
         assert config.algorithm == "PPO"
         assert config.environment_name == "LunarLander-v3"
@@ -35,7 +38,7 @@ class TestTrainerConfig:
         assert config.seed == 42
         assert config.agent_config is not None
         assert config.agent_config.algorithm == "PPO"
-    
+
     def test_custom_config(self):
         """Тест создания пользовательской конфигурации."""
         config = TrainerConfig(
@@ -45,32 +48,32 @@ class TestTrainerConfig:
             total_timesteps=50_000,
             seed=123,
         )
-        
+
         assert config.experiment_name == "test_experiment"
         assert config.algorithm == "A2C"
         assert config.environment_name == "CartPole-v1"
         assert config.total_timesteps == 50_000
         assert config.seed == 123
         assert config.agent_config.algorithm == "A2C"
-    
+
     def test_invalid_algorithm(self):
         """Тест валидации неподдерживаемого алгоритма."""
         with pytest.raises(ValueError, match="Неподдерживаемый алгоритм"):
             TrainerConfig(algorithm="INVALID")
-    
+
     def test_invalid_timesteps(self):
         """Тест валидации некорректного количества шагов."""
         with pytest.raises(ValueError, match="total_timesteps должен быть > 0"):
             TrainerConfig(total_timesteps=0)
-        
+
         with pytest.raises(ValueError, match="total_timesteps должен быть > 0"):
             TrainerConfig(total_timesteps=-1000)
-    
+
     def test_invalid_eval_freq(self):
         """Тест валидации некорректной частоты оценки."""
         with pytest.raises(ValueError, match="eval_freq должен быть > 0"):
             TrainerConfig(eval_freq=0)
-    
+
     def test_path_setup(self):
         """Тест настройки путей."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -78,12 +81,12 @@ class TestTrainerConfig:
                 experiment_name="test_exp",
                 output_dir=temp_dir,
             )
-            
+
             # Проверяем, что пути созданы
             assert config.model_save_path is not None
             assert config.logs_dir is not None
             assert config.tensorboard_log is not None
-            
+
             # Проверяем, что директории существуют
             assert Path(config.logs_dir).exists()
             assert Path(config.tensorboard_log).exists()
@@ -92,14 +95,14 @@ class TestTrainerConfig:
 
 class TestTrainingMode:
     """Тесты для TrainingMode enum."""
-    
+
     def test_training_mode_values(self):
         """Тест значений режимов обучения."""
         assert TrainingMode.TRAIN.value == "train"
         assert TrainingMode.RESUME.value == "resume"
         assert TrainingMode.EVALUATE.value == "evaluate"
         assert TrainingMode.FINETUNE.value == "finetune"
-    
+
     def test_training_mode_from_string(self):
         """Тест создания режима из строки."""
         assert TrainingMode("train") == TrainingMode.TRAIN
@@ -127,7 +130,7 @@ def test_config_normalization():
     # Тест нормализации алгоритма в верхний регистр
     config = TrainerConfig(algorithm="ppo")
     assert config.algorithm == "PPO"
-    
+
     config = TrainerConfig(algorithm="a2c")
     assert config.algorithm == "A2C"
 
@@ -143,7 +146,7 @@ def test_config_validation_edge_cases():
     assert config.total_timesteps == 1
     assert config.eval_freq == 1
     assert config.n_eval_episodes == 1
-    
+
     # Проверка больших значений
     config = TrainerConfig(
         total_timesteps=10_000_000,

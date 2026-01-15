@@ -6,7 +6,7 @@ Per FR-012 requirements:
 - Generate notes for issues and fixes needed
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Optional
@@ -149,7 +149,7 @@ def determine_final_status(
 
     # Case 2: Import successful but smoke test failed → NEEDS FIXING
     if import_status == "success" and functionality_test == "fail":
-        notes = f"Smoke test failed"
+        notes = "Smoke test failed"
         if smoke_result and smoke_result.error_message:
             notes += f": {smoke_result.error_message}"
         return (
@@ -233,7 +233,9 @@ if __name__ == "__main__":
         if module_path.exists():
             print(f"\n📄 Assessing: {module_path}")
             import_result = test_module_import(module_path)
-            smoke_result = run_smoke_test(module_path) if import_result.success else None
+            smoke_result = (
+                run_smoke_test(module_path) if import_result.success else None
+            )
 
             assessment = assess_module(module_path, import_result, smoke_result)
 

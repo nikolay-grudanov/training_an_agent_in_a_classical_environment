@@ -11,8 +11,8 @@ from pathlib import Path
 
 from .core import AuditConfig, test_module_import, run_smoke_test, discover_python_files
 from .assessor import assess_module
-from .report_generator import AuditReportGenerator, generate_audit_report
-from src.utils.logging_setup import setup_logging, get_logger
+from .report_generator import AuditReportGenerator
+from src.utils.logging_setup import setup_logging
 
 
 def parse_args() -> argparse.Namespace:
@@ -123,7 +123,7 @@ def main() -> int:
     working_count = 0
 
     for i, module_path in enumerate(python_files):
-        logger.debug(f"[{i+1}/{len(python_files)}] Auditing: {module_path}")
+        logger.debug(f"[{i + 1}/{len(python_files)}] Auditing: {module_path}")
 
         # Test import
         import_result = test_module_import(module_path)
@@ -167,7 +167,7 @@ def main() -> int:
 
     # Print summary
     summary = generator.generate_summary()
-    logger.info(f"\n📊 Audit Complete!")
+    logger.info("\n📊 Audit Complete!")
     logger.info(f"   Total modules: {summary.total_modules}")
     logger.info(f"   Working ✅: {summary.working}")
     logger.info(f"   Broken ❌: {summary.broken}")

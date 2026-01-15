@@ -1,7 +1,7 @@
 """TD3 агент с оптимизированными гиперпараметрами для непрерывных сред.
 
-Этот модуль реализует агента на основе алгоритма Twin Delayed Deep Deterministic 
-Policy Gradient (TD3) с использованием Stable-Baselines3. Предназначен для 
+Этот модуль реализует агента на основе алгоритма Twin Delayed Deep Deterministic
+Policy Gradient (TD3) с использованием Stable-Baselines3. Предназначен для
 непрерывных пространств действий с поддержкой шумовых параметров для исследования,
 кастомных колбэков для мониторинга, интеграции с системой логирования и метрик.
 
@@ -81,7 +81,7 @@ class TD3Config(AgentConfig):
     action_noise_type: str = "normal"  # "normal", "ornstein_uhlenbeck", "none"
     action_noise_std: float = 0.1  # Стандартное отклонение шума
     action_noise_mean: float = 0.0  # Среднее значение шума
-    
+
     # Параметры для OrnsteinUhlenbeck шума
     ou_theta: float = 0.15  # Скорость возврата к среднему
     ou_dt: float = 1e-2  # Временной шаг
@@ -91,7 +91,7 @@ class TD3Config(AgentConfig):
     use_lr_schedule: bool = True
     lr_schedule_type: str = "linear"  # "linear", "constant", "exponential"
     lr_final_ratio: float = 0.1
-    
+
     use_noise_schedule: bool = True
     noise_schedule_type: str = "linear"  # "linear", "exponential"
     noise_final_ratio: float = 0.01
@@ -99,7 +99,7 @@ class TD3Config(AgentConfig):
     # Параметры сети
     net_arch: Optional[List[int]] = None
     activation_fn: str = "relu"  # "relu", "tanh", "elu"
-    
+
     # Нормализация
     normalize_env: bool = True
     norm_obs: bool = True
@@ -114,7 +114,7 @@ class TD3Config(AgentConfig):
 
     # Мониторинг и логирование
     use_tensorboard: bool = True
-    
+
     # Дополнительные параметры для оптимизации
     stats_window_size: int = 100
     policy_kwargs: Optional[Dict[str, Any]] = None
@@ -244,7 +244,7 @@ class TD3MetricsCallback(BaseCallback):
         if hasattr(self.model, "logger") and self.model.logger is not None:
             td3_metrics = [
                 "train/actor_loss",
-                "train/critic_loss", 
+                "train/critic_loss",
                 "train/n_updates",
             ]
             for key in td3_metrics:
@@ -662,8 +662,7 @@ class TD3Agent(Agent):
 
         # Колбэк для остановки при достижении целевой награды
         # Добавляется только если есть EvalCallback
-        if (self.config.target_reward > float("-inf") and 
-            self.config.eval_freq > 0):
+        if self.config.target_reward > float("-inf") and self.config.eval_freq > 0:
             reward_threshold_callback = StopTrainingOnRewardThreshold(
                 reward_threshold=self.config.target_reward,
                 verbose=self.config.verbose,
@@ -979,7 +978,7 @@ class TD3Agent(Agent):
         if self.config.noise_schedule_type == "linear":
             noise_factor = 1.0 - progress * (1.0 - self.config.noise_final_ratio)
         elif self.config.noise_schedule_type == "exponential":
-            noise_factor = self.config.noise_final_ratio ** progress
+            noise_factor = self.config.noise_final_ratio**progress
         else:
             return
 

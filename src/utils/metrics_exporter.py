@@ -191,12 +191,14 @@ class ExperimentResults:
             checkpoint_interval: Steps between checkpoints
             checkpoints: List of checkpoint filenames
         """
-        self.data["experiment_results"]["model"].update({
-            "model_file": model_file,
-            "policy": policy,
-            "checkpoint_interval": checkpoint_interval,
-            "checkpoints": checkpoints or [],
-        })
+        self.data["experiment_results"]["model"].update(
+            {
+                "model_file": model_file,
+                "policy": policy,
+                "checkpoint_interval": checkpoint_interval,
+                "checkpoints": checkpoints or [],
+            }
+        )
 
     def update_metrics(
         self,
@@ -217,14 +219,16 @@ class ExperimentResults:
             training_time_seconds: Training duration
             converged: Whether agent converged
         """
-        self.data["experiment_results"]["metrics"].update({
-            "final_reward_mean": final_reward_mean,
-            "final_reward_std": final_reward_std,
-            "episode_length_mean": episode_length_mean,
-            "total_episodes": total_episodes,
-            "training_time_seconds": training_time_seconds,
-            "converged": converged,
-        })
+        self.data["experiment_results"]["metrics"].update(
+            {
+                "final_reward_mean": final_reward_mean,
+                "final_reward_std": final_reward_std,
+                "episode_length_mean": episode_length_mean,
+                "total_episodes": total_episodes,
+                "training_time_seconds": training_time_seconds,
+                "converged": converged,
+            }
+        )
 
     def update_hyperparameters(self, **kwargs) -> None:
         """Update hyperparameters.
@@ -249,16 +253,20 @@ class ExperimentResults:
             action_space: Action space specification
             reward_threshold: Success threshold
         """
-        self.data["experiment_results"]["environment"].update({
-            "name": name,
-            "observation_space": observation_space,
-            "action_space": action_space,
-            "reward_threshold": reward_threshold,
-        })
+        self.data["experiment_results"]["environment"].update(
+            {
+                "name": name,
+                "observation_space": observation_space,
+                "action_space": action_space,
+                "reward_threshold": reward_threshold,
+            }
+        )
 
     def finalize(self) -> None:
         """Mark experiment as complete."""
-        self.data["experiment_results"]["metadata"]["end_time"] = datetime.now().isoformat()
+        self.data["experiment_results"]["metadata"]["end_time"] = (
+            datetime.now().isoformat()
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary.

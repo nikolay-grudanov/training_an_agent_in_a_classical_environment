@@ -66,9 +66,7 @@ class CheckpointManager:
         self.config = config or CheckpointConfig()
 
         # Build checkpoint directory path
-        self.checkpoint_dir = (
-            self.config.checkpoint_dir / experiment_id / "checkpoints"
-        )
+        self.checkpoint_dir = self.config.checkpoint_dir / experiment_id / "checkpoints"
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
         # Track checkpoints
@@ -143,7 +141,7 @@ class CheckpointManager:
         # Load model based on algorithm
         model = self._load_model_by_algorithm(checkpoint_path)
 
-        logger.info(f"✅ Checkpoint loaded successfully")
+        logger.info("✅ Checkpoint loaded successfully")
         return model
 
     def load_latest_checkpoint(self) -> tuple[Optional[BaseAlgorithm], int]:
@@ -335,31 +333,31 @@ if __name__ == "__main__":
     # Create PPO model and checkpoint manager
     model, checkpoint_manager = create_model("PPO", env, seed=42)
 
-    print(f"\n✅ Model created: PPO with seed=42")
+    print("\n✅ Model created: PPO with seed=42")
     print(f"📁 Checkpoint directory: {checkpoint_manager.checkpoint_dir}")
 
     # Save initial checkpoint
-    print(f"\n💾 Saving initial checkpoint...")
+    print("\n💾 Saving initial checkpoint...")
     checkpoint_info = checkpoint_manager.save_checkpoint(model, 0, 0, 0.0)
     print(f"   Checkpoint: {checkpoint_info['path']}")
 
     # Simulate some training steps
-    print(f"\n🏋️ Simulating training...")
+    print("\n🏋️ Simulating training...")
     model.learn(total_timesteps=100, progress_bar=False)
 
     # Save another checkpoint
-    print(f"💾 Saving checkpoint at 100 steps...")
+    print("💾 Saving checkpoint at 100 steps...")
     checkpoint_info = checkpoint_manager.save_checkpoint(model, 100, 5, 50.0)
 
     # Get summary
     summary = checkpoint_manager.get_checkpoint_summary()
-    print(f"\n📊 Checkpoint Summary:")
+    print("\n📊 Checkpoint Summary:")
     print(f"   Total checkpoints: {summary['total_checkpoints']}")
     print(f"   Latest timestep: {summary['latest_timestep']}")
     print(f"   Latest reward: {summary['latest_reward']}")
 
     # Test loading
-    print(f"\n📂 Testing checkpoint loading...")
+    print("\n📂 Testing checkpoint loading...")
     loaded_model, last_timestep = checkpoint_manager.load_latest_checkpoint()
     if loaded_model:
         print(f"✅ Loaded checkpoint from {last_timestep} steps")

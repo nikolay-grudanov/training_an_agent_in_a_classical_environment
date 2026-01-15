@@ -230,9 +230,7 @@ class CleanupCategorizer:
 
         return summary
 
-    def _categorize_root_file(
-        self, path: Path, relative: Path
-    ) -> CategorizationResult:
+    def _categorize_root_file(self, path: Path, relative: Path) -> CategorizationResult:
         """Categorize a file in the root directory.
 
         Args:
@@ -268,9 +266,7 @@ class CleanupCategorizer:
             reason="Not matching any remove pattern",
         )
 
-    def _categorize_src_file(
-        self, path: Path, relative: Path
-    ) -> CategorizationResult:
+    def _categorize_src_file(self, path: Path, relative: Path) -> CategorizationResult:
         """Categorize a file in the src/ directory.
 
         Args:
@@ -437,9 +433,17 @@ if __name__ == "__main__":
     summary = categorizer.get_removal_summary()
     print("\nRemoval Summary:")
     print(f"   Total items to remove: {summary['total_count']}")
-    print(f"   Files: {len(summary['files']) if isinstance(summary['files'], list) else 0}")
-    print(f"   Directories: {len(summary['directories']) if isinstance(summary['directories'], list) else 0}")
-    print(f"   Root items: {len(summary['root_items']) if isinstance(summary['root_items'], list) else 0}")
-    print(f"   Source items: {len(summary['src_items']) if isinstance(summary['src_items'], list) else 0}")
+    print(
+        f"   Files: {len(summary['files']) if isinstance(summary['files'], list) else 0}"
+    )
+    print(
+        f"   Directories: {len(summary['directories']) if isinstance(summary['directories'], list) else 0}"
+    )
+    print(
+        f"   Root items: {len(summary['root_items']) if isinstance(summary['root_items'], list) else 0}"
+    )
+    print(
+        f"   Source items: {len(summary['src_items']) if isinstance(summary['src_items'], list) else 0}"
+    )
 
     print("\n✅ Categorization test complete!")

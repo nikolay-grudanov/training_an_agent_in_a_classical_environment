@@ -25,7 +25,12 @@ from .core import (
     is_keep_src_dir,
     is_remove_src_file,
 )
-from .categorizer import CleanupCategorizer, CategorizationResult, categorize_file, categorize_directory
+from .categorizer import (
+    CleanupCategorizer,
+    CategorizationResult,
+    categorize_file,
+    categorize_directory,
+)
 from .executor import CleanupExecutor, CleanupResult, DryRunResult
 
 __all__ = [

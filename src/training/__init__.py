@@ -35,11 +35,10 @@ from .train_loop import (
 __all__ = [
     # Trainer components
     "Trainer",
-    "TrainerConfig", 
+    "TrainerConfig",
     "TrainingMode",
     "TrainingResult",
     "create_trainer_from_config",
-    
     # Training loop components
     "TrainingLoop",
     "TrainingProgress",

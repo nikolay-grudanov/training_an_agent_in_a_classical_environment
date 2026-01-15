@@ -8,12 +8,12 @@ from .base import (
     ExperimentManager,
     ExperimentResult,
     SimpleExperiment,
-    create_experiment
+    create_experiment,
 )
 
 __all__ = [
     "ExperimentManager",
-    "ExperimentResult", 
+    "ExperimentResult",
     "SimpleExperiment",
     "create_experiment",
 ]

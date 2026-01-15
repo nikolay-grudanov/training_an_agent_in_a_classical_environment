@@ -13,21 +13,17 @@ from .td3_agent import TD3Agent, TD3Config
 __all__ = [
     # Базовые классы
     "Agent",
-    "AgentConfig", 
+    "AgentConfig",
     "TrainingResult",
-    
     # PPO агент
     "PPOAgent",
     "PPOConfig",
-    
     # A2C агент
     "A2CAgent",
     "A2CConfig",
-    
     # SAC агент
     "SACAgent",
     "SACConfig",
-    
     # TD3 агент
     "TD3Agent",
     "TD3Config",

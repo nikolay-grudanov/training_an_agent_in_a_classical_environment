@@ -16,7 +16,6 @@ Usage:
 import argparse
 import json
 import logging
-import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -150,7 +149,9 @@ class PPOTrainer:
 
     def train(self) -> None:
         """Execute training loop with checkpointing and metrics collection."""
-        logger.info(f"Starting {self.algo.upper()} training for {self.total_timesteps} steps")
+        logger.info(
+            f"Starting {self.algo.upper()} training for {self.total_timesteps} steps"
+        )
         self.start_time = datetime.utcnow()
 
         try:
@@ -183,11 +184,13 @@ class PPOTrainer:
                 # Log progress
                 logger.info(
                     f"Progress: {timesteps_completed}/{self.total_timesteps} "
-                    f"({100*timesteps_completed/self.total_timesteps:.1f}%)"
+                    f"({100 * timesteps_completed / self.total_timesteps:.1f}%)"
                 )
 
             self.end_time = datetime.utcnow()
-            logger.info(f"Training completed in {self._get_training_time():.1f} seconds")
+            logger.info(
+                f"Training completed in {self._get_training_time():.1f} seconds"
+            )
 
         except KeyboardInterrupt:
             logger.warning("Training interrupted by user")

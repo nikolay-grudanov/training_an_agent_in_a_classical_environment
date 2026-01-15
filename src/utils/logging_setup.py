@@ -139,5 +139,5 @@ if __name__ == "__main__":
     logger.warning("This is a WARNING message")
     logger.error("This is an ERROR message")
 
-    print(f"\n✅ Logging configured successfully!")
-    print(f"Log files in: results/logs/")
+    print("\n✅ Logging configured successfully!")
+    print("Log files in: results/logs/")

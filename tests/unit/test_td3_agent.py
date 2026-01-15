@@ -20,11 +20,18 @@ import numpy as np
 import pytest
 import torch
 from gymnasium import spaces
-from stable_baselines3 import TD3
-from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
+from stable_baselines3.common.noise import (
+    NormalActionNoise,
+    OrnsteinUhlenbeckActionNoise,
+)
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from src.agents.td3_agent import TD3Agent, TD3Config, TD3MetricsCallback, TD3EarlyStoppingCallback
+from src.agents.td3_agent import (
+    TD3Agent,
+    TD3Config,
+    TD3MetricsCallback,
+    TD3EarlyStoppingCallback,
+)
 from src.agents.base import TrainingResult
 
 
@@ -125,9 +132,7 @@ class TestTD3Config:
     def test_policy_kwargs_setup(self) -> None:
         """Тест настройки policy_kwargs."""
         config = TD3Config(
-            env_name="Test-v1",
-            net_arch=[256, 256],
-            activation_fn="tanh"
+            env_name="Test-v1", net_arch=[256, 256], activation_fn="tanh"
         )
 
         assert config.policy_kwargs["net_arch"] == [256, 256]
@@ -146,9 +151,7 @@ class TestTD3MetricsCallback:
         """Тест инициализации колбэка метрик."""
         metrics_tracker = Mock()
         callback = TD3MetricsCallback(
-            metrics_tracker=metrics_tracker,
-            log_freq=1000,
-            verbose=1
+            metrics_tracker=metrics_tracker, log_freq=1000, verbose=1
         )
 
         assert callback.metrics_tracker == metrics_tracker
@@ -189,7 +192,7 @@ class TestTD3MetricsCallback:
         """Тест логирования метрик."""
         metrics_tracker = Mock()
         callback = TD3MetricsCallback(metrics_tracker, log_freq=1)
-        
+
         # Добавляем атрибут model к callback
         callback.model = Mock()
         callback.model.logger = Mock()
@@ -197,7 +200,7 @@ class TestTD3MetricsCallback:
             "train/actor_loss": 0.1,
             "train/critic_loss": 0.2,
         }
-        
+
         callback.num_timesteps = 1000
 
         # Добавляем данные об эпизодах
@@ -219,7 +222,7 @@ class TestTD3EarlyStoppingCallback:
             target_reward=200.0,
             patience_episodes=50,
             min_improvement=5.0,
-            check_freq=1000
+            check_freq=1000,
         )
 
         assert callback.target_reward == 200.0
@@ -246,7 +249,7 @@ class TestTD3EarlyStoppingCallback:
             target_reward=300.0,  # Недостижимая награда
             patience_episodes=10,
             min_improvement=5.0,
-            check_freq=1
+            check_freq=1,
         )
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 100.0}] * 20
@@ -262,10 +265,7 @@ class TestTD3EarlyStoppingCallback:
     def test_improvement_detected(self) -> None:
         """Тест обнаружения улучшения."""
         callback = TD3EarlyStoppingCallback(
-            target_reward=300.0,
-            patience_episodes=10,
-            min_improvement=5.0,
-            check_freq=1
+            target_reward=300.0, patience_episodes=10, min_improvement=5.0, check_freq=1
         )
         callback.model = Mock()
         callback.model.ep_info_buffer = [{"r": 150.0}] * 20
@@ -310,7 +310,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_agent_initialization(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_agent_initialization(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест инициализации TD3 агента."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -330,13 +339,18 @@ class TestTD3Agent:
         """Тест валидации дискретного пространства действий."""
         discrete_env = Mock(spec=gym.Env)
         discrete_env.action_space = gym.spaces.Discrete(4)
-        discrete_env.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(4,))
+        discrete_env.observation_space = gym.spaces.Box(
+            low=-np.inf, high=np.inf, shape=(4,)
+        )
 
-        with patch("src.utils.set_seed"), \
-             patch("src.utils.get_experiment_logger"), \
-             patch("src.utils.get_metrics_tracker"):
-
-            with pytest.raises(ValueError, match="Алгоритм TD3 не поддерживает дискретные действия"):
+        with (
+            patch("src.utils.set_seed"),
+            patch("src.utils.get_experiment_logger"),
+            patch("src.utils.get_metrics_tracker"),
+        ):
+            with pytest.raises(
+                ValueError, match="Алгоритм TD3 не поддерживает дискретные действия"
+            ):
                 TD3Agent(config=td3_config, env=discrete_env)
 
     def test_invalid_config_type(self, mock_env: Mock) -> None:
@@ -354,7 +368,17 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_normal_action_noise_creation(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3, mock_make_vec_env, mock_noise_class: Mock, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_normal_action_noise_creation(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3,
+        mock_make_vec_env,
+        mock_noise_class: Mock,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест создания Gaussian шума для действий."""
         td3_config.action_noise_type = "normal"
         td3_config.action_noise_std = 0.2
@@ -382,7 +406,17 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_ou_action_noise_creation(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3, mock_make_vec_env, mock_noise_class: Mock, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_ou_action_noise_creation(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3,
+        mock_make_vec_env,
+        mock_noise_class: Mock,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест создания Ornstein-Uhlenbeck шума для действий."""
         td3_config.action_noise_type = "ornstein_uhlenbeck"
         td3_config.ou_sigma = 0.3
@@ -410,7 +444,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_no_action_noise_creation(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_no_action_noise_creation(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест создания агента без шума действий."""
         td3_config.action_noise_type = "none"
 
@@ -431,7 +474,17 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_learning_rate_schedule_creation(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3, mock_make_vec_env, mock_schedule: Mock, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_learning_rate_schedule_creation(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3,
+        mock_make_vec_env,
+        mock_schedule: Mock,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест создания расписания learning rate."""
         td3_config.use_lr_schedule = True
         td3_config.lr_schedule_type = "linear"
@@ -451,7 +504,7 @@ class TestTD3Agent:
         mock_schedule.assert_called_once_with(
             start=1e-3,
             end=1e-4,  # 1e-3 * 0.1
-            end_fraction=1.0
+            end_fraction=1.0,
         )
 
     @patch("src.agents.td3_agent.make_vec_env")
@@ -459,7 +512,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_exponential_learning_rate_schedule(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_exponential_learning_rate_schedule(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест экспоненциального расписания learning rate."""
         td3_config.use_lr_schedule = True
         td3_config.lr_schedule_type = "exponential"
@@ -491,7 +553,17 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_model_creation(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_make_vec_env, mock_td3_class: Mock, mock_get_linear_fn, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_model_creation(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_make_vec_env,
+        mock_td3_class: Mock,
+        mock_get_linear_fn,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест создания модели TD3."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -520,7 +592,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_train_method(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_train_method(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест метода обучения."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -538,10 +619,7 @@ class TestTD3Agent:
 
         # Мок для evaluate
         with patch.object(agent, "evaluate") as mock_evaluate:
-            mock_evaluate.return_value = {
-                "mean_reward": 150.0,
-                "std_reward": 25.0
-            }
+            mock_evaluate.return_value = {"mean_reward": 150.0, "std_reward": 25.0}
 
             result = agent.train(total_timesteps=1000)
 
@@ -557,7 +635,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_predict_method(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_predict_method(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест метода предсказания."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -584,14 +671,23 @@ class TestTD3Agent:
         call_args = mock_model.predict.call_args
         # Проверяем, что первый аргумент - это массив с теми же значениями
         np.testing.assert_array_equal(call_args[0][0], observation)
-        assert call_args[1]['deterministic'] is True
+        assert call_args[1]["deterministic"] is True
 
     @patch("src.agents.td3_agent.make_vec_env")
     @patch("src.agents.td3_agent.TD3")
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_predict_untrained_model(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_predict_untrained_model(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест предсказания с необученной моделью."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -612,7 +708,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_save_and_load_model(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_save_and_load_model(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест сохранения и загрузки модели."""
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = Path(temp_dir) / "test_td3_model.zip"
@@ -639,7 +744,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_get_model_info(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_get_model_info(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест получения информации о модели."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -665,7 +779,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_reset_model(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_reset_model(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест сброса модели."""
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
@@ -688,7 +811,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_update_noise_schedule_normal(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_update_noise_schedule_normal(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест обновления расписания шума для Normal шума."""
         td3_config.action_noise_type = "normal"
         td3_config.use_noise_schedule = True
@@ -715,8 +847,7 @@ class TestTD3Agent:
         # Ожидаемый фактор: 1.0 - 0.5 * (1.0 - 0.1) = 0.55
         expected_sigma = 0.2 * 0.55
         np.testing.assert_array_almost_equal(
-            agent.action_noise.sigma,
-            np.array([expected_sigma, expected_sigma])
+            agent.action_noise.sigma, np.array([expected_sigma, expected_sigma])
         )
 
     @patch("src.agents.td3_agent.make_vec_env")
@@ -724,7 +855,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_update_noise_schedule_ou(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_update_noise_schedule_ou(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест обновления расписания шума для OU шума."""
         td3_config.action_noise_type = "ornstein_uhlenbeck"
         td3_config.use_noise_schedule = True
@@ -749,7 +889,7 @@ class TestTD3Agent:
         agent.update_noise_schedule(0.5)
 
         # Ожидаемый фактор: 0.1 ** 0.5 ≈ 0.316
-        expected_sigma = 0.3 * (0.1 ** 0.5)
+        expected_sigma = 0.3 * (0.1**0.5)
         assert abs(agent.action_noise.sigma - expected_sigma) < 1e-6
 
     @patch("src.agents.td3_agent.make_vec_env")
@@ -757,7 +897,16 @@ class TestTD3Agent:
     @patch("src.utils.set_seed")
     @patch("src.utils.get_experiment_logger")
     @patch("src.utils.get_metrics_tracker")
-    def test_callbacks_setup(self, mock_get_metrics_tracker, mock_get_logger, mock_set_seed, mock_td3_class: Mock, mock_make_vec_env, td3_config: TD3Config, mock_env: Mock) -> None:
+    def test_callbacks_setup(
+        self,
+        mock_get_metrics_tracker,
+        mock_get_logger,
+        mock_set_seed,
+        mock_td3_class: Mock,
+        mock_make_vec_env,
+        td3_config: TD3Config,
+        mock_env: Mock,
+    ) -> None:
         """Тест настройки колбэков."""
         td3_config.early_stopping = True
         td3_config.eval_freq = 1000
@@ -805,13 +954,14 @@ def test_reproducibility(seed: int) -> None:
     mock_env.action_space = gym.spaces.Box(low=-1.0, high=1.0, shape=(1,))
     mock_env.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(3,))
 
-    with patch("src.utils.CheckpointManager"), \
-         patch("src.agents.td3_agent.make_vec_env") as mock_make_vec_env, \
-         patch("src.agents.td3_agent.TD3"), \
-         patch("src.utils.set_seed") as mock_set_seed, \
-         patch("src.utils.get_experiment_logger"), \
-         patch("src.utils.get_metrics_tracker"):
-
+    with (
+        patch("src.utils.CheckpointManager"),
+        patch("src.agents.td3_agent.make_vec_env") as mock_make_vec_env,
+        patch("src.agents.td3_agent.TD3"),
+        patch("src.utils.set_seed") as mock_set_seed,
+        patch("src.utils.get_experiment_logger"),
+        patch("src.utils.get_metrics_tracker"),
+    ):
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
         mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(3,))
@@ -833,12 +983,13 @@ def test_training_error_handling() -> None:
     mock_env.action_space = gym.spaces.Box(low=-1.0, high=1.0, shape=(2,))
     mock_env.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(4,))
 
-    with patch("src.agents.td3_agent.make_vec_env") as mock_make_vec_env, \
-         patch("src.agents.td3_agent.TD3") as mock_td3_class, \
-         patch("src.utils.set_seed"), \
-         patch("src.utils.get_experiment_logger"), \
-         patch("src.utils.get_metrics_tracker"):
-
+    with (
+        patch("src.agents.td3_agent.make_vec_env") as mock_make_vec_env,
+        patch("src.agents.td3_agent.TD3") as mock_td3_class,
+        patch("src.utils.set_seed"),
+        patch("src.utils.get_experiment_logger"),
+        patch("src.utils.get_metrics_tracker"),
+    ):
         # Настройка моков
         mock_vec_env = MagicMock(spec=DummyVecEnv)
         mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))

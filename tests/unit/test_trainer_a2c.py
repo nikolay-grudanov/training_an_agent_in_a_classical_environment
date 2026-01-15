@@ -160,7 +160,9 @@ class TestA2CReproducibility:
 
     @patch("gymnasium.make")
     @patch("src.training.train.A2C")
-    def test_a2c_reproducibility_same_seed(self, mock_a2c: Mock, mock_gym: Mock) -> None:
+    def test_a2c_reproducibility_same_seed(
+        self, mock_a2c: Mock, mock_gym: Mock
+    ) -> None:
         """Test that A2C produces same results with same seed."""
         mock_env = MagicMock()
         mock_gym.return_value = mock_env

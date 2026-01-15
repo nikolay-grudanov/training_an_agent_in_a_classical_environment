@@ -270,6 +270,8 @@ def test_set_seed(seed: int) -> None:
 - Files (experiment results, trained models, videos) (001-research-spec-update)
 - Python (conda environment "rocm") + Stable-Baselines3 (PPO/A2C), Gymnasium (LunarLander-v3), PyTorch, NumPy, Matplotlib (001-cleanup-ppo-a2c-experiments)
 - JSON for metrics/audit reports, Pickle for trained models (001-cleanup-ppo-a2c-experiments)
+- Python 3.10.14 + Stable-Baselines3, Gymnasium, PyTorch, NumPy, Matplotlib, imageio (003-experiments-completion)
+- Files (experiment results, trained models, videos, metrics) (003-experiments-completion)
 
 ## Recent Changes
 - 002-project-cleanup-validation: Added Python 3.10.14

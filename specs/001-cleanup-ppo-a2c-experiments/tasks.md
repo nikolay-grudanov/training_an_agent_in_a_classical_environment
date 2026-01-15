@@ -270,34 +270,34 @@ Phase 7: Polish & Cross-Cutting ──────► Final validation
 
 **Goal**: Final validation, documentation, and reproducibility verification
 
-- [ ] T024 Create integration test suite:
-  - Create `tests/integration/test_full_workflow.py`
-  - Test complete workflow: audit → cleanup → PPO → A2C
-  - Verify all output files generated correctly
-  - Test on clean repository state
+- [X] T024 Create integration test suite:
+   - Create `tests/integration/test_full_workflow.py`
+   - Test complete workflow: audit → cleanup → PPO → A2C
+   - Verify all output files generated correctly
+   - Test on clean repository state
 
-- [ ] T025 Validate reproducibility per SC-004:
-  - Run PPO training twice with seed=42
-  - Compare final_reward_mean and reward_std across runs
-  - Verify std deviation < 0.01 (PERFECT REPRODUCIBILITY)
-  - Document reproducibility validation results
+- [X] T025 Validate reproducibility per SC-004:
+   - Run PPO training twice with seed=42
+   - Compare final_reward_mean and reward_std across runs
+   - Verify std deviation < 0.01 (PERFECT REPRODUCIBILITY)
+   - Document reproducibility validation results
 
-- [ ] T026 Update quickstart.md with execution verification:
-  - Add validation checklist for each phase
-  - Add troubleshooting section for common errors
-  - Add expected output examples for each command
+- [X] T026 Update quickstart.md with execution verification:
+   - Add validation checklist for each phase
+   - Add troubleshooting section for common errors
+   - Add expected output examples for each command
 
-- [ ] T027 Final cleanup and documentation:
-  - Verify all paths in contracts match implemented paths
-  - Update any outdated paths in documentation
-  - Ensure AGENTS.md reflects all new technologies
-  - Run linter (ruff) on all new code
+- [X] T027 Final cleanup and documentation:
+   - Verify all paths in contracts match implemented paths
+   - Update any outdated paths in documentation
+   - Ensure AGENTS.md reflects all new technologies
+   - Run linter (ruff) on all new code
 
-- [ ] T028 [P] Performance validation per success criteria:
-  - Verify SC-001: Audit completes within 10 minutes
-  - Verify SC-003: PPO and A2C training complete within 30 minutes each
-  - Verify SC-006: Final reward > 200 for both algorithms
-  - Document performance benchmarks
+- [X] T028 [P] Performance validation per success criteria:
+   - Verify SC-001: Audit completes within 10 minutes
+   - Verify SC-003: PPO and A2C training complete within 30 minutes each
+   - Verify SC-006: Final reward > 200 for both algorithms
+   - Document performance benchmarks
 
 ---
 

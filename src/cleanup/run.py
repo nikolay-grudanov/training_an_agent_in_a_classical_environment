@@ -96,7 +96,9 @@ def main() -> int:
 
     # Get removal summary
     summary = categorizer.get_removal_summary()
-    total_items = summary["total_count"] if isinstance(summary["total_count"], int) else 0
+    total_items = (
+        summary["total_count"] if isinstance(summary["total_count"], int) else 0
+    )
 
     logger.info(f"Found {total_items} items to remove")
 
@@ -120,7 +122,9 @@ def main() -> int:
             for item in dry_run_result.items_to_remove[:10]:
                 logger.info(f"   - {item}")
             if len(dry_run_result.items_to_remove) > 10:
-                logger.info(f"   ... and {len(dry_run_result.items_to_remove) - 10} more")
+                logger.info(
+                    f"   ... and {len(dry_run_result.items_to_remove) - 10} more"
+                )
 
         logger.info("\n⚠️  Run without --dry-run to execute changes")
         return 0
@@ -147,7 +151,9 @@ def main() -> int:
         logger.info("\n📊 Cleanup Summary:")
         logger.info(f"   Items removed: {len(result.items_removed)}")
         logger.info(f"   Items kept: {len(result.items_kept)}")
-        logger.info(f"   Validation: {'✅ PASSED' if result.validation_passed else '❌ FAILED'}")
+        logger.info(
+            f"   Validation: {'✅ PASSED' if result.validation_passed else '❌ FAILED'}"
+        )
 
         if result.errors:
             logger.warning(f"\n⚠️  Errors encountered ({len(result.errors)}):")

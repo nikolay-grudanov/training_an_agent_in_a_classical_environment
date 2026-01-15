@@ -10,7 +10,6 @@ from src.audit.core import (
     ImportTestResult,
     SmokeTestResult,
     test_module_import,
-    run_smoke_test,
     discover_python_files,
 )
 from src.audit.assessor import (
@@ -22,7 +21,6 @@ from src.audit.assessor import (
 )
 from src.audit.report_generator import (
     AuditReportGenerator,
-    AuditSummary,
     generate_audit_report,
 )
 
@@ -70,7 +68,9 @@ class TestImportTestResult:
             error_type="ModuleNotFoundError",
         )
         assert result.success is False
-        assert result.error_message == "ModuleNotFoundError: No module named 'nonexistent'"
+        assert (
+            result.error_message == "ModuleNotFoundError: No module named 'nonexistent'"
+        )
         assert result.error_type == "ModuleNotFoundError"
 
 
@@ -114,9 +114,7 @@ class TestImportTestingFunctions:
 
     def test_import_corrupted_file(self):
         """Test importing a file with syntax errors."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".py", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             f.write("def broken_function():\n    syntax error here\n")
             temp_path = f.name
 

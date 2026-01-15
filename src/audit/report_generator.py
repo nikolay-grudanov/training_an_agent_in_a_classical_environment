@@ -137,8 +137,7 @@ class AuditReportGenerator:
             a for a in self.assessments if a.status == ModuleStatus.BROKEN.value
         ]
         needs_fixing_modules = [
-            a for a in self.assessments
-            if a.status == ModuleStatus.NEEDS_FIXING.value
+            a for a in self.assessments if a.status == ModuleStatus.NEEDS_FIXING.value
         ]
 
         if broken_modules:
@@ -262,19 +261,21 @@ if __name__ == "__main__":
         assessment = assess_module(module_path, import_result, smoke_result)
         generator.add_assessment(assessment)
 
-        print(f"  {assessment.status_icon} {assessment.module_name}: {assessment.status}")
+        print(
+            f"  {assessment.status_icon} {assessment.module_name}: {assessment.status}"
+        )
 
     # Generate and save reports
     print("\nGenerating reports...")
     md_path, json_path = generate_audit_report(generator.assessments, str(scope))
 
-    print(f"\n✅ Reports generated:")
+    print("\n✅ Reports generated:")
     print(f"   Markdown: {md_path}")
     print(f"   JSON: {json_path}")
 
     # Display summary
     summary = generator.generate_summary()
-    print(f"\n📊 Summary:")
+    print("\n📊 Summary:")
     print(f"   Total: {summary.total_modules}")
     print(f"   Working: {summary.working} ✅")
     print(f"   Broken: {summary.broken} ❌")
