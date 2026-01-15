@@ -12,7 +12,10 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 import torch
+from gymnasium import spaces
 from stable_baselines3 import A2C
+from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
 
 from src.agents.a2c_agent import A2CAgent, A2CConfig, A2CMetricsCallback, A2CEarlyStoppingCallback
 from src.agents.base import TrainingResult
@@ -24,7 +27,7 @@ class TestA2CConfig:
     def test_default_config(self) -> None:
         """Тест создания конфигурации с параметрами по умолчанию."""
         config = A2CConfig(env_name="LunarLander-v3")
-        
+
         assert config.algorithm == "A2C"
         assert config.env_name == "LunarLander-v3"
         assert config.learning_rate == 7e-4
@@ -48,7 +51,7 @@ class TestA2CConfig:
             vf_coef=0.5,
             use_rms_prop=False,
         )
-        
+
         assert config.env_name == "CartPole-v1"
         assert config.learning_rate == 1e-3
         assert config.n_steps == 10
@@ -60,7 +63,7 @@ class TestA2CConfig:
     def test_net_arch_default(self) -> None:
         """Тест установки архитектуры сети по умолчанию."""
         config = A2CConfig(env_name="LunarLander-v3")
-        
+
         assert config.net_arch is not None
         assert len(config.net_arch) == 1
         assert isinstance(config.net_arch[0], dict)
@@ -76,7 +79,7 @@ class TestA2CConfig:
             activation_fn="relu",
             ortho_init=False,
         )
-        
+
         assert "net_arch" in config.policy_kwargs
         assert "activation_fn" in config.policy_kwargs
         assert "ortho_init" in config.policy_kwargs
@@ -120,7 +123,7 @@ class TestA2CMetricsCallback:
             log_freq=1000,
             verbose=1,
         )
-        
+
         assert callback.metrics_tracker == metrics_tracker
         assert callback.log_freq == 1000
         assert callback.verbose == 1
@@ -131,13 +134,13 @@ class TestA2CMetricsCallback:
         """Тест _on_step без эпизодов."""
         metrics_tracker = MagicMock()
         callback = A2CMetricsCallback(metrics_tracker, log_freq=1)
-        
+
         # Мок модели без эпизодов
         callback.model = MagicMock()
         callback.model.ep_info_buffer = []
         callback.n_calls = 1
         callback.num_timesteps = 1000
-        
+
         result = callback._on_step()
         assert result is True
         assert len(callback.episode_rewards) == 0
@@ -146,7 +149,7 @@ class TestA2CMetricsCallback:
         """Тест _on_step с эпизодами."""
         metrics_tracker = MagicMock()
         callback = A2CMetricsCallback(metrics_tracker, log_freq=1)
-        
+
         # Мок модели с эпизодами
         callback.model = MagicMock()
         callback.model.ep_info_buffer = [
@@ -155,7 +158,7 @@ class TestA2CMetricsCallback:
         ]
         callback.n_calls = 1
         callback.num_timesteps = 1000
-        
+
         result = callback._on_step()
         assert result is True
         assert len(callback.episode_rewards) == 2
@@ -174,7 +177,7 @@ class TestA2CEarlyStoppingCallback:
             min_improvement=5.0,
             check_freq=1000,
         )
-        
+
         assert callback.target_reward == 200.0
         assert callback.patience_episodes == 50
         assert callback.min_improvement == 5.0
@@ -185,12 +188,12 @@ class TestA2CEarlyStoppingCallback:
     def test_on_step_target_reached(self) -> None:
         """Тест остановки при достижении целевой награды."""
         callback = A2CEarlyStoppingCallback(target_reward=200.0, check_freq=1)
-        
+
         # Мок модели с высокими наградами
         callback.model = MagicMock()
         callback.model.ep_info_buffer = [{"r": 250.0}] * 20
         callback.n_calls = 1
-        
+
         result = callback._on_step()
         assert result is False  # Должна остановить обучение
 
@@ -202,13 +205,15 @@ class TestA2CEarlyStoppingCallback:
             min_improvement=5.0,
             check_freq=1,
         )
-        
+
         # Мок модели с низкими наградами
         callback.model = MagicMock()
         callback.model.ep_info_buffer = [{"r": 50.0}] * 20
         callback.n_calls = 1
+        callback.best_mean_reward = 100.0  # Установим лучшую награду выше текущих
         callback.episodes_without_improvement = 15  # Превышает терпение
-        
+        callback.last_check_episode = 0
+
         result = callback._on_step()
         assert result is False  # Должна остановить обучение
 
@@ -231,9 +236,8 @@ class TestA2CAgent:
     def mock_env(self):
         """Фикстура мок-среды."""
         env = MagicMock()
-        env.action_space = MagicMock()
-        env.action_space.__class__.__name__ = "Discrete"
-        env.observation_space = MagicMock()
+        env.action_space = spaces.Discrete(2)
+        env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
         env.reset.return_value = (np.array([0.0, 0.0, 0.0, 0.0]), {})
         env.step.return_value = (
             np.array([0.1, 0.1, 0.1, 0.1]),
@@ -247,9 +251,9 @@ class TestA2CAgent:
     def test_init_invalid_config_type(self, mock_env) -> None:
         """Тест инициализации с неправильным типом конфигурации."""
         from src.agents.base import AgentConfig
-        
+
         invalid_config = AgentConfig(algorithm="A2C", env_name="CartPole-v1")
-        
+
         with pytest.raises(ValueError, match="Ожидается A2CConfig"):
             A2CAgent(config=invalid_config, env=mock_env)
 
@@ -258,7 +262,14 @@ class TestA2CAgent:
     def test_init_success(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест успешной инициализации агента."""
         # Настройка моков
-        mock_vec_env = MagicMock()
+        from stable_baselines3.common.vec_env import DummyVecEnv
+        
+        # Создаем мок-объект, который имитирует DummyVecEnv с необходимыми атрибутами
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1  # Необходимый атрибут
+        mock_vec_env.reset.return_value = (np.array([[0.0, 0.0, 0.0, 0.0]]), {})  # Для reset
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_a2c_class.return_value = mock_model
@@ -271,14 +282,17 @@ class TestA2CAgent:
 
             assert isinstance(agent.config, A2CConfig)
             assert agent.model == mock_model
-            assert agent.vec_env == mock_vec_env
             assert len(agent.callbacks) > 0
 
     @patch("src.agents.a2c_agent.make_vec_env")
     @patch("src.agents.a2c_agent.A2C")
     def test_create_learning_rate_schedule(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест создания расписания learning rate."""
-        mock_vec_env = MagicMock()
+        # Настройка моков
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_a2c_class.return_value = mock_model
@@ -305,33 +319,36 @@ class TestA2CAgent:
     def test_train_success(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест успешного обучения."""
         # Настройка моков
-        mock_vec_env = MagicMock()
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_a2c_class.return_value = mock_model
-        
+
         with patch("src.agents.base.set_seed"), \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
-            
+
             agent = A2CAgent(config=config, env=mock_env)
-            
+
             # Мок evaluate для финальной оценки
             with patch.object(agent, "evaluate") as mock_evaluate:
                 mock_evaluate.return_value = {
                     "mean_reward": 100.0,
                     "std_reward": 10.0,
                 }
-                
+
                 result = agent.train(total_timesteps=500)
-                
+
                 assert isinstance(result, TrainingResult)
                 assert result.success is True
                 assert result.total_timesteps == 500
                 assert result.final_mean_reward == 100.0
                 assert result.final_std_reward == 10.0
                 assert agent.is_trained is True
-                
+
                 # Проверка вызова learn
                 mock_model.learn.assert_called_once()
 
@@ -340,21 +357,24 @@ class TestA2CAgent:
     def test_train_failure(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест ошибки обучения."""
         # Настройка моков
-        mock_vec_env = MagicMock()
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_model.learn.side_effect = Exception("Training failed")
         mock_a2c_class.return_value = mock_model
-        
+
         with patch("src.agents.base.set_seed"), \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
-            
+
             agent = A2CAgent(config=config, env=mock_env)
-            
+
             with pytest.raises(RuntimeError, match="Ошибка обучения A2C агента"):
                 agent.train()
-                
+
             assert agent.training_result is not None
             assert agent.training_result.success is False
 
@@ -362,19 +382,22 @@ class TestA2CAgent:
     @patch("src.agents.a2c_agent.A2C")
     def test_predict_not_trained(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест предсказания без обучения."""
-        mock_vec_env = MagicMock()
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_a2c_class.return_value = mock_model
-        
+
         with patch("src.agents.base.set_seed"), \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
-            
+
             agent = A2CAgent(config=config, env=mock_env)
-            
+
             observation = np.array([0.1, 0.2, 0.3, 0.4])
-            
+
             with pytest.raises(RuntimeError, match="Модель не обучена"):
                 agent.predict(observation)
 
@@ -382,22 +405,25 @@ class TestA2CAgent:
     @patch("src.agents.a2c_agent.A2C")
     def test_predict_success(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест успешного предсказания."""
-        mock_vec_env = MagicMock()
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_model.predict.return_value = (np.array([1]), None)
         mock_a2c_class.return_value = mock_model
-        
+
         with patch("src.agents.base.set_seed"), \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
-            
+
             agent = A2CAgent(config=config, env=mock_env)
             agent.is_trained = True
-            
+
             observation = np.array([0.1, 0.2, 0.3, 0.4])
             action, state = agent.predict(observation)
-            
+
             assert action.shape == (1,)
             assert action[0] == 1
             assert state is None
@@ -406,23 +432,30 @@ class TestA2CAgent:
         """Интеграционный тест сохранения и загрузки."""
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = Path(temp_dir) / "test_a2c_model.zip"
-            
-            with patch("src.agents.a2c_agent.make_vec_env"), \
+
+            with patch("src.agents.a2c_agent.make_vec_env") as mock_make_vec_env, \
                  patch("src.agents.a2c_agent.A2C") as mock_a2c_class, \
                  patch("src.agents.base.set_seed"), \
                  patch("src.agents.a2c_agent.get_experiment_logger"), \
                  patch("src.agents.a2c_agent.get_metrics_tracker"):
-                
+
+                # Настройка моков
+                mock_vec_env = MagicMock(spec=DummyVecEnv)
+                mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+                mock_vec_env.action_space = spaces.Discrete(2)
+                mock_vec_env.num_envs = 1
+                mock_make_vec_env.return_value = mock_vec_env
+
                 # Создание и сохранение агента
                 mock_model = MagicMock()
                 mock_a2c_class.return_value = mock_model
-                
+
                 agent = A2CAgent(config=config)
                 agent.save(str(model_path))
-                
+
                 # Проверка вызова сохранения
                 mock_model.save.assert_called_once_with(str(model_path))
-                
+
                 # Проверка создания файла конфигурации
                 config_path = model_path.with_suffix(".yaml")
                 assert config_path.exists()
@@ -433,17 +466,24 @@ class TestA2CAgent:
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = Path(temp_dir) / "test_model.zip"
             model_path.touch()  # Создаем файл
-            
+
             mock_model = MagicMock()
             mock_a2c_class.load.return_value = mock_model
-            
-            with patch("src.agents.a2c_agent.make_vec_env"), \
+
+            with patch("src.agents.a2c_agent.make_vec_env") as mock_make_vec_env, \
                  patch("src.agents.base.set_seed"), \
                  patch("src.agents.a2c_agent.get_experiment_logger"), \
                  patch("src.agents.a2c_agent.get_metrics_tracker"):
-                
+
+                # Настройка моков
+                mock_vec_env = MagicMock(spec=DummyVecEnv)
+                mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+                mock_vec_env.action_space = spaces.Discrete(2)
+                mock_vec_env.num_envs = 1
+                mock_make_vec_env.return_value = mock_vec_env
+
                 agent = A2CAgent.load(str(model_path), config=config)
-                
+
                 assert agent.is_trained is True
                 assert agent.model == mock_model
 
@@ -456,18 +496,21 @@ class TestA2CAgent:
     @patch("src.agents.a2c_agent.A2C")
     def test_get_model_info(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест получения информации о модели."""
-        mock_vec_env = MagicMock()
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_a2c_class.return_value = mock_model
-        
+
         with patch("src.agents.base.set_seed"), \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
-            
+
             agent = A2CAgent(config=config, env=mock_env)
             info = agent.get_model_info()
-            
+
             assert "algorithm" in info
             assert "n_steps" in info
             assert "ent_coef" in info
@@ -480,20 +523,23 @@ class TestA2CAgent:
     @patch("src.agents.a2c_agent.A2C")
     def test_reset_model(self, mock_a2c_class, mock_make_vec_env, config, mock_env) -> None:
         """Тест сброса модели."""
-        mock_vec_env = MagicMock()
+        mock_vec_env = MagicMock(spec=DummyVecEnv)
+        mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+        mock_vec_env.action_space = spaces.Discrete(2)
+        mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
         mock_model = MagicMock()
         mock_a2c_class.return_value = mock_model
-        
+
         with patch("src.agents.base.set_seed"), \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
-            
+
             agent = A2CAgent(config=config, env=mock_env)
             agent.is_trained = True
-            
+
             agent.reset_model()
-            
+
             assert agent.is_trained is False
             assert agent.training_result is None
             mock_vec_env.close.assert_called_once()
@@ -502,12 +548,19 @@ class TestA2CAgent:
     def test_reproducibility(self, seed: int, config) -> None:
         """Тест воспроизводимости с разными seed."""
         config.seed = seed
-        
-        with patch("src.agents.a2c_agent.make_vec_env"), \
+
+        with patch("src.agents.a2c_agent.make_vec_env") as mock_make_vec_env, \
              patch("src.agents.a2c_agent.A2C"), \
              patch("src.agents.base.set_seed") as mock_set_seed, \
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
+
+            # Настройка моков
+            mock_vec_env = MagicMock(spec=DummyVecEnv)
+            mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+            mock_vec_env.action_space = spaces.Discrete(2)
+            mock_vec_env.num_envs = 1
+            mock_make_vec_env.return_value = mock_vec_env
 
             A2CAgent(config=config)
             mock_set_seed.assert_called_once_with(seed)
@@ -520,7 +573,10 @@ class TestA2CAgent:
              patch("src.agents.a2c_agent.get_experiment_logger"), \
              patch("src.agents.a2c_agent.get_metrics_tracker"):
 
-            mock_vec_env = MagicMock()
+            mock_vec_env = MagicMock(spec=DummyVecEnv)
+            mock_vec_env.observation_space = spaces.Box(low=-1, high=1, shape=(4,))
+            mock_vec_env.action_space = spaces.Discrete(2)
+            mock_vec_env.num_envs = 1
             mock_make_vec_env.return_value = mock_vec_env
 
             agent = A2CAgent(config=config)

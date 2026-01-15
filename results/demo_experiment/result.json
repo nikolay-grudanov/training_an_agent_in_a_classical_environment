@@ -1,9 +1,9 @@
 {
   "experiment_id": "demo_experiment",
   "status": "success",
-  "start_time": "2026-01-14T15:59:27.429923",
-  "end_time": "2026-01-14T15:59:27.633325",
-  "duration_seconds": 0.203402,
+  "start_time": "2026-01-15T01:18:26.796476",
+  "end_time": "2026-01-15T01:18:27.025508",
+  "duration_seconds": 0.229032,
   "config": {
     "experiment_name": "demo_experiment",
     "output_dir": "results",
@@ -25,7 +25,7 @@
       "target_kl": null,
       "device": "auto",
       "verbose": 1,
-      "seed": null,
+      "seed": 42,
       "policy_kwargs": null,
       "tensorboard_log": null
     },
@@ -68,7 +68,11 @@
       "seed": 42,
       "deterministic": true,
       "benchmark": false,
-      "use_cuda": false
+      "use_cuda": false,
+      "enforce_seed_consistency": true,
+      "validate_determinism": true,
+      "warn_on_seed_conflicts": true,
+      "auto_propagate_seeds": true
     }
   },
   "metrics": {

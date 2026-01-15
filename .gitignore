@@ -7,13 +7,32 @@
 
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
-
-# IPython
-profile_default/
-ipython_config.py
-
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
+
+# RL Experiment Results
+results/experiments/**
+!results/experiments/.gitkeep
+
+# Conda environments
+.rocm/
+
+# Checkpoints
+*.zip
+*.ckpt
+*.pt
+*.pth
+
+# Audit reports
+АУДИТ.md
+audit_report.json
+
+# Project structure validation
+project_structure.json
+
+# Metrics exports
+metrics.json
+results.json
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -238,22 +257,22 @@ wandb/
 .wandb/
 mlruns/
 .env*
-info_project.md
-PHASE_3_COMPLETION_REPORT.md
-PHASE_4_COMPLETION_REPORT.md
-TRAIN_LOOP_README.md
-TRAINING_SYSTEM.md
-EXPERIMENT_RUNNER_SUMMARY.md
-AGENTS.md
-.jupyter_ystore.db
-QWEN.md
-.specify/**
-.qwen/**
-.specify/memory/**
-RESULT_EXPORTER_SUMMARY.md
-INTEGRATION_TEST_REPORT.md
-README_UTILS.md
-SEED_IMPROVEMENTS_SUMMARY.md
-SAC_IMPLEMENTATION_SUMMARY.md
-spec/**
-A2C_IMPLEMENTATION_SUMMARY.md
+# info_project.md
+# PHASE_3_COMPLETION_REPORT.md
+# PHASE_4_COMPLETION_REPORT.md
+# TRAIN_LOOP_README.md
+# TRAINING_SYSTEM.md
+# EXPERIMENT_RUNNER_SUMMARY.md
+# AGENTS.md
+# .jupyter_ystore.db
+# QWEN.md
+# .specify/**
+# .qwen/**
+# .specify/memory/**
+# RESULT_EXPORTER_SUMMARY.md
+# INTEGRATION_TEST_REPORT.md
+# README_UTILS.md
+# SEED_IMPROVEMENTS_SUMMARY.md
+# SAC_IMPLEMENTATION_SUMMARY.md
+# spec/**
+# A2C_IMPLEMENTATION_SUMMARY.md

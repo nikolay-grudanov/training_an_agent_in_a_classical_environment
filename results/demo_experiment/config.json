@@ -19,7 +19,7 @@
     "target_kl": null,
     "device": "auto",
     "verbose": 1,
-    "seed": null,
+    "seed": 42,
     "policy_kwargs": null,
     "tensorboard_log": null
   },
@@ -62,6 +62,10 @@
     "seed": 42,
     "deterministic": true,
     "benchmark": false,
-    "use_cuda": false
+    "use_cuda": false,
+    "enforce_seed_consistency": true,
+    "validate_determinism": true,
+    "warn_on_seed_conflicts": true,
+    "auto_propagate_seeds": true
   }
 }

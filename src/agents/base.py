@@ -219,6 +219,7 @@ class Agent(ABC):
         if config.model_save_path:
             self.checkpoint_manager = CheckpointManager(
                 checkpoint_dir=Path(config.model_save_path).parent,
+                experiment_id=experiment_name or f"{config.algorithm}_{config.env_name}",
                 max_checkpoints=5,
             )
 

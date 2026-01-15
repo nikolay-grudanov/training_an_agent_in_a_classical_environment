@@ -1,6 +1,6 @@
 {
   "experiment_id": "demo_experiment",
-  "export_timestamp": "2026-01-14T15:59:27.633327",
+  "export_timestamp": "2026-01-15T01:18:27.025510",
   "total_timesteps": 4,
   "total_episodes": 0,
   "metrics": {
@@ -9,35 +9,35 @@
         "timestep": 0,
         "episode": 0,
         "value": 0.0,
-        "timestamp": "2026-01-14T15:59:27.633250",
+        "timestamp": "2026-01-15T01:18:27.025414",
         "metadata": {}
       },
       {
         "timestep": 1,
         "episode": 0,
         "value": 2.0,
-        "timestamp": "2026-01-14T15:59:27.633272",
+        "timestamp": "2026-01-15T01:18:27.025442",
         "metadata": {}
       },
       {
         "timestep": 2,
         "episode": 0,
         "value": 4.0,
-        "timestamp": "2026-01-14T15:59:27.633283",
+        "timestamp": "2026-01-15T01:18:27.025456",
         "metadata": {}
       },
       {
         "timestep": 3,
         "episode": 0,
         "value": 6.0,
-        "timestamp": "2026-01-14T15:59:27.633294",
+        "timestamp": "2026-01-15T01:18:27.025468",
         "metadata": {}
       },
       {
         "timestep": 4,
         "episode": 0,
         "value": 8.0,
-        "timestamp": "2026-01-14T15:59:27.633303",
+        "timestamp": "2026-01-15T01:18:27.025479",
         "metadata": {}
       }
     ]

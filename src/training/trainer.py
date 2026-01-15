@@ -371,9 +371,9 @@ class Trainer:
         set_seed(config.seed)
         
         # Инициализация логирования
+        from src.utils.logging import get_experiment_logger
         self.logger = get_experiment_logger(
             experiment_id=self.experiment_name,
-            log_level=logging.INFO if config.verbose > 0 else logging.WARNING,
         )
         
         # Инициализация трекера метрик
@@ -385,6 +385,7 @@ class Trainer:
         checkpoint_dir = Path(config.output_dir) / config.experiment_name / "checkpoints"
         self.checkpoint_manager = CheckpointManager(
             checkpoint_dir=checkpoint_dir,
+            experiment_id=self.experiment_name,
             max_checkpoints=config.max_checkpoints,
         )
         
@@ -665,7 +666,7 @@ class Trainer:
     def _setup_environment(self) -> None:
         """Настроить среду."""
         env_config = self.config.env_config or {}
-        
+
         if self.config.use_lunar_lander_wrapper and "LunarLander" in self.config.environment_name:
             # Использование специализированного wrapper для LunarLander
             self.env = LunarLanderEnvironment(
@@ -673,17 +674,18 @@ class Trainer:
                 **env_config
             )
         else:
-            # Использование универсального wrapper
-            self.env = EnvironmentWrapper(
-                env_id=self.config.environment_name,
-                config=env_config,
-                render_mode=self.config.render_mode,
-            )
-        
+            # Использование raw gymnasium среды для совместимости с SB3
+            import gymnasium as gym
+            env_kwargs = env_config.copy()
+            if self.config.render_mode:
+                env_kwargs['render_mode'] = self.config.render_mode
+
+            self.env = gym.make(self.config.environment_name, **env_kwargs)
+
         # Установка seed для среды
-        if hasattr(self.env, 'seed'):
-            self.env.seed(self.config.seed)
-        
+        if hasattr(self.env, 'reset'):
+            self.env.reset(seed=self.config.seed)
+
         self.logger.info(
             f"Среда настроена: {self.config.environment_name}",
             extra={
@@ -697,14 +699,153 @@ class Trainer:
         agent_class = self.AGENT_CLASSES.get(self.config.algorithm)
         if agent_class is None:
             raise ValueError(f"Неподдерживаемый алгоритм: {self.config.algorithm}")
-        
+
+        # Создаем конфигурацию агента нужного типа
+        agent_config = self._create_agent_config()
+
         self.agent = agent_class(
-            config=self.config.agent_config,
+            config=agent_config,
             env=self.env,
             experiment_name=self.experiment_name,
         )
-        
+
         self.logger.info(f"Агент {self.config.algorithm} настроен")
+
+    def _create_agent_config(self):
+        """Создать конфигурацию агента нужного типа."""
+        from src.agents import PPOConfig, A2CConfig, SACConfig, TD3Config, AgentConfig
+
+        # Определяем нужный тип конфигурации по алгоритму
+        if self.config.algorithm == "PPO":
+            config_class = PPOConfig
+        elif self.config.algorithm == "A2C":
+            config_class = A2CConfig
+        elif self.config.algorithm == "SAC":
+            config_class = SACConfig
+        elif self.config.algorithm == "TD3":
+            config_class = TD3Config
+        else:
+            # Используем базовый AgentConfig для неизвестных алгоритмов
+            config_class = AgentConfig
+
+        # Создаем конфигурацию с параметрами из trainer config
+        config_params = {
+            'algorithm': self.config.algorithm,
+            'env_name': self.config.environment_name,
+            'total_timesteps': self.config.total_timesteps,
+            'seed': self.config.seed,
+            'learning_rate': self.config.agent_config.learning_rate if self.config.agent_config else 3e-4,
+            'batch_size': self.config.agent_config.batch_size if self.config.agent_config else 64,
+            'n_steps': self.config.agent_config.n_steps if self.config.agent_config else 2048,
+            'n_epochs': self.config.agent_config.n_epochs if self.config.agent_config else 10,
+            'gamma': self.config.agent_config.gamma if self.config.agent_config else 0.99,
+            'gae_lambda': self.config.agent_config.gae_lambda if self.config.agent_config else 0.95,
+            'clip_range': self.config.agent_config.clip_range if self.config.agent_config else 0.2,
+            'ent_coef': self.config.agent_config.ent_coef if self.config.agent_config else 0.0,
+            'vf_coef': self.config.agent_config.vf_coef if self.config.agent_config else 0.5,
+            'max_grad_norm': self.config.agent_config.max_grad_norm if self.config.agent_config else 0.5,
+            'policy': self.config.agent_config.policy if self.config.agent_config else "MlpPolicy",
+            'policy_kwargs': self.config.agent_config.policy_kwargs if self.config.agent_config else None,
+            'device': self.config.agent_config.device if self.config.agent_config else "auto",
+            'verbose': self.config.agent_config.verbose if self.config.agent_config else 1,
+            'eval_freq': self.config.agent_config.eval_freq if self.config.agent_config else 10000,
+            'n_eval_episodes': self.config.agent_config.n_eval_episodes if self.config.agent_config else 10,
+            'save_freq': self.config.agent_config.save_freq if self.config.agent_config else 50000,
+            'log_interval': self.config.agent_config.log_interval if self.config.agent_config else 1,
+            'model_save_path': self.config.agent_config.model_save_path if self.config.agent_config else self.config.model_save_path,
+            'tensorboard_log': self.config.agent_config.tensorboard_log if self.config.agent_config else self.config.tensorboard_log,
+            'use_sde': self.config.agent_config.use_sde if self.config.agent_config else False,
+            'sde_sample_freq': self.config.agent_config.sde_sample_freq if self.config.agent_config else -1,
+            'target_kl': self.config.agent_config.target_kl if self.config.agent_config else None,
+        }
+
+        # Добавляем специфичные параметры для каждого типа конфигурации
+        if self.config.algorithm == "PPO":
+            # Добавляем специфичные параметры для PPO
+            config_params.update({
+                'n_steps': self.config.agent_config.n_steps if self.config.agent_config else 2048,
+                'batch_size': self.config.agent_config.batch_size if self.config.agent_config else 64,
+                'n_epochs': self.config.agent_config.n_epochs if self.config.agent_config else 10,
+                'clip_range': self.config.agent_config.clip_range if self.config.agent_config else 0.2,
+                'normalize_advantage': True,
+                'ent_coef': self.config.agent_config.ent_coef if self.config.agent_config else 0.01,
+                'vf_coef': self.config.agent_config.vf_coef if self.config.agent_config else 0.5,
+                'max_grad_norm': self.config.agent_config.max_grad_norm if self.config.agent_config else 0.5,
+                'use_lr_schedule': True,
+                'lr_schedule_type': 'linear',
+                'lr_final_ratio': 0.1,
+                'net_arch': [dict(pi=[64, 64], vf=[64, 64])],
+                'activation_fn': 'tanh',
+                'ortho_init': True,
+                'normalize_env': True,
+                'norm_obs': True,
+                'norm_reward': True,
+                'clip_obs': 10.0,
+                'clip_reward': 10.0,
+                'early_stopping': True,
+                'target_reward': 200.0,
+                'patience_episodes': 50,
+                'min_improvement': 5.0,
+                'use_tensorboard': True,
+                'log_std_init': 0.0,
+                'use_sde': self.config.agent_config.use_sde if self.config.agent_config else False,
+                'sde_sample_freq': self.config.agent_config.sde_sample_freq if self.config.agent_config else -1,
+                'stats_window_size': 100,
+                'target_kl': self.config.agent_config.target_kl if self.config.agent_config else 0.01,
+            })
+        elif self.config.algorithm == "A2C":
+            # Добавляем специфичные параметры для A2C
+            config_params.update({
+                'n_steps': self.config.agent_config.n_steps if self.config.agent_config else 5,
+                'gamma': self.config.agent_config.gamma if self.config.agent_config else 0.99,
+                'gae_lambda': self.config.agent_config.gae_lambda if self.config.agent_config else 1.0,
+                'ent_coef': self.config.agent_config.ent_coef if self.config.agent_config else 0.0,
+                'vf_coef': self.config.agent_config.vf_coef if self.config.agent_config else 0.25,
+                'max_grad_norm': self.config.agent_config.max_grad_norm if self.config.agent_config else 0.5,
+                'rms_prop_eps': 1e-5,
+                'alpha': 0.99,
+            })
+        elif self.config.algorithm == "SAC":
+            # Добавляем специфичные параметры для SAC
+            config_params.update({
+                'learning_rate': self.config.agent_config.learning_rate if self.config.agent_config else 3e-4,
+                'buffer_size': 1000000,
+                'learning_starts': 100,
+                'batch_size': self.config.agent_config.batch_size if self.config.agent_config else 256,
+                'tau': 0.005,
+                'gamma': self.config.agent_config.gamma if self.config.agent_config else 0.99,
+                'gradient_steps': 1,
+                'ent_coef': 'auto',
+                'target_update_interval': 1,
+                'target_entropy': 'auto',
+                'use_sde': self.config.agent_config.use_sde if self.config.agent_config else False,
+                'use_sde_at_warmup': False,
+                'sde_sample_freq': self.config.agent_config.sde_sample_freq if self.config.agent_config else -1,
+                'optimize_memory_usage': False,
+                'ent_coef_schedule': 'linear',
+                'use_sde_sample_freq': -1,
+            })
+        elif self.config.algorithm == "TD3":
+            # Добавляем специфичные параметры для TD3
+            config_params.update({
+                'learning_rate': self.config.agent_config.learning_rate if self.config.agent_config else 3e-4,
+                'buffer_size': 1000000,
+                'learning_starts': 10000,
+                'batch_size': self.config.agent_config.batch_size if self.config.agent_config else 100,
+                'tau': 0.005,
+                'gamma': self.config.agent_config.gamma if self.config.agent_config else 0.99,
+                'train_freq': 1,
+                'gradient_steps': 1,
+                'action_noise': None,
+                'replay_buffer_class': None,
+                'replay_buffer_kwargs': {},
+                'optimize_memory_usage': False,
+                'policy_delay': 2,
+                'target_policy_noise': 0.2,
+                'target_noise_clip': 0.5,
+            })
+
+        return config_class(**config_params)
     
     def _resume_training(self) -> None:
         """Восстановить обучение из чекпоинта."""

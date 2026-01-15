@@ -191,7 +191,13 @@ async def lifespan(app: FastAPI):
     
     # Настройка логирования
     log_config = get_logging_config()
-    setup_logging(**log_config)
+    from src.utils.logging import setup_logging
+    setup_logging(
+        log_level=log_config.get('level', 'INFO'),
+        log_dir=log_config.get('log_dir'),
+        console_output=True,
+        json_format=False
+    )
     
     # Инициализация сервисов
     config = get_api_config()
@@ -597,7 +603,6 @@ def run_app(
         "app": app,
         "host": config.settings.host,
         "port": config.settings.port,
-        "debug": config.settings.debug,
         "reload": config.settings.reload,
         "access_log": True,
         "log_level": config.settings.log_level.lower(),
