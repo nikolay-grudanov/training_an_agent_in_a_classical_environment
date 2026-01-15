@@ -219,6 +219,8 @@ class Agent(ABC):
         if config.model_save_path:
             self.checkpoint_manager = CheckpointManager(
                 checkpoint_dir=Path(config.model_save_path).parent,
+                experiment_id=experiment_name
+                or f"{config.algorithm}_{config.env_name}",
                 max_checkpoints=5,
             )
 
@@ -268,7 +270,7 @@ class Agent(ABC):
 
         # Проверка дискретных действий
         action_space_type = action_space.__class__.__name__
-        
+
         if action_space_type == "Discrete":
             if algorithm in ["SAC", "TD3", "DDPG"]:
                 raise ValueError(

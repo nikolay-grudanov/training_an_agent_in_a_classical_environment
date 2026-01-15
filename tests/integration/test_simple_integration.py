@@ -6,7 +6,6 @@
 import json
 import shutil
 import tempfile
-import time
 from pathlib import Path
 from typing import Dict
 
@@ -38,46 +37,37 @@ class TestSimpleIntegration:
     def test_configs(self, config_loader: ConfigLoader) -> Dict[str, RLConfig]:
         """Создать тестовые конфигурации PPO и A2C."""
         # Создаем baseline конфигурацию (PPO)
-        baseline_config = config_loader._create_config_object({
-            "algorithm": {
-                "name": "PPO",
-                "learning_rate": 0.0003,
-                "n_steps": 512,
-                "batch_size": 32,
-                "gamma": 0.99
-            },
-            "environment": {
-                "name": "LunarLander-v2"
-            },
-            "training": {
-                "total_timesteps": 5000,
-                "eval_freq": 1000
-            },
-            "seed": 42
-        })
+        baseline_config = config_loader._create_config_object(
+            {
+                "algorithm": {
+                    "name": "PPO",
+                    "learning_rate": 0.0003,
+                    "n_steps": 512,
+                    "batch_size": 32,
+                    "gamma": 0.99,
+                },
+                "environment": {"name": "LunarLander-v2"},
+                "training": {"total_timesteps": 5000, "eval_freq": 1000},
+                "seed": 42,
+            }
+        )
 
         # Создаем variant конфигурацию (A2C)
-        variant_config = config_loader._create_config_object({
-            "algorithm": {
-                "name": "A2C",
-                "learning_rate": 0.0007,
-                "n_steps": 5,
-                "gamma": 0.99
-            },
-            "environment": {
-                "name": "LunarLander-v2"
-            },
-            "training": {
-                "total_timesteps": 5000,
-                "eval_freq": 1000
-            },
-            "seed": 42
-        })
+        variant_config = config_loader._create_config_object(
+            {
+                "algorithm": {
+                    "name": "A2C",
+                    "learning_rate": 0.0007,
+                    "n_steps": 5,
+                    "gamma": 0.99,
+                },
+                "environment": {"name": "LunarLander-v2"},
+                "training": {"total_timesteps": 5000, "eval_freq": 1000},
+                "seed": 42,
+            }
+        )
 
-        return {
-            "baseline": baseline_config,
-            "variant": variant_config
-        }
+        return {"baseline": baseline_config, "variant": variant_config}
 
     def test_config_creation_and_validation(self, test_configs: Dict[str, RLConfig]):
         """Тест создания и валидации конфигураций."""
@@ -94,12 +84,12 @@ class TestSimpleIntegration:
         assert baseline.algorithm.name != variant.algorithm.name
         assert baseline.algorithm.learning_rate != variant.algorithm.learning_rate
 
-        print(f"✅ Конфигурации созданы: {baseline.algorithm.name} vs {variant.algorithm.name}")
+        print(
+            f"✅ Конфигурации созданы: {baseline.algorithm.name} vs {variant.algorithm.name}"
+        )
 
     def test_experiment_creation_and_lifecycle(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест создания эксперимента и управления жизненным циклом."""
         # Создаем эксперимент
@@ -107,14 +97,16 @@ class TestSimpleIntegration:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="PPO покажет лучшую стабильность обучения чем A2C",
-            output_dir=test_output_dir
+            output_dir=test_output_dir,
         )
 
         # Проверяем начальное состояние
         assert experiment.status == ExperimentStatus.CREATED
         assert experiment.experiment_id is not None
         assert experiment.experiment_dir.exists()
-        assert experiment.hypothesis == "PPO покажет лучшую стабильность обучения чем A2C"
+        assert (
+            experiment.hypothesis == "PPO покажет лучшую стабильность обучения чем A2C"
+        )
 
         # Тестируем жизненный цикл
         experiment.start()
@@ -135,9 +127,7 @@ class TestSimpleIntegration:
         print(f"✅ Эксперимент {experiment.experiment_id} прошел полный жизненный цикл")
 
     def test_experiment_results_simulation(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест добавления результатов и сравнения."""
         # Создаем эксперимент
@@ -145,7 +135,7 @@ class TestSimpleIntegration:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест симуляции результатов",
-            output_dir=test_output_dir / "results_test"
+            output_dir=test_output_dir / "results_test",
         )
 
         # Симулируем результаты обучения
@@ -155,7 +145,7 @@ class TestSimpleIntegration:
             "episode_length": 250,
             "convergence_timesteps": 3000,
             "training_time": 120.5,
-            "success": True
+            "success": True,
         }
 
         variant_results = {
@@ -164,7 +154,7 @@ class TestSimpleIntegration:
             "episode_length": 280,
             "convergence_timesteps": 3500,
             "training_time": 110.2,
-            "success": True
+            "success": True,
         }
 
         # Добавляем результаты
@@ -181,7 +171,7 @@ class TestSimpleIntegration:
         comparison = experiment.compare_results()
         assert "performance_metrics" in comparison
         assert "mean_reward" in comparison["performance_metrics"]
-        
+
         # Проверяем расчет улучшения
         improvement = comparison["performance_metrics"]["mean_reward"]["improvement"]
         expected_improvement = 140.8 - 150.5  # -9.7
@@ -190,9 +180,7 @@ class TestSimpleIntegration:
         print(f"✅ Результаты добавлены и сравнены: улучшение {improvement:.1f}")
 
     def test_experiment_serialization(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест сериализации и десериализации эксперимента."""
         # Создаем эксперимент с результатами
@@ -200,7 +188,7 @@ class TestSimpleIntegration:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест сериализации",
-            output_dir=test_output_dir / "serialization_test"
+            output_dir=test_output_dir / "serialization_test",
         )
 
         # Добавляем некоторые результаты
@@ -213,7 +201,7 @@ class TestSimpleIntegration:
         assert saved_path.suffix == ".json"
 
         # Проверяем содержимое файла
-        with open(saved_path, 'r', encoding='utf-8') as f:
+        with open(saved_path, "r", encoding="utf-8") as f:
             saved_data = json.load(f)
 
         assert "experiment_id" in saved_data
@@ -231,24 +219,27 @@ class TestSimpleIntegration:
         print(f"✅ Эксперимент сериализован и загружен: {saved_path}")
 
     def test_experiment_status_and_summary(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест получения статуса и сводки эксперимента."""
         experiment = Experiment(
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест статуса и сводки",
-            output_dir=test_output_dir / "status_test"
+            output_dir=test_output_dir / "status_test",
         )
 
         # Получаем статус
         status = experiment.get_status()
         required_fields = [
-            "experiment_id", "status", "hypothesis", "created_at",
-            "baseline_completed", "variant_completed", "results_available",
-            "output_dir"
+            "experiment_id",
+            "status",
+            "hypothesis",
+            "created_at",
+            "baseline_completed",
+            "variant_completed",
+            "results_available",
+            "output_dir",
         ]
 
         for field in required_fields:
@@ -270,7 +261,7 @@ class TestSimpleIntegration:
         # Проверяем конфигурации в сводке
         baseline_config = summary["configurations"]["baseline"]
         variant_config = summary["configurations"]["variant"]
-        
+
         assert baseline_config["algorithm"] == "PPO"
         assert variant_config["algorithm"] == "A2C"
         assert baseline_config["environment"] == "LunarLander-v2"
@@ -281,34 +272,38 @@ class TestSimpleIntegration:
     def test_configuration_error_handling(self, config_loader: ConfigLoader):
         """Тест обработки ошибок в конфигурации."""
         # Создаем валидную конфигурацию
-        valid_config = config_loader._create_config_object({
-            "algorithm": {"name": "PPO", "learning_rate": 0.0003},
-            "environment": {"name": "LunarLander-v2"},
-            "training": {"total_timesteps": 1000},
-            "seed": 42
-        })
+        valid_config = config_loader._create_config_object(
+            {
+                "algorithm": {"name": "PPO", "learning_rate": 0.0003},
+                "environment": {"name": "LunarLander-v2"},
+                "training": {"total_timesteps": 1000},
+                "seed": 42,
+            }
+        )
 
         # Тест с идентичными конфигурациями (должен вызвать ошибку)
         with pytest.raises(Exception):  # ConfigurationError
             Experiment(
                 baseline_config=valid_config,
                 variant_config=valid_config,  # Идентичная конфигурация
-                hypothesis="Невалидная гипотеза"
+                hypothesis="Невалидная гипотеза",
             )
 
         # Тест с пустой гипотезой
-        variant_config = config_loader._create_config_object({
-            "algorithm": {"name": "A2C", "learning_rate": 0.0007},
-            "environment": {"name": "LunarLander-v2"},
-            "training": {"total_timesteps": 1000},
-            "seed": 42
-        })
+        variant_config = config_loader._create_config_object(
+            {
+                "algorithm": {"name": "A2C", "learning_rate": 0.0007},
+                "environment": {"name": "LunarLander-v2"},
+                "training": {"total_timesteps": 1000},
+                "seed": 42,
+            }
+        )
 
         with pytest.raises(Exception):  # ConfigurationError
             Experiment(
                 baseline_config=valid_config,
                 variant_config=variant_config,
-                hypothesis=""  # Пустая гипотеза
+                hypothesis="",  # Пустая гипотеза
             )
 
         print("✅ Обработка ошибок конфигурации работает корректно")
@@ -316,18 +311,26 @@ class TestSimpleIntegration:
     def test_yaml_config_loading(self):
         """Тест загрузки конфигурации из YAML файла."""
         config_path = Path("configs/test_ppo_vs_a2c.yaml")
-        
+
         # Проверяем, что файл существует
         assert config_path.exists(), f"Конфигурационный файл не найден: {config_path}"
 
         # Загружаем и проверяем структуру
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
 
         # Проверяем обязательные секции
-        required_sections = ["experiment", "baseline", "variant", "evaluation", "comparison"]
+        required_sections = [
+            "experiment",
+            "baseline",
+            "variant",
+            "evaluation",
+            "comparison",
+        ]
         for section in required_sections:
-            assert section in config_data, f"Секция {section} отсутствует в конфигурации"
+            assert section in config_data, (
+                f"Секция {section} отсутствует в конфигурации"
+            )
 
         # Проверяем параметры эксперимента
         exp_config = config_data["experiment"]
@@ -338,7 +341,7 @@ class TestSimpleIntegration:
         # Проверяем конфигурации алгоритмов
         baseline_config = config_data["baseline"]
         variant_config = config_data["variant"]
-        
+
         assert baseline_config["algorithm"] != variant_config["algorithm"]
         assert baseline_config["environment"] == variant_config["environment"]
         assert baseline_config["training_steps"] <= 10000  # Для быстрого тестирования
@@ -348,19 +351,17 @@ class TestSimpleIntegration:
 
     @pytest.mark.integration
     def test_full_integration_pipeline(
-        self,
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Полный интеграционный тест пайплайна (без реального обучения)."""
         print("\n🚀 Запуск полного интеграционного теста пайплайна...")
-        
+
         # 1. Создание эксперимента
         experiment = Experiment(
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Полный интеграционный тест PPO vs A2C (симуляция)",
-            output_dir=test_output_dir / "full_pipeline"
+            output_dir=test_output_dir / "full_pipeline",
         )
         print("✅ Эксперимент создан")
 
@@ -371,12 +372,14 @@ class TestSimpleIntegration:
 
         # 3. Симуляция результатов обучения
         import numpy as np
-        
+
         # Симулируем более реалистичные результаты
         np.random.seed(42)
-        
+
         # PPO обычно более стабильный
-        baseline_rewards = np.random.normal(145, 15, 10)  # Среднее 145, стандартное отклонение 15
+        baseline_rewards = np.random.normal(
+            145, 15, 10
+        )  # Среднее 145, стандартное отклонение 15
         baseline_results = {
             "mean_reward": float(np.mean(baseline_rewards)),
             "std_reward": float(np.std(baseline_rewards)),
@@ -386,11 +389,13 @@ class TestSimpleIntegration:
             "episode_length": 180,
             "convergence_timesteps": 3200,
             "training_time": 150.0,
-            "success": True
+            "success": True,
         }
 
         # A2C может быть менее стабильным
-        variant_rewards = np.random.normal(138, 20, 10)  # Среднее 138, большее отклонение
+        variant_rewards = np.random.normal(
+            138, 20, 10
+        )  # Среднее 138, большее отклонение
         variant_results = {
             "mean_reward": float(np.mean(variant_rewards)),
             "std_reward": float(np.std(variant_rewards)),
@@ -400,7 +405,7 @@ class TestSimpleIntegration:
             "episode_length": 200,
             "convergence_timesteps": 3800,
             "training_time": 140.0,
-            "success": True
+            "success": True,
         }
 
         experiment.add_result("baseline", baseline_results)
@@ -417,7 +422,7 @@ class TestSimpleIntegration:
         mean_reward_comparison = comparison_result["performance_metrics"]["mean_reward"]
         improvement = mean_reward_comparison["improvement"]
         better_algorithm = mean_reward_comparison["better"]
-        
+
         print(f"📊 PPO средняя награда: {baseline_results['mean_reward']:.2f}")
         print(f"📊 A2C средняя награда: {variant_results['mean_reward']:.2f}")
         print(f"📊 Улучшение: {improvement:+.2f}")
@@ -436,7 +441,7 @@ class TestSimpleIntegration:
         # 8. Валидация финального состояния
         final_summary = experiment.get_summary()
         assert "results" in final_summary
-        
+
         final_status = experiment.get_status()
         assert final_status["results_available"]
         assert final_status["baseline_completed"]
@@ -455,7 +460,7 @@ class TestSimpleIntegration:
             "experiment": experiment,
             "baseline_results": baseline_results,
             "variant_results": variant_results,
-            "comparison": comparison_result
+            "comparison": comparison_result,
         }
 
 

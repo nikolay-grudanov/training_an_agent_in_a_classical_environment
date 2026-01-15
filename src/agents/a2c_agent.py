@@ -41,9 +41,6 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from src.agents.base import Agent, AgentConfig, TrainingResult
 from src.utils import (
     MetricsTracker,
-    set_seed,
-    get_experiment_logger,
-    get_metrics_tracker,
 )
 
 logger = logging.getLogger(__name__)

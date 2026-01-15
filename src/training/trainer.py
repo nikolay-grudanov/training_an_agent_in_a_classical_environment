@@ -6,7 +6,7 @@
 
 Поддерживаемые алгоритмы:
 - PPO (Proximal Policy Optimization)
-- A2C (Advantage Actor-Critic) 
+- A2C (Advantage Actor-Critic)
 - SAC (Soft Actor-Critic)
 - TD3 (Twin Delayed Deep Deterministic Policy Gradient)
 
@@ -27,7 +27,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
 import gymnasium as gym
-import numpy as np
 import yaml
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList
 
@@ -40,11 +39,9 @@ from src.agents import (
     SACAgent,
     TD3Agent,
 )
-from src.environments import EnvironmentWrapper, LunarLanderEnvironment
+from src.environments import LunarLanderEnvironment
 from src.utils import (
     CheckpointManager,
-    MetricsTracker,
-    get_experiment_logger,
     get_metrics_tracker,
     set_seed,
     RLConfig,
@@ -56,74 +53,74 @@ logger = logging.getLogger(__name__)
 
 class TrainingMode(Enum):
     """Режимы обучения."""
-    
-    TRAIN = "train"           # Обучение с нуля
-    RESUME = "resume"         # Продолжение обучения
-    EVALUATE = "evaluate"     # Только оценка
-    FINETUNE = "finetune"     # Дообучение
+
+    TRAIN = "train"  # Обучение с нуля
+    RESUME = "resume"  # Продолжение обучения
+    EVALUATE = "evaluate"  # Только оценка
+    FINETUNE = "finetune"  # Дообучение
 
 
 @dataclass
 class TrainerConfig:
     """Конфигурация системы обучения.
-    
+
     Содержит все параметры, необходимые для координации обучения,
     включая настройки агента, среды, мониторинга и сохранения.
     """
-    
+
     # Основные параметры
     experiment_name: str = "default_experiment"
     algorithm: str = "PPO"
     environment_name: str = "LunarLander-v3"
     mode: TrainingMode = TrainingMode.TRAIN
-    
+
     # Параметры обучения
     total_timesteps: int = 100_000
     seed: int = 42
     n_envs: int = 1  # Количество параллельных сред
-    
+
     # Конфигурация агента
     agent_config: Optional[AgentConfig] = None
-    
+
     # Настройки среды
     env_config: Optional[Dict[str, Any]] = None
     use_lunar_lander_wrapper: bool = True
     render_mode: Optional[str] = None
-    
+
     # Мониторинг и оценка
     eval_freq: int = 10_000
     n_eval_episodes: int = 10
     eval_deterministic: bool = True
-    
+
     # Сохранение и чекпоинты
     save_freq: int = 50_000
     checkpoint_freq: int = 25_000
     max_checkpoints: int = 5
-    
+
     # Пути
     output_dir: str = "results"
     model_save_path: Optional[str] = None
     logs_dir: Optional[str] = None
     tensorboard_log: Optional[str] = None
-    
+
     # Восстановление
     resume_from_checkpoint: Optional[str] = None
     resume_timestep: Optional[int] = None
-    
+
     # Раннее остановка
     early_stopping: bool = False
     patience: int = 5
     min_improvement: float = 0.01
-    
+
     # Дополнительные настройки
     verbose: int = 1
     log_interval: int = 1000
     progress_bar: bool = True
-    
+
     # Интеграция с экспериментами
     track_experiment: bool = True
     experiment_tags: List[str] = field(default_factory=list)
-    
+
     def __post_init__(self) -> None:
         """Валидация и нормализация конфигурации."""
         # Валидация алгоритма
@@ -133,50 +130,52 @@ class TrainerConfig:
                 f"Неподдерживаемый алгоритм: {self.algorithm}. "
                 f"Поддерживаемые: {supported_algorithms}"
             )
-        
+
         # Нормализация алгоритма
         self.algorithm = self.algorithm.upper()
-        
+
         # Валидация параметров
         if self.total_timesteps <= 0:
             raise ValueError(f"total_timesteps должен быть > 0: {self.total_timesteps}")
-        
+
         if self.eval_freq <= 0:
             raise ValueError(f"eval_freq должен быть > 0: {self.eval_freq}")
-        
+
         if self.n_eval_episodes <= 0:
             raise ValueError(f"n_eval_episodes должен быть > 0: {self.n_eval_episodes}")
-        
+
         # Создание путей
         self._setup_paths()
-        
+
         # Создание конфигурации агента если не задана
         if self.agent_config is None:
             self.agent_config = self._create_default_agent_config()
-    
+
     def _setup_paths(self) -> None:
         """Настроить пути для сохранения."""
         output_path = Path(self.output_dir)
         experiment_path = output_path / self.experiment_name
-        
+
         # Создание директорий
         experiment_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Настройка путей
         if self.model_save_path is None:
-            self.model_save_path = str(experiment_path / "models" / f"{self.algorithm.lower()}_model")
-        
+            self.model_save_path = str(
+                experiment_path / "models" / f"{self.algorithm.lower()}_model"
+            )
+
         if self.logs_dir is None:
             self.logs_dir = str(experiment_path / "logs")
-        
+
         if self.tensorboard_log is None:
             self.tensorboard_log = str(experiment_path / "tensorboard")
-        
+
         # Создание директорий
         Path(self.model_save_path).parent.mkdir(parents=True, exist_ok=True)
         Path(self.logs_dir).mkdir(parents=True, exist_ok=True)
         Path(self.tensorboard_log).mkdir(parents=True, exist_ok=True)
-    
+
     def _create_default_agent_config(self) -> AgentConfig:
         """Создать конфигурацию агента по умолчанию."""
         return AgentConfig(
@@ -188,14 +187,14 @@ class TrainerConfig:
             tensorboard_log=self.tensorboard_log,
             verbose=self.verbose,
         )
-    
+
     @classmethod
     def from_rl_config(cls, rl_config: RLConfig) -> "TrainerConfig":
         """Создать TrainerConfig из RLConfig.
-        
+
         Args:
             rl_config: Конфигурация RL системы
-            
+
         Returns:
             Конфигурация тренера
         """
@@ -223,7 +222,7 @@ class TrainerConfig:
             policy_kwargs=rl_config.algorithm.policy_kwargs,
             tensorboard_log=rl_config.algorithm.tensorboard_log,
         )
-        
+
         return cls(
             experiment_name=rl_config.experiment_name,
             algorithm=rl_config.algorithm.name,
@@ -245,41 +244,41 @@ class TrainerConfig:
 @dataclass
 class TrainingResult:
     """Результат обучения с расширенной информацией."""
-    
+
     # Основные метрики
     success: bool
     total_timesteps: int
     training_time: float
     final_mean_reward: float
     final_std_reward: float
-    
+
     # Результат агента
     agent_result: Optional[AgentTrainingResult] = None
-    
+
     # История обучения
     training_history: Dict[str, List[float]] = field(default_factory=dict)
     evaluation_history: Dict[str, List[float]] = field(default_factory=dict)
-    
+
     # Информация о модели
     model_path: Optional[str] = None
     checkpoint_paths: List[str] = field(default_factory=list)
     config_path: Optional[str] = None
-    
+
     # Метаданные
     experiment_name: str = ""
     algorithm: str = ""
     environment_name: str = ""
     seed: int = 42
-    
+
     # Ошибки
     error_message: Optional[str] = None
     warnings: List[str] = field(default_factory=list)
-    
+
     # Дополнительные метрики
     best_mean_reward: float = float("-inf")
     convergence_timestep: Optional[int] = None
     early_stopped: bool = False
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Преобразовать результат в словарь."""
         result_dict = {
@@ -303,7 +302,7 @@ class TrainingResult:
             "training_history": self.training_history,
             "evaluation_history": self.evaluation_history,
         }
-        
+
         if self.agent_result:
             result_dict["agent_result"] = {
                 "total_timesteps": self.agent_result.total_timesteps,
@@ -315,25 +314,25 @@ class TrainingResult:
                 "best_mean_reward": self.agent_result.best_mean_reward,
                 "success": self.agent_result.success,
             }
-        
+
         return result_dict
-    
+
     def save(self, path: Union[str, Path]) -> None:
         """Сохранить результат в файл.
-        
+
         Args:
             path: Путь для сохранения
         """
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(path, 'w', encoding='utf-8') as f:
+
+        with open(path, "w", encoding="utf-8") as f:
             yaml.dump(self.to_dict(), f, default_flow_style=False, allow_unicode=True)
 
 
 class Trainer:
     """Высокоуровневый оркестратор обучения RL агентов.
-    
+
     Координирует все компоненты системы обучения:
     - Создание и настройка агентов
     - Управление средами
@@ -341,11 +340,11 @@ class Trainer:
     - Сохранение чекпоинтов
     - Восстановление сессий
     - Оценка производительности
-    
+
     Поддерживает различные режимы работы и интеграцию
     с системами экспериментального трекинга.
     """
-    
+
     # Маппинг алгоритмов на классы агентов
     AGENT_CLASSES: Dict[str, Type[Agent]] = {
         "PPO": PPOAgent,
@@ -353,41 +352,47 @@ class Trainer:
         "SAC": SACAgent,
         "TD3": TD3Agent,
     }
-    
+
     def __init__(self, config: TrainerConfig) -> None:
         """Инициализировать тренер.
-        
+
         Args:
             config: Конфигурация обучения
-            
+
         Raises:
             ValueError: При некорректной конфигурации
             RuntimeError: При ошибке инициализации компонентов
         """
         self.config = config
         self.experiment_name = config.experiment_name
-        
+
         # Установка seed для воспроизводимости
         set_seed(config.seed)
-        
+
         # Инициализация логирования
+        from src.utils.rl_logging import get_experiment_logger
+
         self.logger = get_experiment_logger(
             experiment_id=self.experiment_name,
-            log_level=logging.INFO if config.verbose > 0 else logging.WARNING,
         )
-        
+
         # Инициализация трекера метрик
-        self.metrics_tracker = get_metrics_tracker(
-            experiment_id=self.experiment_name
-        ) if config.track_experiment else None
-        
+        self.metrics_tracker = (
+            get_metrics_tracker(experiment_id=self.experiment_name)
+            if config.track_experiment
+            else None
+        )
+
         # Инициализация менеджера чекпоинтов
-        checkpoint_dir = Path(config.output_dir) / config.experiment_name / "checkpoints"
+        checkpoint_dir = (
+            Path(config.output_dir) / config.experiment_name / "checkpoints"
+        )
         self.checkpoint_manager = CheckpointManager(
             checkpoint_dir=checkpoint_dir,
+            experiment_id=self.experiment_name,
             max_checkpoints=config.max_checkpoints,
         )
-        
+
         # Состояние обучения
         self.agent: Optional[Agent] = None
         self.env: Optional[gym.Env] = None
@@ -395,7 +400,7 @@ class Trainer:
         self.current_timestep = 0
         self.best_mean_reward = float("-inf")
         self.patience_counter = 0
-        
+
         # История обучения
         self.training_history: Dict[str, List[float]] = {
             "timesteps": [],
@@ -403,13 +408,13 @@ class Trainer:
             "std_rewards": [],
             "episode_lengths": [],
         }
-        
+
         self.evaluation_history: Dict[str, List[float]] = {
             "timesteps": [],
             "mean_rewards": [],
             "std_rewards": [],
         }
-        
+
         self.logger.info(
             f"Инициализирован Trainer для эксперимента '{self.experiment_name}'",
             extra={
@@ -418,62 +423,62 @@ class Trainer:
                 "mode": config.mode.value,
                 "total_timesteps": config.total_timesteps,
                 "seed": config.seed,
-            }
+            },
         )
-    
+
     def setup(self) -> None:
         """Настроить все компоненты для обучения.
-        
+
         Raises:
             RuntimeError: При ошибке настройки компонентов
         """
         try:
             # Создание среды
             self._setup_environment()
-            
+
             # Создание агента
             self._setup_agent()
-            
+
             # Восстановление состояния если необходимо
             if self.config.mode == TrainingMode.RESUME:
                 self._resume_training()
-            
+
             self.logger.info("Настройка компонентов завершена успешно")
-            
+
         except Exception as e:
             error_msg = f"Ошибка настройки компонентов: {e}"
             self.logger.error(error_msg)
             raise RuntimeError(error_msg) from e
-    
+
     def train(self) -> TrainingResult:
         """Выполнить обучение агента.
-        
+
         Returns:
             Результат обучения с метриками и путями к артефактам
-            
+
         Raises:
             RuntimeError: При ошибке обучения
         """
         if self.config.mode == TrainingMode.EVALUATE:
             return self._evaluate_only()
-        
+
         start_time = time.time()
-        
+
         try:
             self.logger.info(
                 f"Начало обучения в режиме {self.config.mode.value}",
                 extra={
                     "total_timesteps": self.config.total_timesteps,
                     "current_timestep": self.current_timestep,
-                }
+                },
             )
-            
+
             # Создание callbacks
             callbacks = self._create_callbacks()
-            
+
             # Обучение агента
             remaining_timesteps = self.config.total_timesteps - self.current_timestep
-            
+
             if remaining_timesteps > 0:
                 agent_result = self.agent.train(
                     total_timesteps=remaining_timesteps,
@@ -488,15 +493,15 @@ class Trainer:
                     final_std_reward=0.0,
                     success=True,
                 )
-            
+
             training_time = time.time() - start_time
-            
+
             # Финальная оценка
             final_eval = self._evaluate_agent()
-            
+
             # Сохранение финальной модели
             final_model_path = self._save_final_model()
-            
+
             # Создание результата
             self.training_result = TrainingResult(
                 success=True,
@@ -516,10 +521,10 @@ class Trainer:
                 best_mean_reward=self.best_mean_reward,
                 early_stopped=self.patience_counter >= self.config.patience,
             )
-            
+
             # Сохранение результата
             self._save_training_result()
-            
+
             self.logger.info(
                 "Обучение завершено успешно",
                 extra={
@@ -527,16 +532,16 @@ class Trainer:
                     "final_mean_reward": final_eval["mean_reward"],
                     "best_mean_reward": self.best_mean_reward,
                     "total_timesteps": self.config.total_timesteps,
-                }
+                },
             )
-            
+
             return self.training_result
-            
+
         except Exception as e:
             training_time = time.time() - start_time
             error_msg = f"Ошибка во время обучения: {e}"
             self.logger.error(error_msg)
-            
+
             # Создание результата с ошибкой
             self.training_result = TrainingResult(
                 success=False,
@@ -550,9 +555,9 @@ class Trainer:
                 seed=self.config.seed,
                 error_message=error_msg,
             )
-            
+
             return self.training_result
-    
+
     def evaluate(
         self,
         n_episodes: Optional[int] = None,
@@ -560,41 +565,45 @@ class Trainer:
         render: bool = False,
     ) -> Dict[str, float]:
         """Оценить производительность агента.
-        
+
         Args:
             n_episodes: Количество эпизодов (по умолчанию из config)
             deterministic: Детерминистическая политика (по умолчанию из config)
             render: Отображать среду
-            
+
         Returns:
             Словарь с метриками оценки
-            
+
         Raises:
             RuntimeError: Если агент не обучен
         """
         if self.agent is None:
             raise RuntimeError("Агент не инициализирован. Вызовите setup().")
-        
+
         n_episodes = n_episodes or self.config.n_eval_episodes
-        deterministic = deterministic if deterministic is not None else self.config.eval_deterministic
-        
+        deterministic = (
+            deterministic
+            if deterministic is not None
+            else self.config.eval_deterministic
+        )
+
         self.logger.info(
             f"Начало оценки агента на {n_episodes} эпизодах",
-            extra={"deterministic": deterministic, "render": render}
+            extra={"deterministic": deterministic, "render": render},
         )
-        
+
         return self.agent.evaluate(
             n_episodes=n_episodes,
             deterministic=deterministic,
             render=render,
         )
-    
+
     def save_checkpoint(self, timestep: int) -> str:
         """Сохранить чекпоинт.
-        
+
         Args:
             timestep: Текущий шаг обучения
-            
+
         Returns:
             Путь к сохраненному чекпоинту
         """
@@ -606,131 +615,382 @@ class Trainer:
             "best_mean_reward": self.best_mean_reward,
             "patience_counter": self.patience_counter,
         }
-        
+
         checkpoint_path = self.checkpoint_manager.save_checkpoint(
             checkpoint_data,
             timestep=timestep,
         )
-        
+
         # Сохранение модели агента
         if self.agent:
             model_path = Path(checkpoint_path).parent / f"model_{timestep}.zip"
             self.agent.save(str(model_path))
-        
+
         self.logger.info(f"Чекпоинт сохранен: {checkpoint_path}")
         return checkpoint_path
-    
+
     def load_checkpoint(self, checkpoint_path: str) -> None:
         """Загрузить чекпоинт.
-        
+
         Args:
             checkpoint_path: Путь к чекпоинту
-            
+
         Raises:
             FileNotFoundError: Если чекпоинт не найден
             RuntimeError: При ошибке загрузки
         """
         try:
             checkpoint_data = self.checkpoint_manager.load_checkpoint(checkpoint_path)
-            
+
             self.current_timestep = checkpoint_data["timestep"]
             self.training_history = checkpoint_data.get("training_history", {})
             self.evaluation_history = checkpoint_data.get("evaluation_history", {})
-            self.best_mean_reward = checkpoint_data.get("best_mean_reward", float("-inf"))
+            self.best_mean_reward = checkpoint_data.get(
+                "best_mean_reward", float("-inf")
+            )
             self.patience_counter = checkpoint_data.get("patience_counter", 0)
-            
+
             # Загрузка модели агента
-            model_path = Path(checkpoint_path).parent / f"model_{self.current_timestep}.zip"
+            model_path = (
+                Path(checkpoint_path).parent / f"model_{self.current_timestep}.zip"
+            )
             if model_path.exists() and self.agent:
                 agent_class = self.AGENT_CLASSES[self.config.algorithm]
                 self.agent = agent_class.load(str(model_path), env=self.env)
-            
+
             self.logger.info(
                 f"Чекпоинт загружен: {checkpoint_path}",
-                extra={"timestep": self.current_timestep}
+                extra={"timestep": self.current_timestep},
             )
-            
+
         except Exception as e:
             error_msg = f"Ошибка загрузки чекпоинта {checkpoint_path}: {e}"
             self.logger.error(error_msg)
             raise RuntimeError(error_msg) from e
-    
+
     def cleanup(self) -> None:
         """Очистить ресурсы."""
         if self.env:
             self.env.close()
-        
+
         self.logger.info("Ресурсы очищены")
-    
+
     def _setup_environment(self) -> None:
         """Настроить среду."""
         env_config = self.config.env_config or {}
-        
-        if self.config.use_lunar_lander_wrapper and "LunarLander" in self.config.environment_name:
+
+        if (
+            self.config.use_lunar_lander_wrapper
+            and "LunarLander" in self.config.environment_name
+        ):
             # Использование специализированного wrapper для LunarLander
             self.env = LunarLanderEnvironment(
-                render_mode=self.config.render_mode,
-                **env_config
+                render_mode=self.config.render_mode, **env_config
             )
         else:
-            # Использование универсального wrapper
-            self.env = EnvironmentWrapper(
-                env_id=self.config.environment_name,
-                config=env_config,
-                render_mode=self.config.render_mode,
-            )
-        
+            # Использование raw gymnasium среды для совместимости с SB3
+            import gymnasium as gym
+
+            env_kwargs = env_config.copy()
+            if self.config.render_mode:
+                env_kwargs["render_mode"] = self.config.render_mode
+
+            self.env = gym.make(self.config.environment_name, **env_kwargs)
+
         # Установка seed для среды
-        if hasattr(self.env, 'seed'):
-            self.env.seed(self.config.seed)
-        
+        if hasattr(self.env, "reset"):
+            self.env.reset(seed=self.config.seed)
+
         self.logger.info(
             f"Среда настроена: {self.config.environment_name}",
             extra={
                 "action_space": str(self.env.action_space),
                 "observation_space": str(self.env.observation_space),
-            }
+            },
         )
-    
+
     def _setup_agent(self) -> None:
         """Настроить агента."""
         agent_class = self.AGENT_CLASSES.get(self.config.algorithm)
         if agent_class is None:
             raise ValueError(f"Неподдерживаемый алгоритм: {self.config.algorithm}")
-        
+
+        # Создаем конфигурацию агента нужного типа
+        agent_config = self._create_agent_config()
+
         self.agent = agent_class(
-            config=self.config.agent_config,
+            config=agent_config,
             env=self.env,
             experiment_name=self.experiment_name,
         )
-        
+
         self.logger.info(f"Агент {self.config.algorithm} настроен")
-    
+
+    def _create_agent_config(self):
+        """Создать конфигурацию агента нужного типа."""
+        from src.agents import PPOConfig, A2CConfig, SACConfig, TD3Config, AgentConfig
+
+        # Определяем нужный тип конфигурации по алгоритму
+        if self.config.algorithm == "PPO":
+            config_class = PPOConfig
+        elif self.config.algorithm == "A2C":
+            config_class = A2CConfig
+        elif self.config.algorithm == "SAC":
+            config_class = SACConfig
+        elif self.config.algorithm == "TD3":
+            config_class = TD3Config
+        else:
+            # Используем базовый AgentConfig для неизвестных алгоритмов
+            config_class = AgentConfig
+
+        # Создаем конфигурацию с параметрами из trainer config
+        config_params = {
+            "algorithm": self.config.algorithm,
+            "env_name": self.config.environment_name,
+            "total_timesteps": self.config.total_timesteps,
+            "seed": self.config.seed,
+            "learning_rate": self.config.agent_config.learning_rate
+            if self.config.agent_config
+            else 3e-4,
+            "batch_size": self.config.agent_config.batch_size
+            if self.config.agent_config
+            else 64,
+            "n_steps": self.config.agent_config.n_steps
+            if self.config.agent_config
+            else 2048,
+            "n_epochs": self.config.agent_config.n_epochs
+            if self.config.agent_config
+            else 10,
+            "gamma": self.config.agent_config.gamma
+            if self.config.agent_config
+            else 0.99,
+            "gae_lambda": self.config.agent_config.gae_lambda
+            if self.config.agent_config
+            else 0.95,
+            "clip_range": self.config.agent_config.clip_range
+            if self.config.agent_config
+            else 0.2,
+            "ent_coef": self.config.agent_config.ent_coef
+            if self.config.agent_config
+            else 0.0,
+            "vf_coef": self.config.agent_config.vf_coef
+            if self.config.agent_config
+            else 0.5,
+            "max_grad_norm": self.config.agent_config.max_grad_norm
+            if self.config.agent_config
+            else 0.5,
+            "policy": self.config.agent_config.policy
+            if self.config.agent_config
+            else "MlpPolicy",
+            "policy_kwargs": self.config.agent_config.policy_kwargs
+            if self.config.agent_config
+            else None,
+            "device": self.config.agent_config.device
+            if self.config.agent_config
+            else "auto",
+            "verbose": self.config.agent_config.verbose
+            if self.config.agent_config
+            else 1,
+            "eval_freq": self.config.agent_config.eval_freq
+            if self.config.agent_config
+            else 10000,
+            "n_eval_episodes": self.config.agent_config.n_eval_episodes
+            if self.config.agent_config
+            else 10,
+            "save_freq": self.config.agent_config.save_freq
+            if self.config.agent_config
+            else 50000,
+            "log_interval": self.config.agent_config.log_interval
+            if self.config.agent_config
+            else 1,
+            "model_save_path": self.config.agent_config.model_save_path
+            if self.config.agent_config
+            else self.config.model_save_path,
+            "tensorboard_log": self.config.agent_config.tensorboard_log
+            if self.config.agent_config
+            else self.config.tensorboard_log,
+            "use_sde": self.config.agent_config.use_sde
+            if self.config.agent_config
+            else False,
+            "sde_sample_freq": self.config.agent_config.sde_sample_freq
+            if self.config.agent_config
+            else -1,
+            "target_kl": self.config.agent_config.target_kl
+            if self.config.agent_config
+            else None,
+        }
+
+        # Добавляем специфичные параметры для каждого типа конфигурации
+        if self.config.algorithm == "PPO":
+            # Добавляем специфичные параметры для PPO
+            config_params.update(
+                {
+                    "n_steps": self.config.agent_config.n_steps
+                    if self.config.agent_config
+                    else 2048,
+                    "batch_size": self.config.agent_config.batch_size
+                    if self.config.agent_config
+                    else 64,
+                    "n_epochs": self.config.agent_config.n_epochs
+                    if self.config.agent_config
+                    else 10,
+                    "clip_range": self.config.agent_config.clip_range
+                    if self.config.agent_config
+                    else 0.2,
+                    "normalize_advantage": True,
+                    "ent_coef": self.config.agent_config.ent_coef
+                    if self.config.agent_config
+                    else 0.01,
+                    "vf_coef": self.config.agent_config.vf_coef
+                    if self.config.agent_config
+                    else 0.5,
+                    "max_grad_norm": self.config.agent_config.max_grad_norm
+                    if self.config.agent_config
+                    else 0.5,
+                    "use_lr_schedule": True,
+                    "lr_schedule_type": "linear",
+                    "lr_final_ratio": 0.1,
+                    "net_arch": [dict(pi=[64, 64], vf=[64, 64])],
+                    "activation_fn": "tanh",
+                    "ortho_init": True,
+                    "normalize_env": True,
+                    "norm_obs": True,
+                    "norm_reward": True,
+                    "clip_obs": 10.0,
+                    "clip_reward": 10.0,
+                    "early_stopping": True,
+                    "target_reward": 200.0,
+                    "patience_episodes": 50,
+                    "min_improvement": 5.0,
+                    "use_tensorboard": True,
+                    "log_std_init": 0.0,
+                    "use_sde": self.config.agent_config.use_sde
+                    if self.config.agent_config
+                    else False,
+                    "sde_sample_freq": self.config.agent_config.sde_sample_freq
+                    if self.config.agent_config
+                    else -1,
+                    "stats_window_size": 100,
+                    "target_kl": self.config.agent_config.target_kl
+                    if self.config.agent_config
+                    else 0.01,
+                }
+            )
+        elif self.config.algorithm == "A2C":
+            # Добавляем специфичные параметры для A2C
+            config_params.update(
+                {
+                    "n_steps": self.config.agent_config.n_steps
+                    if self.config.agent_config
+                    else 5,
+                    "gamma": self.config.agent_config.gamma
+                    if self.config.agent_config
+                    else 0.99,
+                    "gae_lambda": self.config.agent_config.gae_lambda
+                    if self.config.agent_config
+                    else 1.0,
+                    "ent_coef": self.config.agent_config.ent_coef
+                    if self.config.agent_config
+                    else 0.0,
+                    "vf_coef": self.config.agent_config.vf_coef
+                    if self.config.agent_config
+                    else 0.25,
+                    "max_grad_norm": self.config.agent_config.max_grad_norm
+                    if self.config.agent_config
+                    else 0.5,
+                    "rms_prop_eps": 1e-5,
+                    "alpha": 0.99,
+                }
+            )
+        elif self.config.algorithm == "SAC":
+            # Добавляем специфичные параметры для SAC
+            config_params.update(
+                {
+                    "learning_rate": self.config.agent_config.learning_rate
+                    if self.config.agent_config
+                    else 3e-4,
+                    "buffer_size": 1000000,
+                    "learning_starts": 100,
+                    "batch_size": self.config.agent_config.batch_size
+                    if self.config.agent_config
+                    else 256,
+                    "tau": 0.005,
+                    "gamma": self.config.agent_config.gamma
+                    if self.config.agent_config
+                    else 0.99,
+                    "gradient_steps": 1,
+                    "ent_coef": "auto",
+                    "target_update_interval": 1,
+                    "target_entropy": "auto",
+                    "use_sde": self.config.agent_config.use_sde
+                    if self.config.agent_config
+                    else False,
+                    "use_sde_at_warmup": False,
+                    "sde_sample_freq": self.config.agent_config.sde_sample_freq
+                    if self.config.agent_config
+                    else -1,
+                    "optimize_memory_usage": False,
+                    "ent_coef_schedule": "linear",
+                    "use_sde_sample_freq": -1,
+                }
+            )
+        elif self.config.algorithm == "TD3":
+            # Добавляем специфичные параметры для TD3
+            config_params.update(
+                {
+                    "learning_rate": self.config.agent_config.learning_rate
+                    if self.config.agent_config
+                    else 3e-4,
+                    "buffer_size": 1000000,
+                    "learning_starts": 10000,
+                    "batch_size": self.config.agent_config.batch_size
+                    if self.config.agent_config
+                    else 100,
+                    "tau": 0.005,
+                    "gamma": self.config.agent_config.gamma
+                    if self.config.agent_config
+                    else 0.99,
+                    "train_freq": 1,
+                    "gradient_steps": 1,
+                    "action_noise": None,
+                    "replay_buffer_class": None,
+                    "replay_buffer_kwargs": {},
+                    "optimize_memory_usage": False,
+                    "policy_delay": 2,
+                    "target_policy_noise": 0.2,
+                    "target_noise_clip": 0.5,
+                }
+            )
+
+        return config_class(**config_params)
+
     def _resume_training(self) -> None:
         """Восстановить обучение из чекпоинта."""
         if self.config.resume_from_checkpoint:
             self.load_checkpoint(self.config.resume_from_checkpoint)
         elif self.config.resume_timestep:
             # Поиск ближайшего чекпоинта
-            checkpoint_path = self.checkpoint_manager.find_checkpoint(self.config.resume_timestep)
+            checkpoint_path = self.checkpoint_manager.find_checkpoint(
+                self.config.resume_timestep
+            )
             if checkpoint_path:
                 self.load_checkpoint(checkpoint_path)
             else:
                 self.logger.warning(
                     f"Чекпоинт для timestep {self.config.resume_timestep} не найден"
                 )
-    
+
     def _evaluate_only(self) -> TrainingResult:
         """Выполнить только оценку без обучения."""
         if self.agent is None or not self.agent.is_trained:
             raise RuntimeError("Агент не обучен. Невозможно выполнить оценку.")
-        
+
         start_time = time.time()
-        
+
         eval_result = self._evaluate_agent()
-        
+
         training_time = time.time() - start_time
-        
+
         return TrainingResult(
             success=True,
             total_timesteps=0,
@@ -742,39 +1002,39 @@ class Trainer:
             environment_name=self.config.environment_name,
             seed=self.config.seed,
         )
-    
+
     def _evaluate_agent(self) -> Dict[str, float]:
         """Оценить агента."""
         return self.agent.evaluate(
             n_episodes=self.config.n_eval_episodes,
             deterministic=self.config.eval_deterministic,
         )
-    
+
     def _create_callbacks(self) -> CallbackList:
         """Создать callbacks для обучения."""
         callbacks = []
-        
+
         # Callback для оценки
         if self.config.eval_freq > 0:
             eval_callback = self._create_eval_callback()
             callbacks.append(eval_callback)
-        
+
         # Callback для сохранения
         if self.config.save_freq > 0:
             save_callback = self._create_save_callback()
             callbacks.append(save_callback)
-        
+
         # Callback для чекпоинтов
         if self.config.checkpoint_freq > 0:
             checkpoint_callback = self._create_checkpoint_callback()
             callbacks.append(checkpoint_callback)
-        
+
         return CallbackList(callbacks)
-    
+
     def _create_eval_callback(self) -> BaseCallback:
         """Создать callback для оценки."""
         from stable_baselines3.common.callbacks import EvalCallback
-        
+
         return EvalCallback(
             eval_env=self.env,
             n_eval_episodes=self.config.n_eval_episodes,
@@ -782,57 +1042,64 @@ class Trainer:
             deterministic=self.config.eval_deterministic,
             verbose=self.config.verbose,
         )
-    
+
     def _create_save_callback(self) -> BaseCallback:
         """Создать callback для сохранения."""
         from stable_baselines3.common.callbacks import CheckpointCallback
-        
+
         return CheckpointCallback(
             save_freq=self.config.save_freq,
             save_path=str(Path(self.config.model_save_path).parent),
             name_prefix=f"{self.config.algorithm.lower()}_model",
             verbose=self.config.verbose,
         )
-    
+
     def _create_checkpoint_callback(self) -> BaseCallback:
         """Создать callback для чекпоинтов."""
+
         class TrainerCheckpointCallback(BaseCallback):
             def __init__(self, trainer: "Trainer", freq: int):
                 super().__init__()
                 self.trainer = trainer
                 self.freq = freq
-            
+
             def _on_step(self) -> bool:
                 if self.n_calls % self.freq == 0:
                     self.trainer.save_checkpoint(self.n_calls)
                 return True
-        
+
         return TrainerCheckpointCallback(self, self.config.checkpoint_freq)
-    
+
     def _save_final_model(self) -> str:
         """Сохранить финальную модель."""
         final_path = f"{self.config.model_save_path}_final"
         self.agent.save(final_path)
-        
+
         # Сохранение конфигурации
         config_path = f"{final_path}_config.yaml"
-        with open(config_path, 'w', encoding='utf-8') as f:
-            yaml.dump(self.config.__dict__, f, default_flow_style=False, allow_unicode=True)
-        
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump(
+                self.config.__dict__, f, default_flow_style=False, allow_unicode=True
+            )
+
         return final_path
-    
+
     def _save_training_result(self) -> None:
         """Сохранить результат обучения."""
         if self.training_result:
-            result_path = Path(self.config.output_dir) / self.experiment_name / "training_result.yaml"
+            result_path = (
+                Path(self.config.output_dir)
+                / self.experiment_name
+                / "training_result.yaml"
+            )
             self.training_result.config_path = str(result_path.parent / "config.yaml")
             self.training_result.save(result_path)
-    
+
     def __enter__(self) -> "Trainer":
         """Контекстный менеджер."""
         self.setup()
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Очистка ресурсов при выходе."""
         self.cleanup()
@@ -845,16 +1112,16 @@ def create_trainer_from_config(
     **kwargs: Any,
 ) -> Trainer:
     """Создать тренер из конфигурационного файла.
-    
+
     Args:
         config_path: Путь к файлу конфигурации
         config_name: Имя конфигурации в директории configs/
         overrides: Список переопределений конфигурации
         **kwargs: Дополнительные параметры для TrainerConfig
-        
+
     Returns:
         Настроенный тренер
-        
+
     Raises:
         FileNotFoundError: Если конфигурация не найдена
         ValueError: При некорректной конфигурации
@@ -865,38 +1132,53 @@ def create_trainer_from_config(
         config_path=config_path,
         overrides=overrides,
     )
-    
+
     # Преобразование в TrainerConfig
     trainer_config = TrainerConfig.from_rl_config(rl_config)
-    
+
     # Применение дополнительных параметров
     for key, value in kwargs.items():
         if hasattr(trainer_config, key):
             setattr(trainer_config, key, value)
-    
+
     return Trainer(trainer_config)
 
 
 def main() -> None:
     """Главная функция для запуска из командной строки."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Обучение RL агентов")
     parser.add_argument("--config", type=str, help="Путь к файлу конфигурации")
     parser.add_argument("--config-name", type=str, help="Имя конфигурации")
-    parser.add_argument("--algorithm", type=str, choices=["PPO", "A2C", "SAC", "TD3"], 
-                       help="Алгоритм обучения")
+    parser.add_argument(
+        "--algorithm",
+        type=str,
+        choices=["PPO", "A2C", "SAC", "TD3"],
+        help="Алгоритм обучения",
+    )
     parser.add_argument("--env", type=str, help="Название среды")
     parser.add_argument("--timesteps", type=int, help="Количество шагов обучения")
-    parser.add_argument("--seed", type=int, default=42, help="Seed для воспроизводимости")
-    parser.add_argument("--mode", type=str, choices=["train", "resume", "evaluate"], 
-                       default="train", help="Режим работы")
-    parser.add_argument("--resume-from", type=str, help="Путь к чекпоинту для восстановления")
-    parser.add_argument("--output-dir", type=str, default="results", help="Директория для результатов")
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Seed для воспроизводимости"
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        choices=["train", "resume", "evaluate"],
+        default="train",
+        help="Режим работы",
+    )
+    parser.add_argument(
+        "--resume-from", type=str, help="Путь к чекпоинту для восстановления"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="results", help="Директория для результатов"
+    )
     parser.add_argument("--experiment-name", type=str, help="Имя эксперимента")
-    
+
     args = parser.parse_args()
-    
+
     # Подготовка переопределений
     overrides = []
     if args.algorithm:
@@ -911,7 +1193,7 @@ def main() -> None:
         overrides.append(f"experiment_name={args.experiment_name}")
     if args.output_dir:
         overrides.append(f"output_dir={args.output_dir}")
-    
+
     # Создание тренера
     trainer = create_trainer_from_config(
         config_path=args.config,
@@ -920,14 +1202,16 @@ def main() -> None:
         mode=TrainingMode(args.mode),
         resume_from_checkpoint=args.resume_from,
     )
-    
+
     # Обучение
     with trainer:
         result = trainer.train()
-        
+
         if result.success:
-            print(f"✅ Обучение завершено успешно!")
-            print(f"📊 Финальная награда: {result.final_mean_reward:.2f} ± {result.final_std_reward:.2f}")
+            print("✅ Обучение завершено успешно!")
+            print(
+                f"📊 Финальная награда: {result.final_mean_reward:.2f} ± {result.final_std_reward:.2f}"
+            )
             print(f"⏱️  Время обучения: {result.training_time:.1f} сек")
             print(f"💾 Модель сохранена: {result.model_path}")
         else:

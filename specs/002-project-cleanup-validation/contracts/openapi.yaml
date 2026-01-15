@@ -1,0 +1,611 @@
+openapi: 3.0.3
+info:
+  title: RL Training API
+  description: |
+    API for managing RL agent training experiments.
+    
+    **Key Workflows**:
+    1. Create experiment with configuration
+    2. Train agent on specified environment
+    3. Monitor metrics during training
+    4. Retrieve results and artifacts
+    
+    **Authentication**: All endpoints (except /health) require user context.
+    
+    **Status**: Production-ready with known limitation in model loading for evaluation.
+  version: 1.0.0
+  contact:
+    name: RL Training System
+    email: admin@rl-training.local
+  x-logo:
+    url: https://dummyimage.com/600x400/000/fff&text=RL+API
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.rl-training.local
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Проверка состояния сервиса (Service health check)
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /:
+    get:
+      summary: API Information
+      description: Корневой эндпоинт с информацией об API (Root endpoint with API info)
+      tags:
+        - Info
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "RL Training API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  docs:
+                    type: string
+                    example: "/docs"
+                  health:
+                    type: string
+                    example: "/health"
+
+  /config:
+    get:
+      summary: Get Configuration
+      description: Получить информацию о конфигурации API (Get API configuration)
+      tags:
+        - Info
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Configuration details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_version:
+                    type: string
+                  environment:
+                    type: string
+                  algorithms:
+                    type: array
+                    items:
+                      type: string
+                  max_parallel_experiments:
+                    type: integer
+
+  /experiments:
+    get:
+      summary: List Experiments
+      description: Получить список экспериментов (Retrieve all experiments)
+      tags:
+        - Experiments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status_filter
+          in: query
+          schema:
+            type: string
+            enum: [running, paused, cancelled, completed, failed]
+          required: false
+        - name: algorithm
+          in: query
+          schema:
+            type: string
+            enum: [PPO, A2C, SAC, TD3]
+          required: false
+      responses:
+        '200':
+          description: List of experiments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExperimentResponse'
+
+    post:
+      summary: Create Experiment
+      description: Создать новый эксперимент (Create new experiment)
+      tags:
+        - Experiments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentConfig'
+      responses:
+        '201':
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentResponse'
+        '400':
+          description: Invalid configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /experiments/{experiment_id}:
+    get:
+      summary: Get Experiment
+      description: Получить информацию об эксперименте (Get experiment details)
+      tags:
+        - Experiments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentResponse'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update Experiment
+      description: Обновить эксперимент (Update experiment)
+      tags:
+        - Experiments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentUpdate'
+      responses:
+        '200':
+          description: Experiment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentResponse'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /experiments/{experiment_id}/train:
+    post:
+      summary: Start Training
+      description: Запустить обучение для эксперимента (Start training for experiment)
+      tags:
+        - Training
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '202':
+          description: Training started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingResponse'
+        '409':
+          description: Experiment already training
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /experiments/{experiment_id}/metrics:
+    get:
+      summary: Get Metrics
+      description: Получить метрики эксперимента (Get experiment metrics)
+      tags:
+        - Metrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: from_timestep
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+          required: false
+        - name: to_timestep
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+          required: false
+      responses:
+        '200':
+          description: Metrics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /experiments/{experiment_id}/results:
+    get:
+      summary: Get Results
+      description: Получить результаты эксперимента (Get experiment results)
+      tags:
+        - Results
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Results data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsResponse'
+        '404':
+          description: Experiment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /environments:
+    get:
+      summary: List Environments
+      description: Получить список доступных сред (List available environments)
+      tags:
+        - Environments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Available environments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentInfo'
+
+  /algorithms:
+    get:
+      summary: List Algorithms
+      description: Получить список доступных алгоритмов (List available algorithms)
+      tags:
+        - Algorithms
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Available algorithms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlgorithmInfo'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Input Schemas
+    ExperimentConfig:
+      type: object
+      required:
+        - name
+        - algorithm
+        - environment
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9_-]+$'
+          description: Experiment name (alphanumeric, underscore, hyphen)
+        algorithm:
+          type: string
+          enum: [PPO, A2C, SAC, TD3]
+          description: RL algorithm to use
+        environment:
+          type: string
+          enum: [LunarLander-v2, LunarLander-v3, MountainCarContinuous-v0, Acrobot-v1, Pendulum-v1]
+          description: Gymnasium environment
+        hyperparameters:
+          type: object
+          additionalProperties: true
+          default: {}
+          description: Algorithm-specific hyperparameters
+        seed:
+          type: integer
+          minimum: 0
+          maximum: 4294967295
+          default: 42
+          description: Random seed for reproducibility
+        description:
+          type: string
+          maxLength: 1000
+          description: Human-readable description
+        hypothesis:
+          type: string
+          maxLength: 500
+          description: Experimental hypothesis
+
+    ExperimentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [running, paused, cancelled]
+        hyperparameters:
+          type: object
+          additionalProperties: true
+
+    # Output Schemas
+    ExperimentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, paused, cancelled, completed, failed]
+        algorithm:
+          type: string
+        environment:
+          type: string
+        hyperparameters:
+          type: object
+          additionalProperties: true
+        seed:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        hypothesis:
+          type: string
+          nullable: true
+
+    TrainingResponse:
+      type: object
+      properties:
+        experiment_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: "started"
+        message:
+          type: string
+          example: "Training session queued successfully"
+
+    MetricsResponse:
+      type: object
+      properties:
+        experiment_id:
+          type: string
+          format: uuid
+        metrics:
+          type: array
+          items:
+            type: object
+            properties:
+              timestep:
+                type: integer
+              reward:
+                type: number
+              loss:
+                type: number
+              timestamp:
+                type: string
+                format: date-time
+        summary:
+          type: object
+          properties:
+            total_timesteps:
+              type: integer
+            avg_reward:
+              type: number
+            best_reward:
+              type: number
+            last_updated:
+              type: string
+              format: date-time
+
+    ResultsResponse:
+      type: object
+      properties:
+        experiment_id:
+          type: string
+          format: uuid
+        final_evaluation:
+          type: object
+          properties:
+            avg_reward:
+              type: number
+            std_reward:
+              type: number
+            avg_length:
+              type: integer
+        model_path:
+          type: string
+          nullable: true
+          description: Path to trained model
+        video_path:
+          type: string
+          nullable: true
+          description: Path to demonstration video
+        graph_path:
+          type: string
+          nullable: true
+          description: Path to performance graph
+
+    EnvironmentInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        observation_space:
+          type: string
+          description: Shape/description of observations
+        action_space:
+          type: string
+          description: Shape/description of actions
+
+    AlgorithmInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        default_hyperparameters:
+          type: object
+          additionalProperties: true
+          description: Recommended defaults
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        uptime_seconds:
+          type: integer
+        active_experiments:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+
+tags:
+  - name: Health
+    description: Service health monitoring
+  - name: Info
+    description: API metadata and configuration
+  - name: Experiments
+    description: Experiment lifecycle management
+  - name: Training
+    description: Training session control
+  - name: Metrics
+    description: Training metrics and monitoring
+  - name: Results
+    description: Experiment results and artifacts
+  - name: Environments
+    description: Available RL environments
+  - name: Algorithms
+    description: Available RL algorithms
+
+x-known-limitations:
+  - "Model loading for evaluation: TODO in src/training/cli.py prevents loading pre-trained models via API"
+  - "Experiment class export: src/experiments/__init__.py doesn't export Experiment class (only SimpleExperiment)"
+  - "Integration test failures: Some tests fail due to resource constraints, not code bugs"

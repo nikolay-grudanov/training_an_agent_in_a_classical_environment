@@ -1,0 +1,349 @@
+# GraphQL Schema for RL Training API
+# Alternative to REST/OpenAPI
+# Generated: 2026-01-15
+
+scalar DateTime
+scalar JSON
+
+enum ExperimentStatus {
+  PENDING
+  RUNNING
+  PAUSED
+  CANCELLED
+  COMPLETED
+  FAILED
+}
+
+enum Algorithm {
+  PPO
+  A2C
+  SAC
+  TD3
+}
+
+enum Environment {
+  LUNAR_LANDER_V2
+  LUNAR_LANDER_V3
+  MOUNTAIN_CAR_CONTINUOUS
+  ACROBOT
+  PENDULUM
+}
+
+type Query {
+  # Health & Info
+  health: HealthResponse!
+  apiInfo: APIInfo!
+  
+  # Experiments
+  experiments(
+    statusFilter: ExperimentStatus
+    algorithm: Algorithm
+  ): [Experiment!]!
+  
+  experiment(id: ID!): Experiment
+  
+  # Environments
+  environments: [EnvironmentInfo!]!
+  
+  # Algorithms
+  algorithms: [AlgorithmInfo!]!
+  
+  # Metrics
+  metrics(
+    experimentId: ID!
+    fromTimestep: Int
+    toTimestep: Int
+  ): MetricsResponse!
+  
+  # Results
+  results(experimentId: ID!): ResultsResponse!
+}
+
+type Mutation {
+  # Experiment Management
+  createExperiment(input: ExperimentConfigInput!): Experiment!
+  updateExperiment(id: ID!, input: ExperimentUpdateInput!): Experiment!
+  
+  # Training Control
+  startTraining(experimentId: ID!): TrainingResponse!
+  pauseTraining(experimentId: ID!): TrainingResponse!
+  cancelTraining(experimentId: ID!): TrainingResponse!
+}
+
+type Subscription {
+  # Real-time updates
+  experimentUpdated(experimentId: ID!): Experiment!
+  metricsUpdated(experimentId: ID!): MetricsUpdate!
+}
+
+# Types
+
+type HealthResponse {
+  status: HealthStatus!
+  timestamp: DateTime!
+  version: String!
+  uptimeSeconds: Int!
+  activeExperiments: Int!
+}
+
+enum HealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+}
+
+type APIInfo {
+  message: String!
+  version: String!
+  endpoints: [String!]!
+}
+
+type Experiment {
+  id: ID!
+  name: String!
+  status: ExperimentStatus!
+  algorithm: Algorithm!
+  environment: Environment!
+  hyperparameters: JSON!
+  seed: Int!
+  createdAt: DateTime!
+  startedAt: DateTime
+  completedAt: DateTime
+  description: String
+  hypothesis: String
+}
+
+type EnvironmentInfo {
+  name: String!
+  description: String!
+  observationSpace: String!
+  actionSpace: String!
+}
+
+type AlgorithmInfo {
+  name: String!
+  description: String!
+  defaultHyperparameters: JSON!
+}
+
+type MetricsResponse {
+  experimentId: ID!
+  metrics: [MetricPoint!]!
+  summary: MetricsSummary!
+}
+
+type MetricPoint {
+  timestep: Int!
+  reward: Float!
+  loss: Float
+  timestamp: DateTime!
+}
+
+type MetricsSummary {
+  totalTimesteps: Int!
+  avgReward: Float!
+  bestReward: Float!
+  lastUpdated: DateTime!
+}
+
+type MetricsUpdate {
+  experimentId: ID!
+  latestTimestep: Int!
+  latestReward: Float!
+}
+
+type ResultsResponse {
+  experimentId: ID!
+  finalEvaluation: FinalEvaluation!
+  modelPath: String
+  videoPath: String
+  graphPath: String
+}
+
+type FinalEvaluation {
+  avgReward: Float!
+  stdReward: Float!
+  avgLength: Int!
+}
+
+type TrainingResponse {
+  experimentId: ID!
+  status: String!
+  message: String!
+}
+
+# Input Types
+
+input ExperimentConfigInput {
+  name: String!
+  algorithm: Algorithm!
+  environment: Environment!
+  hyperparameters: JSON
+  seed: Int
+  description: String
+  hypothesis: String
+}
+
+input ExperimentUpdateInput {
+  status: ExperimentStatus
+  hyperparameters: JSON
+}
+
+# Directives
+
+directive @auth on FIELD_DEFINITION
+directive @deprecated(reason: String) on FIELD_DEFINITION
+
+# Authentication
+
+scalar JWT
+
+type AuthPayload {
+  token: JWT!
+  user: User!
+}
+
+type User {
+  id: ID!
+  username: String!
+  email: String!
+}
+
+# Error Handling
+
+type Error {
+  code: String!
+  message: String!
+  details: JSON
+  timestamp: DateTime!
+}
+
+union QueryResult = Experiment | Error
+union MutationResult = TrainingResponse | Error
+
+# Known Limitations
+
+type KnownLimitations {
+  modelLoading: String!
+  experimentExport: String!
+  testReliability: String!
+}
+
+# Schema Metadata
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+# Directive Definitions
+
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheScope
+) on FIELD_DEFINITION | OBJECT | INTERFACE
+
+enum CacheScope {
+  PUBLIC
+  PRIVATE
+}
+
+# Descriptions for Documentation
+
+"""
+RL Training API - GraphQL Version
+
+Key Workflows:
+1. Create experiment with configuration
+2. Start training session
+3. Subscribe to real-time metrics
+4. Retrieve final results
+
+Known Issues:
+- Model loading for evaluation: TODO in src/training/cli.py
+- Experiment class export: src/experiments/__init__.py missing export
+"""
+scalar Description
+
+# Validation Rules
+
+input ExperimentConfigValidation {
+  name: String! @constraint(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  algorithm: Algorithm!
+  environment: Environment!
+  seed: Int! @constraint(min: 0, max: 4294967295)
+  description: String @constraint(maxLength: 1000)
+  hypothesis: String @constraint(maxLength: 500)
+}
+
+# Custom Constraint Directive (pseudo-implementation)
+directive @constraint(
+  minLength: Int
+  maxLength: Int
+  pattern: String
+  min: Int
+  max: Int
+) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+# Example Query
+
+"""
+query GetExperiment($id: ID!) {
+  experiment(id: $id) {
+    id
+    name
+    status
+    algorithm
+    environment
+    hyperparameters
+    metrics {
+      summary {
+        avgReward
+        totalTimesteps
+      }
+    }
+  }
+}
+"""
+
+"""
+mutation CreateAndTrain($config: ExperimentConfigInput!) {
+  createExperiment(input: $config) {
+    id
+    name
+  }
+  startTraining(experimentId: $id) {
+    status
+    message
+  }
+}
+"""
+
+"""
+subscription OnMetricsUpdate($id: ID!) {
+  metricsUpdated(experimentId: $id) {
+    latestTimestep
+    latestReward
+  }
+}
+"""
+
+# Implementation Notes
+
+"""
+This GraphQL schema provides an alternative to the REST API.
+
+Advantages:
+- Real-time subscriptions for metrics
+- Flexible querying (only request what you need)
+- Strong typing with custom validation
+
+Trade-offs:
+- More complex implementation
+- Requires GraphQL server
+- Caching is more complex
+
+Status: Design complete, not yet implemented in codebase.
+The REST API (openapi.yaml) is the primary interface.
+"""

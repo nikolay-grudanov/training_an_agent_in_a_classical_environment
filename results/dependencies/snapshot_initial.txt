@@ -1,0 +1,12 @@
+gymnasium==1.2.3
+matplotlib==3.9.4
+matplotlib-inline==0.2.1
+numpy==1.26.4
+pytorch-lightning==2.5.1.post0
+pytorch-triton-rocm==3.1.0
+torch==2.5.1+rocm6.2
+torchaudio==2.5.1+rocm6.2
+torchclust==1.0.0
+torchgmm==0.1.2
+torchmetrics==1.7.3
+torchvision==0.20.1+rocm6.2

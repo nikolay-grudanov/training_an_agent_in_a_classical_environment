@@ -13,13 +13,12 @@ import shutil
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
 
 import pytest
 import yaml
 
 from src.experiments.comparison import ComparisonConfig, ExperimentComparator
-from src.experiments.config import Configuration
 from src.experiments.experiment import Experiment, ExperimentStatus
 from src.experiments.runner import ExperimentRunner, ExecutionMode
 from src.utils.config import ConfigLoader, RLConfig
@@ -49,54 +48,54 @@ class TestControlledExperiments:
         return ConfigLoader()
 
     @pytest.fixture(scope="class")
-    def test_configs(self, config_loader: ConfigLoader, test_config_path: Path) -> Dict[str, RLConfig]:
+    def test_configs(
+        self, config_loader: ConfigLoader, test_config_path: Path
+    ) -> Dict[str, RLConfig]:
         """Загрузить тестовые конфигурации PPO и A2C."""
         # Загружаем базовую конфигурацию
-        with open(test_config_path, 'r', encoding='utf-8') as f:
+        with open(test_config_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
 
         # Создаем конфигурации для baseline и variant
-        baseline_config = config_loader._create_config_object({
-            "algorithm": {
-                "name": config_data["baseline"]["algorithm"],
-                **config_data["baseline"]["hyperparameters"]
-            },
-            "environment": {
-                "name": config_data["baseline"]["environment"]
-            },
-            "training": {
-                "total_timesteps": config_data["baseline"]["training_steps"],
-                "eval_freq": config_data["baseline"]["evaluation_frequency"]
-            },
-            "seed": config_data["baseline"]["seed"]
-        })
+        baseline_config = config_loader._create_config_object(
+            {
+                "algorithm": {
+                    "name": config_data["baseline"]["algorithm"],
+                    **config_data["baseline"]["hyperparameters"],
+                },
+                "environment": {"name": config_data["baseline"]["environment"]},
+                "training": {
+                    "total_timesteps": config_data["baseline"]["training_steps"],
+                    "eval_freq": config_data["baseline"]["evaluation_frequency"],
+                },
+                "seed": config_data["baseline"]["seed"],
+            }
+        )
 
-        variant_config = config_loader._create_config_object({
-            "algorithm": {
-                "name": config_data["variant"]["algorithm"],
-                **config_data["variant"]["hyperparameters"]
-            },
-            "environment": {
-                "name": config_data["variant"]["environment"]
-            },
-            "training": {
-                "total_timesteps": config_data["variant"]["training_steps"],
-                "eval_freq": config_data["variant"]["evaluation_frequency"]
-            },
-            "seed": config_data["variant"]["seed"]
-        })
+        variant_config = config_loader._create_config_object(
+            {
+                "algorithm": {
+                    "name": config_data["variant"]["algorithm"],
+                    **config_data["variant"]["hyperparameters"],
+                },
+                "environment": {"name": config_data["variant"]["environment"]},
+                "training": {
+                    "total_timesteps": config_data["variant"]["training_steps"],
+                    "eval_freq": config_data["variant"]["evaluation_frequency"],
+                },
+                "seed": config_data["variant"]["seed"],
+            }
+        )
 
         return {
             "baseline": baseline_config,
             "variant": variant_config,
-            "config_data": config_data
+            "config_data": config_data,
         }
 
     @pytest.fixture(scope="class")
     def test_experiment(
-        self, 
-        test_configs: Dict[str, RLConfig], 
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ) -> Experiment:
         """Создать тестовый эксперимент."""
         return Experiment(
@@ -104,13 +103,11 @@ class TestControlledExperiments:
             variant_config=test_configs["variant"],
             hypothesis="PPO покажет лучшую стабильность обучения чем A2C в коротком тесте",
             experiment_id="test_ppo_vs_a2c_integration",
-            output_dir=test_output_dir
+            output_dir=test_output_dir,
         )
 
     def test_experiment_creation_from_config(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест создания эксперимента из конфигурации."""
         # Создание эксперимента
@@ -118,7 +115,7 @@ class TestControlledExperiments:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тестовая гипотеза для интеграционного теста",
-            output_dir=test_output_dir
+            output_dir=test_output_dir,
         )
 
         # Проверки базовых свойств
@@ -131,16 +128,21 @@ class TestControlledExperiments:
         assert experiment.experiment_dir.exists()
 
         # Проверка валидации конфигураций
-        assert experiment.baseline_config.environment.name == experiment.variant_config.environment.name
+        assert (
+            experiment.baseline_config.environment.name
+            == experiment.variant_config.environment.name
+        )
         assert experiment.baseline_config != experiment.variant_config
 
-    def test_experiment_configuration_validation(self, test_configs: Dict[str, RLConfig]):
+    def test_experiment_configuration_validation(
+        self, test_configs: Dict[str, RLConfig]
+    ):
         """Тест валидации конфигураций эксперимента."""
         # Тест с валидными конфигурациями
         experiment = Experiment(
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
-            hypothesis="Валидная гипотеза"
+            hypothesis="Валидная гипотеза",
         )
         assert experiment.status == ExperimentStatus.CREATED
 
@@ -149,7 +151,7 @@ class TestControlledExperiments:
             Experiment(
                 baseline_config=test_configs["baseline"],
                 variant_config=test_configs["baseline"],  # Идентичная конфигурация
-                hypothesis="Невалидная гипотеза"
+                hypothesis="Невалидная гипотеза",
             )
 
         # Тест с пустой гипотезой
@@ -157,7 +159,7 @@ class TestControlledExperiments:
             Experiment(
                 baseline_config=test_configs["baseline"],
                 variant_config=test_configs["variant"],
-                hypothesis=""  # Пустая гипотеза
+                hypothesis="",  # Пустая гипотеза
             )
 
     def test_experiment_lifecycle_management(self, test_experiment: Experiment):
@@ -188,9 +190,7 @@ class TestControlledExperiments:
 
     @pytest.mark.slow
     def test_ppo_vs_a2c_experiment_execution(
-        self, 
-        test_experiment: Experiment,
-        test_output_dir: Path
+        self, test_experiment: Experiment, test_output_dir: Path
     ):
         """Основной тест выполнения PPO vs A2C эксперимента."""
         # Установка seed для воспроизводимости
@@ -201,7 +201,7 @@ class TestControlledExperiments:
             experiment=test_experiment,
             execution_mode=ExecutionMode.SEQUENTIAL,
             enable_monitoring=True,
-            resource_limits={"memory_mb": 4096, "cpu_percent": 80}
+            resource_limits={"memory_mb": 4096, "cpu_percent": 80},
         )
 
         # Проверка начального состояния
@@ -220,13 +220,19 @@ class TestControlledExperiments:
         assert test_experiment.status == ExperimentStatus.COMPLETED
 
         # Проверка результатов
-        assert runner.baseline_result is not None, "Результаты baseline должны быть доступны"
-        assert runner.variant_result is not None, "Результаты variant должны быть доступны"
+        assert runner.baseline_result is not None, (
+            "Результаты baseline должны быть доступны"
+        )
+        assert runner.variant_result is not None, (
+            "Результаты variant должны быть доступны"
+        )
         assert runner.baseline_result.success, "Baseline обучение должно быть успешным"
         assert runner.variant_result.success, "Variant обучение должно быть успешным"
 
         # Проверка времени выполнения (не должно превышать разумные пределы)
-        assert execution_time < 600, f"Эксперимент выполнялся слишком долго: {execution_time:.1f}с"
+        assert execution_time < 600, (
+            f"Эксперимент выполнялся слишком долго: {execution_time:.1f}с"
+        )
 
         # Проверка метрик производительности
         assert runner.baseline_result.final_mean_reward is not None
@@ -241,8 +247,12 @@ class TestControlledExperiments:
         assert len(runner.variant_result.training_history) > 0
 
         print(f"✅ Эксперимент выполнен за {execution_time:.1f}с")
-        print(f"📊 PPO финальная награда: {runner.baseline_result.final_mean_reward:.2f}")
-        print(f"📊 A2C финальная награда: {runner.variant_result.final_mean_reward:.2f}")
+        print(
+            f"📊 PPO финальная награда: {runner.baseline_result.final_mean_reward:.2f}"
+        )
+        print(
+            f"📊 A2C финальная награда: {runner.variant_result.final_mean_reward:.2f}"
+        )
 
     def test_experiment_results_collection(self, test_experiment: Experiment):
         """Тест сбора результатов эксперимента."""
@@ -253,7 +263,7 @@ class TestControlledExperiments:
             "episode_length": 250,
             "convergence_timesteps": 3000,
             "training_time": 120.5,
-            "success": True
+            "success": True,
         }
 
         variant_results = {
@@ -262,7 +272,7 @@ class TestControlledExperiments:
             "episode_length": 280,
             "convergence_timesteps": 3500,
             "training_time": 110.2,
-            "success": True
+            "success": True,
         }
 
         # Добавляем результаты
@@ -279,12 +289,12 @@ class TestControlledExperiments:
         comparison = test_experiment.compare_results()
         assert "performance_metrics" in comparison
         assert "mean_reward" in comparison["performance_metrics"]
-        assert comparison["performance_metrics"]["mean_reward"]["improvement"] == -9.7  # 140.8 - 150.5
+        assert (
+            comparison["performance_metrics"]["mean_reward"]["improvement"] == -9.7
+        )  # 140.8 - 150.5
 
     def test_statistical_comparison_analysis(
-        self, 
-        test_experiment: Experiment,
-        test_output_dir: Path
+        self, test_experiment: Experiment, test_output_dir: Path
     ):
         """Тест статистического анализа и сравнения."""
         # Создаем компаратор
@@ -292,9 +302,9 @@ class TestControlledExperiments:
             config=ComparisonConfig(
                 significance_level=0.05,
                 bootstrap_samples=100,  # Уменьшено для скорости тестов
-                min_sample_size=5
+                min_sample_size=5,
             ),
-            output_dir=test_output_dir / "comparisons"
+            output_dir=test_output_dir / "comparisons",
         )
 
         # Добавляем мок-данные для статистического анализа
@@ -303,14 +313,13 @@ class TestControlledExperiments:
 
         # Тест статистической значимости
         test_result = comparator.statistical_significance(
-            baseline_metrics, 
-            variant_metrics
+            baseline_metrics, variant_metrics
         )
 
         assert test_result is not None
-        assert hasattr(test_result, 'p_value')
-        assert hasattr(test_result, 'significant')
-        assert hasattr(test_result, 'effect_size')
+        assert hasattr(test_result, "p_value")
+        assert hasattr(test_result, "significant")
+        assert hasattr(test_result, "effect_size")
         assert 0 <= test_result.p_value <= 1
         assert isinstance(test_result.significant, bool)
 
@@ -328,9 +337,7 @@ class TestControlledExperiments:
         assert isinstance(effect_size, (int, float))
 
     def test_file_output_validation(
-        self, 
-        test_experiment: Experiment,
-        test_output_dir: Path
+        self, test_experiment: Experiment, test_output_dir: Path
     ):
         """Тест валидации создания файлов вывода."""
         # Сохранение эксперимента
@@ -339,7 +346,7 @@ class TestControlledExperiments:
         assert saved_path.suffix == ".json"
 
         # Проверка содержимого сохраненного файла
-        with open(saved_path, 'r', encoding='utf-8') as f:
+        with open(saved_path, "r", encoding="utf-8") as f:
             saved_data = json.load(f)
 
         assert "experiment_id" in saved_data
@@ -355,9 +362,13 @@ class TestControlledExperiments:
 
         # Проверка директорий вывода
         assert test_experiment.experiment_dir.exists()
-        assert (test_experiment.experiment_dir / "logs").exists() or True  # Может не создаваться без логирования
+        assert (
+            test_experiment.experiment_dir / "logs"
+        ).exists() or True  # Может не создаваться без логирования
 
-    def test_configuration_validation_and_error_handling(self, test_configs: Dict[str, RLConfig]):
+    def test_configuration_validation_and_error_handling(
+        self, test_configs: Dict[str, RLConfig]
+    ):
         """Тест валидации конфигурации и обработки ошибок."""
         # Тест с невалидными параметрами обучения
         invalid_config = test_configs["baseline"]
@@ -368,7 +379,7 @@ class TestControlledExperiments:
             experiment = Experiment(
                 baseline_config=invalid_config,
                 variant_config=test_configs["variant"],
-                hypothesis="Тест с невалидной конфигурацией"
+                hypothesis="Тест с невалидной конфигурацией",
             )
 
         # Восстанавливаем валидное значение
@@ -381,14 +392,12 @@ class TestControlledExperiments:
             experiment = Experiment(
                 baseline_config=invalid_config,
                 variant_config=test_configs["variant"],
-                hypothesis="Тест с невалидным learning rate"
+                hypothesis="Тест с невалидным learning rate",
             )
 
     @pytest.mark.slow
     def test_parallel_execution_mode(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест параллельного режима выполнения."""
         # Создаем эксперимент для параллельного выполнения
@@ -396,7 +405,7 @@ class TestControlledExperiments:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест параллельного выполнения",
-            output_dir=test_output_dir / "parallel_test"
+            output_dir=test_output_dir / "parallel_test",
         )
 
         # Создаем runner с параллельным режимом
@@ -404,7 +413,7 @@ class TestControlledExperiments:
             experiment=parallel_experiment,
             execution_mode=ExecutionMode.PARALLEL,
             max_workers=2,
-            enable_monitoring=False  # Отключаем для простоты
+            enable_monitoring=False,  # Отключаем для простоты
         )
 
         # Выполняем эксперимент
@@ -416,14 +425,12 @@ class TestControlledExperiments:
         assert success, "Параллельный эксперимент должен завершиться успешно"
         assert runner.baseline_result is not None
         assert runner.variant_result is not None
-        
+
         # Параллельное выполнение может быть быстрее, но не всегда из-за overhead
         print(f"✅ Параллельный эксперимент выполнен за {execution_time:.1f}с")
 
     def test_validation_mode(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест режима валидации (dry-run)."""
         # Создаем эксперимент для валидации
@@ -431,14 +438,14 @@ class TestControlledExperiments:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест режима валидации",
-            output_dir=test_output_dir / "validation_test"
+            output_dir=test_output_dir / "validation_test",
         )
 
         # Создаем runner в режиме валидации
         runner = ExperimentRunner(
             experiment=validation_experiment,
             execution_mode=ExecutionMode.VALIDATION,
-            enable_monitoring=False
+            enable_monitoring=False,
         )
 
         # Выполняем валидацию
@@ -448,8 +455,12 @@ class TestControlledExperiments:
 
         # Проверки
         assert success, "Валидация должна пройти успешно"
-        assert runner.baseline_result is None, "В режиме валидации не должно быть результатов обучения"
-        assert runner.variant_result is None, "В режиме валидации не должно быть результатов обучения"
+        assert runner.baseline_result is None, (
+            "В режиме валидации не должно быть результатов обучения"
+        )
+        assert runner.variant_result is None, (
+            "В режиме валидации не должно быть результатов обучения"
+        )
         assert execution_time < 30, "Валидация должна выполняться быстро"
 
         print(f"✅ Валидация выполнена за {execution_time:.1f}с")
@@ -461,9 +472,14 @@ class TestControlledExperiments:
 
         # Проверяем обязательные поля
         required_fields = [
-            "experiment_id", "status", "hypothesis", "created_at",
-            "baseline_completed", "variant_completed", "results_available",
-            "output_dir"
+            "experiment_id",
+            "status",
+            "hypothesis",
+            "created_at",
+            "baseline_completed",
+            "variant_completed",
+            "results_available",
+            "output_dir",
         ]
 
         for field in required_fields:
@@ -480,21 +496,29 @@ class TestControlledExperiments:
         assert "variant" in summary["configurations"]
 
     def test_cli_interface_simulation(
-        self, 
-        test_config_path: Path,
-        test_output_dir: Path
+        self, test_config_path: Path, test_output_dir: Path
     ):
         """Тест симуляции CLI интерфейса."""
         # Проверяем, что конфигурационный файл существует и валиден
-        assert test_config_path.exists(), f"Конфигурационный файл не найден: {test_config_path}"
+        assert test_config_path.exists(), (
+            f"Конфигурационный файл не найден: {test_config_path}"
+        )
 
-        with open(test_config_path, 'r', encoding='utf-8') as f:
+        with open(test_config_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
 
         # Проверяем структуру конфигурации
-        required_sections = ["experiment", "baseline", "variant", "evaluation", "comparison"]
+        required_sections = [
+            "experiment",
+            "baseline",
+            "variant",
+            "evaluation",
+            "comparison",
+        ]
         for section in required_sections:
-            assert section in config_data, f"Секция {section} отсутствует в конфигурации"
+            assert section in config_data, (
+                f"Секция {section} отсутствует в конфигурации"
+            )
 
         # Проверяем параметры эксперимента
         exp_config = config_data["experiment"]
@@ -505,16 +529,15 @@ class TestControlledExperiments:
         # Проверяем конфигурации алгоритмов
         baseline_config = config_data["baseline"]
         variant_config = config_data["variant"]
-        
-        assert baseline_config["algorithm"] != variant_config["algorithm"], \
-            "Алгоритмы baseline и variant должны отличаться"
-        assert baseline_config["environment"] == variant_config["environment"], \
-            "Среды должны быть одинаковыми"
 
-    def test_performance_validation(
-        self, 
-        test_experiment: Experiment
-    ):
+        assert baseline_config["algorithm"] != variant_config["algorithm"], (
+            "Алгоритмы baseline и variant должны отличаться"
+        )
+        assert baseline_config["environment"] == variant_config["environment"], (
+            "Среды должны быть одинаковыми"
+        )
+
+    def test_performance_validation(self, test_experiment: Experiment):
         """Тест валидации производительности."""
         # Добавляем реалистичные результаты
         baseline_results = {
@@ -523,7 +546,7 @@ class TestControlledExperiments:
             "episode_length": 200,
             "convergence_timesteps": 4000,
             "training_time": 180.5,
-            "success": True
+            "success": True,
         }
 
         variant_results = {
@@ -532,7 +555,7 @@ class TestControlledExperiments:
             "episode_length": 220,
             "convergence_timesteps": 4500,
             "training_time": 170.2,
-            "success": True
+            "success": True,
         }
 
         test_experiment.add_result("baseline", baseline_results)
@@ -540,23 +563,21 @@ class TestControlledExperiments:
 
         # Проверяем разумность результатов
         comparison = test_experiment.compare_results()
-        
+
         # Результаты должны быть в разумных пределах для LunarLander
         assert -500 <= baseline_results["mean_reward"] <= 500
         assert -500 <= variant_results["mean_reward"] <= 500
-        
+
         # Время обучения должно быть положительным
         assert baseline_results["training_time"] > 0
         assert variant_results["training_time"] > 0
-        
+
         # Количество шагов до сходимости должно быть разумным
         assert 0 < baseline_results["convergence_timesteps"] <= 10000
         assert 0 < variant_results["convergence_timesteps"] <= 10000
 
     def test_memory_and_resource_usage(
-        self, 
-        test_experiment: Experiment,
-        test_output_dir: Path
+        self, test_experiment: Experiment, test_output_dir: Path
     ):
         """Тест использования памяти и ресурсов."""
         # Создаем runner с ограничениями ресурсов
@@ -566,8 +587,8 @@ class TestControlledExperiments:
             enable_monitoring=True,
             resource_limits={
                 "memory_mb": 2048,  # 2GB лимит
-                "cpu_percent": 90
-            }
+                "cpu_percent": 90,
+            },
         )
 
         # Проверяем начальное состояние ресурсов
@@ -582,12 +603,12 @@ class TestControlledExperiments:
 
         # Проверяем финальное состояние ресурсов
         final_status = runner.get_status()
-        assert final_status["resource_usage"]["memory_mb"] < 2048  # Не должно превышать лимит
+        assert (
+            final_status["resource_usage"]["memory_mb"] < 2048
+        )  # Не должно превышать лимит
 
     def test_deterministic_results_with_seeds(
-        self, 
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Тест детерминированности результатов с фиксированными seeds."""
         # Создаем два идентичных эксперимента с одинаковыми seeds
@@ -595,48 +616,45 @@ class TestControlledExperiments:
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест детерминированности 1",
-            output_dir=test_output_dir / "deterministic_1"
+            output_dir=test_output_dir / "deterministic_1",
         )
 
         exp2 = Experiment(
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Тест детерминированности 2",
-            output_dir=test_output_dir / "deterministic_2"
+            output_dir=test_output_dir / "deterministic_2",
         )
 
         # Убеждаемся, что seeds одинаковые
         assert test_configs["baseline"].seed == test_configs["variant"].seed
-        
+
         # В реальном тесте здесь бы мы запускали оба эксперимента и сравнивали результаты
         # Но для интеграционного теста мы просто проверяем, что seeds установлены корректно
         assert exp1.baseline_config.seed == exp2.baseline_config.seed
         assert exp1.variant_config.seed == exp2.variant_config.seed
 
-    def test_error_recovery_and_cleanup(
-        self, 
-        test_experiment: Experiment
-    ):
+    def test_error_recovery_and_cleanup(self, test_experiment: Experiment):
         """Тест восстановления после ошибок и очистки ресурсов."""
         # Создаем runner
         runner = ExperimentRunner(
             experiment=test_experiment,
             execution_mode=ExecutionMode.VALIDATION,
-            enable_monitoring=False
+            enable_monitoring=False,
         )
 
         # Тестируем обработку ошибок
         error_handled = runner.handle_failure(
             error=ValueError("Тестовая ошибка"),
             config_type="baseline",
-            recovery_strategy="abort"
+            recovery_strategy="abort",
         )
         assert not error_handled  # abort стратегия должна возвращать False
 
         error_handled = runner.handle_failure(
             error=ValueError("Тестовая ошибка"),
             config_type="variant",
-            recovery_strategy="skip"
+            recovery_strategy="skip",
         )
         assert error_handled  # skip стратегия должна возвращать True
 
@@ -645,19 +663,17 @@ class TestControlledExperiments:
 
     @pytest.mark.integration
     def test_full_pipeline_integration(
-        self,
-        test_configs: Dict[str, RLConfig],
-        test_output_dir: Path
+        self, test_configs: Dict[str, RLConfig], test_output_dir: Path
     ):
         """Полный интеграционный тест пайплайна."""
         print("\n🚀 Запуск полного интеграционного теста пайплайна...")
-        
+
         # 1. Создание эксперимента
         experiment = Experiment(
             baseline_config=test_configs["baseline"],
             variant_config=test_configs["variant"],
             hypothesis="Полный интеграционный тест PPO vs A2C",
-            output_dir=test_output_dir / "full_pipeline"
+            output_dir=test_output_dir / "full_pipeline",
         )
         print("✅ Эксперимент создан")
 
@@ -665,9 +681,9 @@ class TestControlledExperiments:
         runner = ExperimentRunner(
             experiment=experiment,
             execution_mode=ExecutionMode.VALIDATION,
-            enable_monitoring=False
+            enable_monitoring=False,
         )
-        
+
         validation_success = runner.run()
         assert validation_success, "Валидация конфигураций должна пройти успешно"
         print("✅ Валидация конфигураций прошла успешно")
@@ -685,7 +701,7 @@ class TestControlledExperiments:
             "episode_length": 180,
             "convergence_timesteps": 3200,
             "training_time": 150.0,
-            "success": True
+            "success": True,
         }
 
         variant_results = {
@@ -694,7 +710,7 @@ class TestControlledExperiments:
             "episode_length": 200,
             "convergence_timesteps": 3800,
             "training_time": 140.0,
-            "success": True
+            "success": True,
         }
 
         experiment.add_result("baseline", baseline_results)
@@ -715,7 +731,7 @@ class TestControlledExperiments:
         # 7. Проверка финального состояния
         experiment.stop(failed=False)
         assert experiment.status == ExperimentStatus.COMPLETED
-        
+
         final_summary = experiment.get_summary()
         assert "results" in final_summary
         print("✅ Эксперимент завершен успешно")
@@ -730,33 +746,39 @@ class TestControlledExperiments:
     def test_documentation_examples_work(self, test_config_path: Path):
         """Тест того, что примеры из документации работают."""
         # Проверяем, что конфигурационный файл соответствует документации
-        with open(test_config_path, 'r', encoding='utf-8') as f:
+        with open(test_config_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
 
         # Проверяем структуру согласно документации
-        assert config_data["baseline"]["training_steps"] <= 10000, \
+        assert config_data["baseline"]["training_steps"] <= 10000, (
             "Для тестов должны использоваться короткие тренировки"
-        assert config_data["variant"]["training_steps"] <= 10000, \
+        )
+        assert config_data["variant"]["training_steps"] <= 10000, (
             "Для тестов должны использоваться короткие тренировки"
-        assert config_data["evaluation"]["num_episodes"] <= 10, \
+        )
+        assert config_data["evaluation"]["num_episodes"] <= 10, (
             "Для тестов должно использоваться минимальное количество эпизодов"
+        )
 
         # Проверяем, что отключены тяжелые операции
-        assert not config_data["experiment"]["output"]["save_videos"], \
+        assert not config_data["experiment"]["output"]["save_videos"], (
             "Видео должно быть отключено для скорости тестов"
-        assert config_data["comparison"]["plots"]["dpi"] <= 200, \
+        )
+        assert config_data["comparison"]["plots"]["dpi"] <= 200, (
             "DPI должно быть снижено для скорости тестов"
+        )
 
 
 # Дополнительные утилиты для тестирования
 
+
 def create_mock_training_history(steps: int = 100, algorithm: str = "PPO") -> Dict:
     """Создать мок-историю обучения для тестов."""
     import numpy as np
-    
+
     # Симулируем прогресс обучения
     timesteps = list(range(0, steps * 50, 50))
-    
+
     if algorithm == "PPO":
         # PPO обычно более стабильный
         base_reward = -200
@@ -767,7 +789,7 @@ def create_mock_training_history(steps: int = 100, algorithm: str = "PPO") -> Di
         base_reward = -220
         improvement_rate = 0.018
         noise_level = 30
-    
+
     rewards = []
     for i, step in enumerate(timesteps):
         # Симулируем улучшение с шумом
@@ -775,12 +797,12 @@ def create_mock_training_history(steps: int = 100, algorithm: str = "PPO") -> Di
         noise = np.random.normal(0, noise_level)
         reward = trend + noise
         rewards.append(reward)
-    
+
     return {
         "timesteps": timesteps,
         "mean_rewards": rewards,
         "episode_lengths": [np.random.randint(100, 300) for _ in timesteps],
-        "losses": [np.random.uniform(0.1, 1.0) for _ in timesteps]
+        "losses": [np.random.uniform(0.1, 1.0) for _ in timesteps],
     }
 
 
@@ -791,18 +813,18 @@ def validate_experiment_outputs(experiment_dir: Path) -> Dict[str, bool]:
         "experiment_file_exists": False,
         "logs_dir_exists": False,
         "models_dir_exists": False,
-        "plots_dir_exists": False
+        "plots_dir_exists": False,
     }
-    
+
     if validations["experiment_dir_exists"]:
         # Проверяем наличие основных файлов и директорий
         experiment_files = list(experiment_dir.glob("experiment_*.json"))
         validations["experiment_file_exists"] = len(experiment_files) > 0
-        
+
         validations["logs_dir_exists"] = (experiment_dir / "logs").exists()
         validations["models_dir_exists"] = (experiment_dir / "models").exists()
         validations["plots_dir_exists"] = (experiment_dir / "plots").exists()
-    
+
     return validations
 
 

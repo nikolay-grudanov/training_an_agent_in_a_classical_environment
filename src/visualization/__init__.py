@@ -1,76 +1,25 @@
-"""Visualization utilities for RL training analysis."""
+"""Visualization module for RL experiment results.
 
-from .plots import (
-    plot_learning_curve,
-    plot_episode_lengths,
-    plot_loss_curves,
-    plot_reward_distribution,
-    plot_convergence_analysis,
-    plot_multiple_runs,
-    plot_confidence_intervals,
-    setup_matplotlib_style,
-    create_figure_grid,
-    save_plot,
-    apply_smoothing,
-    detect_convergence,
-)
+Provides tools for generating:
+- Performance graphs (PNG) showing reward progression
+- Comparison plots for algorithm comparison
+- Agent demonstration videos (MP4)
 
-from .video_generator import (
-    VideoConfig,
-    VideoGenerationError,
-    setup_recording_environment,
-    add_metrics_overlay,
-    record_agent_episode,
-    record_multiple_episodes,
-    create_training_montage,
-    generate_comparison_video,
-    compress_video,
-)
+Modules:
+- graphs: Graph generation for training metrics
+- video: Video rendering for trained agents
+"""
 
-from .performance_plots import (
-    PlotStyle,
-    DataLoader,
-    PerformancePlotter,
-    InteractivePlotter,
-    export_plots_to_formats,
-    create_performance_report,
-    quick_reward_plot,
-    quick_comparison_plot,
+from .graphs import (
+    LearningCurveGenerator,
+    ComparisonPlotGenerator,
+    GammaComparisonPlotGenerator,
 )
+from .video import VideoGenerator
 
 __all__ = [
-    # Plotting functions
-    "plot_learning_curve",
-    "plot_episode_lengths", 
-    "plot_loss_curves",
-    "plot_reward_distribution",
-    "plot_convergence_analysis",
-    "plot_multiple_runs",
-    "plot_confidence_intervals",
-    "setup_matplotlib_style",
-    "create_figure_grid",
-    "save_plot",
-    "apply_smoothing",
-    "detect_convergence",
-    
-    # Video generation functions
-    "VideoConfig",
-    "VideoGenerationError",
-    "setup_recording_environment",
-    "add_metrics_overlay",
-    "record_agent_episode",
-    "record_multiple_episodes",
-    "create_training_montage",
-    "generate_comparison_video",
-    "compress_video",
-    
-    # Performance plotting functions
-    "PlotStyle",
-    "DataLoader",
-    "PerformancePlotter",
-    "InteractivePlotter",
-    "export_plots_to_formats",
-    "create_performance_report",
-    "quick_reward_plot",
-    "quick_comparison_plot",
+    "LearningCurveGenerator",
+    "ComparisonPlotGenerator",
+    "GammaComparisonPlotGenerator",
+    "VideoGenerator",
 ]

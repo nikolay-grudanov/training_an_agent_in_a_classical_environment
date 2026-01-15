@@ -24,7 +24,7 @@ from src.evaluation.evaluator import (
     EvaluationMetrics,
     Evaluator,
 )
-from src.utils.logging import get_logger
+from src.utils.rl_logging import get_logger
 from src.utils.seeding import set_seed
 
 logger = get_logger(__name__)
@@ -189,7 +189,9 @@ class QuantitativeEvaluator:
         # Проверка кэша
         cache_key = f"{agent_name or id(agent)}_{num_episodes}"
         if use_cache and cache_key in self._metrics_cache:
-            logger.info(f"Использование кэшированных количественных метрик: {cache_key}")
+            logger.info(
+                f"Использование кэшированных количественных метрик: {cache_key}"
+            )
             return self._metrics_cache[cache_key]
 
         logger.info(
@@ -278,9 +280,7 @@ class QuantitativeEvaluator:
         baseline_rewards = baseline_metrics.base_metrics.episode_rewards
 
         # t-тест
-        ttest_result = stats.ttest_ind(
-            agent_rewards, baseline_rewards, equal_var=False
-        )
+        ttest_result = stats.ttest_ind(agent_rewards, baseline_rewards, equal_var=False)
 
         # Непараметрический тест Вилкоксона
         wilcoxon_result = stats.mannwhitneyu(
@@ -289,7 +289,10 @@ class QuantitativeEvaluator:
 
         # Расчет улучшения и размера эффекта
         reward_improvement = (
-            (agent_metrics.base_metrics.mean_reward - baseline_metrics.base_metrics.mean_reward)
+            (
+                agent_metrics.base_metrics.mean_reward
+                - baseline_metrics.base_metrics.mean_reward
+            )
             / abs(baseline_metrics.base_metrics.mean_reward)
             * 100
         )
@@ -300,7 +303,10 @@ class QuantitativeEvaluator:
         practical_significance = abs(effect_size) >= self.min_effect_size
 
         # Определение лучшего агента
-        is_better = agent_metrics.base_metrics.mean_reward > baseline_metrics.base_metrics.mean_reward
+        is_better = (
+            agent_metrics.base_metrics.mean_reward
+            > baseline_metrics.base_metrics.mean_reward
+        )
 
         result = BaselineComparison(
             agent_name=agent_name,
@@ -375,7 +381,10 @@ class QuantitativeEvaluator:
 
         # Ранжирование по средней награде
         ranking = sorted(
-            [(name, metrics.base_metrics.mean_reward) for name, metrics in agents_metrics.items()],
+            [
+                (name, metrics.base_metrics.mean_reward)
+                for name, metrics in agents_metrics.items()
+            ],
             key=lambda x: x[1],
             reverse=True,
         )
@@ -413,7 +422,9 @@ class QuantitativeEvaluator:
 
     def generate_comprehensive_report(
         self,
-        metrics: Union[QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult],
+        metrics: Union[
+            QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult
+        ],
         save_path: Optional[Path] = None,
         format_type: str = "text",
     ) -> str:
@@ -483,7 +494,11 @@ class QuantitativeEvaluator:
         length_iqr = length_q75 - length_q25
 
         # Коэффициент вариации
-        reward_cv = base_metrics.std_reward / abs(base_metrics.mean_reward) if base_metrics.mean_reward != 0 else 0
+        reward_cv = (
+            base_metrics.std_reward / abs(base_metrics.mean_reward)
+            if base_metrics.mean_reward != 0
+            else 0
+        )
 
         # Оценка стабильности (обратная к CV, нормализованная)
         reward_stability_score = max(0, 1 - min(reward_cv, 1))
@@ -509,8 +524,10 @@ class QuantitativeEvaluator:
 
         # Количество выбросов (метод IQR)
         outlier_threshold = 1.5 * reward_iqr
-        outliers = rewards[(rewards < reward_q25 - outlier_threshold) | 
-                          (rewards > reward_q75 + outlier_threshold)]
+        outliers = rewards[
+            (rewards < reward_q25 - outlier_threshold)
+            | (rewards > reward_q75 + outlier_threshold)
+        ]
         outlier_count = len(outliers)
 
         return QuantitativeMetrics(
@@ -564,7 +581,9 @@ class QuantitativeEvaluator:
 
     def _generate_text_report(
         self,
-        metrics: Union[QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult],
+        metrics: Union[
+            QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult
+        ],
     ) -> str:
         """Генерация текстового отчета."""
         if isinstance(metrics, QuantitativeMetrics):
@@ -663,7 +682,9 @@ class QuantitativeEvaluator:
         report += f"- Время оценки: {summary['evaluation_time']:.1f} сек\n"
         report += f"- Лучший агент: {summary['best_agent']} ({summary['best_performance']:.3f})\n"
         report += f"- Средняя производительность: {summary['mean_performance']:.3f} ± {summary['std_performance']:.3f}\n"
-        report += f"- Диапазон производительности: {summary['performance_range']:.3f}\n\n"
+        report += (
+            f"- Диапазон производительности: {summary['performance_range']:.3f}\n\n"
+        )
 
         # Рейтинг
         report += "Рейтинг агентов:\n"
@@ -678,7 +699,9 @@ class QuantitativeEvaluator:
 
     def _generate_json_report(
         self,
-        metrics: Union[QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult],
+        metrics: Union[
+            QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult
+        ],
     ) -> str:
         """Генерация JSON отчета."""
         if isinstance(metrics, QuantitativeMetrics):
@@ -688,7 +711,8 @@ class QuantitativeEvaluator:
         else:  # BatchEvaluationResult
             data = {
                 "agents_metrics": {
-                    name: self._metrics_to_dict(m) for name, m in metrics.agents_metrics.items()
+                    name: self._metrics_to_dict(m)
+                    for name, m in metrics.agents_metrics.items()
                 },
                 "ranking": metrics.ranking,
                 "best_agent": metrics.best_agent,
@@ -699,7 +723,9 @@ class QuantitativeEvaluator:
 
     def _generate_csv_report(
         self,
-        metrics: Union[QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult],
+        metrics: Union[
+            QuantitativeMetrics, Dict[str, QuantitativeMetrics], BatchEvaluationResult
+        ],
     ) -> str:
         """Генерация CSV отчета."""
         if isinstance(metrics, QuantitativeMetrics):
@@ -755,9 +781,18 @@ class QuantitativeEvaluator:
         lengths = metrics.base_metrics.episode_lengths
 
         # Гистограмма наград
-        axes[0, 0].hist(rewards, bins=min(15, len(rewards) // 2), alpha=0.7, edgecolor="black")
-        axes[0, 0].axvline(metrics.base_metrics.mean_reward, color="red", linestyle="--", label="Среднее")
-        axes[0, 0].axvline(metrics.reward_median, color="green", linestyle="--", label="Медиана")
+        axes[0, 0].hist(
+            rewards, bins=min(15, len(rewards) // 2), alpha=0.7, edgecolor="black"
+        )
+        axes[0, 0].axvline(
+            metrics.base_metrics.mean_reward,
+            color="red",
+            linestyle="--",
+            label="Среднее",
+        )
+        axes[0, 0].axvline(
+            metrics.reward_median, color="green", linestyle="--", label="Медиана"
+        )
         axes[0, 0].set_xlabel("Награда")
         axes[0, 0].set_ylabel("Частота")
         axes[0, 0].set_title("Распределение наград")
@@ -771,15 +806,26 @@ class QuantitativeEvaluator:
         # Временной ряд наград
         episodes = range(1, len(rewards) + 1)
         axes[1, 0].plot(episodes, rewards, marker="o", markersize=4, alpha=0.7)
-        axes[1, 0].axhline(metrics.base_metrics.mean_reward, color="red", linestyle="--", alpha=0.7)
+        axes[1, 0].axhline(
+            metrics.base_metrics.mean_reward, color="red", linestyle="--", alpha=0.7
+        )
         axes[1, 0].set_xlabel("Эпизод")
         axes[1, 0].set_ylabel("Награда")
         axes[1, 0].set_title("Динамика наград по эпизодам")
 
         # Гистограмма длин эпизодов
-        axes[1, 1].hist(lengths, bins=min(15, len(lengths) // 2), alpha=0.7, edgecolor="black")
-        axes[1, 1].axvline(metrics.base_metrics.mean_episode_length, color="red", linestyle="--", label="Среднее")
-        axes[1, 1].axvline(metrics.length_median, color="green", linestyle="--", label="Медиана")
+        axes[1, 1].hist(
+            lengths, bins=min(15, len(lengths) // 2), alpha=0.7, edgecolor="black"
+        )
+        axes[1, 1].axvline(
+            metrics.base_metrics.mean_episode_length,
+            color="red",
+            linestyle="--",
+            label="Среднее",
+        )
+        axes[1, 1].axvline(
+            metrics.length_median, color="green", linestyle="--", label="Медиана"
+        )
         axes[1, 1].set_xlabel("Длина эпизода")
         axes[1, 1].set_ylabel("Частота")
         axes[1, 1].set_title("Распределение длин эпизодов")
@@ -810,7 +856,9 @@ class QuantitativeEvaluator:
         colors = plt.cm.Set3(np.linspace(0, 1, len(agent_names)))  # type: ignore
 
         # Box plot сравнение наград
-        rewards_data = [metrics_dict[name].base_metrics.episode_rewards for name in agent_names]
+        rewards_data = [
+            metrics_dict[name].base_metrics.episode_rewards for name in agent_names
+        ]
         bp = axes[0, 0].boxplot(rewards_data, labels=agent_names, patch_artist=True)
         for patch, color in zip(bp["boxes"], colors):
             patch.set_facecolor(color)
@@ -819,38 +867,58 @@ class QuantitativeEvaluator:
         axes[0, 0].tick_params(axis="x", rotation=45)
 
         # Барный график средних наград
-        mean_rewards = [metrics_dict[name].base_metrics.mean_reward for name in agent_names]
-        std_rewards = [metrics_dict[name].base_metrics.std_reward for name in agent_names]
-        axes[0, 1].bar(agent_names, mean_rewards, yerr=std_rewards, capsize=5, color=colors)
+        mean_rewards = [
+            metrics_dict[name].base_metrics.mean_reward for name in agent_names
+        ]
+        std_rewards = [
+            metrics_dict[name].base_metrics.std_reward for name in agent_names
+        ]
+        axes[0, 1].bar(
+            agent_names, mean_rewards, yerr=std_rewards, capsize=5, color=colors
+        )
         axes[0, 1].set_ylabel("Средняя награда")
         axes[0, 1].set_title("Средние награды с доверительными интервалами")
         axes[0, 1].tick_params(axis="x", rotation=45)
 
         # Scatter plot стабильность vs производительность
-        stability_scores = [metrics_dict[name].reward_stability_score for name in agent_names]
+        stability_scores = [
+            metrics_dict[name].reward_stability_score for name in agent_names
+        ]
         axes[1, 0].scatter(mean_rewards, stability_scores, c=colors, s=100, alpha=0.7)
         for i, name in enumerate(agent_names):
-            axes[1, 0].annotate(name, (mean_rewards[i], stability_scores[i]), 
-                               xytext=(5, 5), textcoords="offset points")
+            axes[1, 0].annotate(
+                name,
+                (mean_rewards[i], stability_scores[i]),
+                xytext=(5, 5),
+                textcoords="offset points",
+            )
         axes[1, 0].set_xlabel("Средняя награда")
         axes[1, 0].set_ylabel("Оценка стабильности")
         axes[1, 0].set_title("Производительность vs Стабильность")
 
         # Радарная диаграмма (упрощенная)
-        success_rates = [metrics_dict[name].base_metrics.success_rate for name in agent_names]
-        
+        success_rates = [
+            metrics_dict[name].base_metrics.success_rate for name in agent_names
+        ]
+
         # Нормализация метрик для радарной диаграммы
-        norm_rewards = np.array(mean_rewards) / max(mean_rewards) if max(mean_rewards) > 0 else np.zeros_like(mean_rewards)
+        norm_rewards = (
+            np.array(mean_rewards) / max(mean_rewards)
+            if max(mean_rewards) > 0
+            else np.zeros_like(mean_rewards)
+        )
         norm_stability = np.array(stability_scores)
         norm_success = np.array(success_rates)
-        
+
         x = np.arange(len(agent_names))
         width = 0.25
-        
-        axes[1, 1].bar(x - width, norm_rewards, width, label="Награда (норм.)", alpha=0.7)
+
+        axes[1, 1].bar(
+            x - width, norm_rewards, width, label="Награда (норм.)", alpha=0.7
+        )
         axes[1, 1].bar(x, norm_stability, width, label="Стабильность", alpha=0.7)
         axes[1, 1].bar(x + width, norm_success, width, label="Успешность", alpha=0.7)
-        
+
         axes[1, 1].set_xlabel("Агенты")
         axes[1, 1].set_ylabel("Нормализованные метрики")
         axes[1, 1].set_title("Сравнение ключевых метрик")
@@ -871,6 +939,7 @@ class QuantitativeEvaluator:
 
 
 # Удобные функции для быстрого использования
+
 
 def evaluate_agent_standard(
     agent: Agent,
@@ -919,24 +988,24 @@ def compare_agents_statistical(
         Результат пакетной оценки
     """
     evaluator = QuantitativeEvaluator(env=env)
-    
+
     # Пакетная оценка
     result = evaluator.evaluate_multiple_agents_batch(
         agents=agents, num_episodes=num_episodes
     )
-    
+
     # Сохранение отчета
     if save_report:
         evaluator.generate_comprehensive_report(
             metrics=result, save_path=save_report, format_type="text"
         )
-    
+
     # Сохранение графиков
     if save_plots:
         evaluator.visualize_results(
             metrics=result.agents_metrics, save_path=save_plots, show_plots=False
         )
-    
+
     return result
 
 
@@ -961,40 +1030,44 @@ def analyze_agent_stability(
         Словарь с анализом стабильности
     """
     evaluator = QuantitativeEvaluator(env=env)
-    
+
     run_metrics = []
     mean_rewards = []
     stability_scores = []
-    
+
     for run in range(num_runs):
         # Используем разные семена для каждого запуска
         evaluator.random_seed = 42 + run * 100
-        
+
         metrics = evaluator.evaluate_agent_quantitative(
             agent=agent,
             num_episodes=episodes_per_run,
             agent_name=f"{agent_name}_run_{run}" if agent_name else f"agent_run_{run}",
             use_cache=False,  # Не используем кэш для независимых запусков
         )
-        
+
         run_metrics.append(metrics)
         mean_rewards.append(metrics.base_metrics.mean_reward)
         stability_scores.append(metrics.reward_stability_score)
-    
+
     # Анализ стабильности между запусками
     inter_run_stability = {
         "mean_reward_across_runs": float(np.mean(mean_rewards)),
         "std_reward_across_runs": float(np.std(mean_rewards)),
-        "cv_across_runs": float(np.std(mean_rewards) / np.mean(mean_rewards)) if np.mean(mean_rewards) != 0 else 0,
+        "cv_across_runs": float(np.std(mean_rewards) / np.mean(mean_rewards))
+        if np.mean(mean_rewards) != 0
+        else 0,
         "min_reward": float(np.min(mean_rewards)),
         "max_reward": float(np.max(mean_rewards)),
         "reward_range": float(np.max(mean_rewards) - np.min(mean_rewards)),
         "mean_stability_score": float(np.mean(stability_scores)),
-        "stability_consistency": float(1 - np.std(stability_scores)),  # Чем меньше разброс, тем лучше
+        "stability_consistency": float(
+            1 - np.std(stability_scores)
+        ),  # Чем меньше разброс, тем лучше
         "num_runs": num_runs,
         "episodes_per_run": episodes_per_run,
     }
-    
+
     return {
         "inter_run_stability": inter_run_stability,
         "run_metrics": run_metrics,

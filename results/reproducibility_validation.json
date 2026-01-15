@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-01-15T07:10:10.664754",
+  "seed": 42,
+  "algorithm": "PPO",
+  "total_timesteps": 1000,
+  "runs": [
+    {
+      "run_id": "ppo_seed42_071016",
+      "algorithm": "PPO",
+      "seed": 42,
+      "total_timesteps": 1000,
+      "final_reward_mean": 0.0,
+      "final_reward_std": 0.0,
+      "elapsed_time": 5.359095811843872,
+      "results_file": "results/experiments/ppo_seed42/ppo_seed42_results.json",
+      "success": true
+    },
+    {
+      "run_id": "ppo_seed42_071021",
+      "algorithm": "PPO",
+      "seed": 42,
+      "total_timesteps": 1000,
+      "final_reward_mean": 0.0,
+      "final_reward_std": 0.0,
+      "elapsed_time": 5.296723365783691,
+      "results_file": "results/experiments/ppo_seed42/ppo_seed42_results.json",
+      "success": true
+    }
+  ],
+  "reward_mean": 0.0,
+  "reward_std": 0.0,
+  "status": "PERFECT",
+  "is_reproducible": true,
+  "validation_threshold": 0.01,
+  "success_criteria": {
+    "perfect": "std < 0.01",
+    "good": "std < 0.1",
+    "poor": "std >= 0.1"
+  }
+}
