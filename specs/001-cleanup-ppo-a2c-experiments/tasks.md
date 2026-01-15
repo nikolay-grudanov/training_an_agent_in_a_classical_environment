@@ -251,14 +251,14 @@ Phase 7: Polish & Cross-Cutting ──────► Final validation
 **Goal**: Train A2C agent on LunarLander-v3 with identical settings to PPO  
 **Independent Test Criteria**: Run `python -m src.training.train --algo a2c` and verify `results/experiments/a2c_seed42/a2c_seed42_model.zip` exists with same structure as PPO results
 
-- [ ] T022 [US4] Add A2C training support to trainer.py:
+- [X] T022 [US4] Add A2C training support to trainer.py:
   - Extend `src/training/trainer.py` to support A2C algorithm
   - Configure A2C with default hyperparameters (lr=0.0007, n_steps=5, gamma=0.99)
   - Use identical seed=42, timesteps=50,000, checkpoint_interval=1000
   - Save to `results/experiments/a2c_seed42/` directory structure
   - Ensure output format matches PPO for comparison
 
-- [ ] T023 [US4] Create unit tests for A2C training:
+- [X] T023 [US4] Create unit tests for A2C training:
   - Create `tests/unit/test_trainer_a2c.py` for A2C training logic
   - Mock Gymnasium environment for fast unit tests
   - Verify output structure matches PPO format
