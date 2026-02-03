@@ -276,3 +276,13 @@ mlruns/
 # SAC_IMPLEMENTATION_SUMMARY.md
 # spec/**
 # A2C_IMPLEMENTATION_SUMMARY.md
+
+# Additional results and artifacts
+results/comparison/**
+results/reports/**
+
+# Assets
+assets/
+
+# Scripts
+scripts/
