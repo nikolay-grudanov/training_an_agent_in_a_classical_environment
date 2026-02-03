@@ -272,6 +272,23 @@ def test_set_seed(seed: int) -> None:
 - JSON for metrics/audit reports, Pickle for trained models (001-cleanup-ppo-a2c-experiments)
 - Python 3.10.14 + Stable-Baselines3, Gymnasium, PyTorch, NumPy, Matplotlib, imageio (003-experiments-completion)
 - Files (experiment results, trained models, videos, metrics) (003-experiments-completion)
+- swig + Box2D (gymnasium[box2d]) for LunarLander-v3 physics
 
 ## Recent Changes
+- 2026-02-03: Fixed integration tests (recursive import, CSV export, additional files)
+- 2026-02-03: Added MetricsLoggingCallback for CSV metrics export
+- 2026-02-03: Updated cleanup to generate project_structure.json in dry-run mode
+- 2026-02-03: Fixed audit discover_python_files to exclude __main__.py
 - 002-project-cleanup-validation: Added Python 3.10.14
+
+---
+
+## 📚 Additional Documentation
+
+- **[PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)** - Оптимизированный контекст проекта (компактный обзор)
+  - Быстрое ознакомление с проектом
+  - Ключевые результаты и статус
+  - Команды быстрого запуска
+  - Известные проблемы и решения
+
+Используйте этот файл для быстрого понимания контекста проекта вместо чтения длинной документации.

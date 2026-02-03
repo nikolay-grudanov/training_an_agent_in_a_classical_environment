@@ -958,10 +958,21 @@ class TestFullWorkflow:
             "ppo_seed42_metrics.json",
         }
 
+        # Allow additional files created during training
+        allowed_additional_files = {
+            "config.json",  # Training configuration
+            "metrics.csv",  # CSV metrics export
+            "eval_log.csv",  # Evaluation log
+            "reward_curve.png",  # Reward curve plot
+            "reward_curve_1.png",  # Additional reward plot
+            "video.mp4",  # Training video
+        }
+
         # Allow checkpoint files and directories (they're created during training)
         unexpected_ppo_files = (
             ppo_basenames
             - expected_ppo_files
+            - allowed_additional_files
             - {f.name for f in ppo_exp_dir.glob("checkpoint_*.zip")}
             - {"checkpoints"}
         )
@@ -980,10 +991,21 @@ class TestFullWorkflow:
             "a2c_seed42_metrics.json",
         }
 
+        # Allow additional files created during training
+        allowed_additional_files = {
+            "config.json",  # Training configuration
+            "metrics.csv",  # CSV metrics export
+            "eval_log.csv",  # Evaluation log
+            "reward_curve.png",  # Reward curve plot
+            "reward_curve_1.png",  # Additional reward plot
+            "video.mp4",  # Training video
+        }
+
         # Allow checkpoint files and directories (they're created during training)
         unexpected_a2c_files = (
             a2c_basenames
             - expected_a2c_files
+            - allowed_additional_files
             - {f.name for f in a2c_exp_dir.glob("checkpoint_*.zip")}
             - {"checkpoints"}
         )

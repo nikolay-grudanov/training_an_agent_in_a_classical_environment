@@ -191,6 +191,9 @@ def discover_python_files(scope: Path) -> list[Path]:
             # Skip __pycache__ directories
             if "__pycache__" in py_file.parts:
                 continue
+            # Skip __main__.py files (entry points, should not be imported)
+            if py_file.name == "__main__.py":
+                continue
             # Skip .py files starting with test_ (handled separately if needed)
             python_files.append(py_file)
 

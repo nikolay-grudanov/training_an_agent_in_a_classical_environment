@@ -126,6 +126,14 @@ def main() -> int:
                     f"   ... and {len(dry_run_result.items_to_remove) - 10} more"
                 )
 
+        # Generate project structure report even in dry-run mode
+        output_path = Path(args.output)
+        try:
+            report_path = executor.save_project_structure_report(output_path)
+            logger.info(f"✅ Project structure report saved: {report_path}")
+        except Exception as e:
+            logger.warning(f"⚠️  Failed to save report: {e}")
+
         logger.info("\n⚠️  Run without --dry-run to execute changes")
         return 0
 

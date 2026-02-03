@@ -5,7 +5,8 @@ Provides classes for generating:
 - Comparison plots (A2C vs PPO)
 - Gamma comparison plots (hyperparameter study)
 """
-
+import matplotlib
+matplotlib.use('Agg')  # Перед plt!
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.figure import Figure
@@ -53,7 +54,16 @@ class LearningCurveGenerator:
             Matplotlib Figure object
         """
         df = pd.read_csv(metrics_csv)
-
+        
+        # Convert columns to numeric types
+        for col in ['timesteps', 'reward_mean', 'reward_std']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        # Fill NaN values with 0 for reward_std
+        if 'reward_std' in df.columns:
+            df['reward_std'] = df['reward_std'].fillna(0)
+        
         fig, ax = plt.subplots(figsize=(self.width, self.height), dpi=self.dpi)
 
         # Main line
@@ -138,6 +148,16 @@ class ComparisonPlotGenerator:
 
         for i, (path, label) in enumerate(zip(experiment_paths, labels)):
             df = pd.read_csv(path)
+            
+            # Convert columns to numeric types
+            for col in ['timesteps', 'reward_mean', 'reward_std']:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+            
+            # Fill NaN values with 0 for reward_std
+            if 'reward_std' in df.columns:
+                df['reward_std'] = df['reward_std'].fillna(0)
+            
             ax.plot(
                 df["timesteps"],
                 df["reward_mean"],
@@ -253,6 +273,7 @@ def main() -> None:
                     for m in data.get('metrics', []):
                         ts = m.get('timestep', 0)
                         reward = m.get('reward', 0)
+                        # Use numeric values, handle missing fields
                         f.write(f'{ts},0,{reward},0,0,0\n')
 
         generator = LearningCurveGenerator()
@@ -284,6 +305,7 @@ def main() -> None:
                         for m in data.get('metrics', []):
                             ts = m.get('timestep', 0)
                             reward = m.get('reward', 0)
+                            # Use numeric values, handle missing fields
                             f.write(f'{ts},0,{reward},0,0,0\n')
 
         if args.type == "gamma_comparison":

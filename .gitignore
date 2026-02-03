@@ -247,7 +247,7 @@ tags
 
 # ML/RL Specific Patterns
 results/models/
-results/videos/
+# results/videos/
 results/logs/
 *.zip
 *.pkl
