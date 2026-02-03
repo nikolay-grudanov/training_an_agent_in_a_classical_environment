@@ -254,6 +254,70 @@ def test_set_seed(seed: int) -> None:
 - Magic numbers → Named constants
 - `if __name__ == "__main__":` → CLI with `typer`/`click`
 
+## 🚨 MANDATORY RULES (CANNOT BE DELETED) ⚠️
+
+### MUST Follow: Agent Behavior Requirements
+
+**PRINCIPLE VI**: Continuous Task Completion - Agent MUST NOT stop until all tasks are complete at highest quality level.
+
+1. **100% Task Completion Required**:
+   - [ ] All items in tasks.md MUST be checked off [x] before declaring completion
+   - [ ] All acceptance criteria from spec.md MUST be met
+   - [ ] All tests MUST pass (100% pass rate for unit tests, 100% for integration tests)
+   - [ ] All models MUST achieve target performance metrics (reward > 200 for LunarLander-v3)
+   - [ ] Complete pipeline MUST work flawlessly without errors
+   - [ ] Documentation MUST be accurate and up-to-date
+
+2. **Task File Verification After EVERY Action**:
+   - After completing ANY task, MUST run: `todoread` then check tasks.md
+   - After context optimization, MUST re-read: spec.md, plan.md, tasks.md
+   - After ANY code change, MUST verify: no new errors introduced
+   - Agent MUST proceed only if ALL blocking conditions are resolved
+
+3. **MANDATORY: Use `todo` Tool**:
+   - After EVERY task completion: `todowrite` with updated status
+   - Before starting new work: `todoread` to check current progress
+   - This is NON-NEGOTIABLE - failure to use tool is a violation
+
+4. **MANDATORY: Use `think` Tool**:
+   - Before EVERY action: `think-mcp_think` for planning/analysis
+   - After major actions: `think-mcp_criticize` for self-review
+   - When planning multi-step workflow: `think-mcp_plan` for step breakdown
+   - This is NON-NEGOTIABLE - failure to use tool is a violation
+
+5. **Blocking Conditions (Cannot Proceed Until Met)**:
+   - ✅ All unit tests pass (100%)
+   - ✅ All integration tests pass (100%)
+   - ✅ Model achieves target reward (>200)
+   - ✅ Training pipeline completes without errors
+   - ✅ Code quality checks pass (ruff, mypy)
+   - ✅ Documentation is complete
+
+6. **Quality Thresholds (Minimum Acceptance Standards)**:
+   - Unit test pass rate: ≥ 95% (critical: ≥ 100%)
+   - Integration test pass rate: ≥ 100%
+   - Model reward: ≥ 200 (target) / ≥ 150 (minimum acceptable)
+   - Code quality: 0 ruff errors, 0 mypy errors
+   - Documentation: All sections populated with accurate information
+
+7. **Completion Declaration Requirements**:
+   - CANNOT declare "done" until:
+     * All checkboxes in tasks.md are [x]
+     * All acceptance criteria in spec.md are met
+     * All tests pass at required percentages
+     * All performance metrics meet targets
+     * No known critical bugs remain
+
+**VIOLATION CONSEQUENCE**: If agent violates these rules, it MUST:
+1. Acknowledge the violation immediately
+2. Re-read all task files and constitution.md
+3. Resume work from where it stopped
+4. Complete all remaining tasks to proper standards
+
+These rules are MANDATORY and CANNOT be removed or modified without project owner approval.
+
+---
+
 ## 🤖 For Agents (Cursor/Copilot/You)
 1. **Always run `ruff check --fix .` before commit**
 2. **Test incrementally:** `pytest <file>::<func>`
@@ -273,6 +337,8 @@ def test_set_seed(seed: int) -> None:
 - Python 3.10.14 + Stable-Baselines3, Gymnasium, PyTorch, NumPy, Matplotlib, imageio (003-experiments-completion)
 - Files (experiment results, trained models, videos, metrics) (003-experiments-completion)
 - swig + Box2D (gymnasium[box2d]) for LunarLander-v3 physics
+- Python 3.10.14 + Stable-Baselines3 2.7.1, Gymnasium 1.2.3 (with Box2D), PyTorch 2.5.1+rocm6.2, NumPy 1.26.4, Matplotlib 3.9.4, pytest, ruff, mypy (004-test-and-fix)
+- Files (experiment results, trained models .zip, metrics CSV, checkpoints, plots PNG, videos MP4) (004-test-and-fix)
 
 ## Recent Changes
 - 2026-02-03: Fixed integration tests (recursive import, CSV export, additional files)
