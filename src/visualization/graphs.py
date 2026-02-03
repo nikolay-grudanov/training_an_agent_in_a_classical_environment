@@ -201,3 +201,115 @@ class GammaComparisonPlotGenerator(ComparisonPlotGenerator):
             output_path=output_path,
             title=title,
         )
+
+
+def main() -> None:
+    """CLI entry point for graph generation."""
+    import argparse
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(
+        description="Generate performance graphs for RL experiments"
+    )
+    parser.add_argument(
+        "--experiment",
+        required=True,
+        help="Experiment ID (e.g., 'ppo_seed42') or comma-separated list for comparison",
+    )
+    parser.add_argument(
+        "--type",
+        choices=["learning_curve", "comparison", "gamma_comparison"],
+        default="learning_curve",
+        help="Graph type (default: learning_curve)",
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Output path for PNG file",
+    )
+    parser.add_argument(
+        "--title",
+        default="Performance Graph",
+        help="Graph title",
+    )
+    args = parser.parse_args()
+
+    # Determine graph type and generate
+    if args.type == "learning_curve":
+        # Single experiment
+        experiment_id = args.experiment
+        metrics_path = Path(f"results/experiments/{experiment_id}/metrics.csv")
+
+        if not metrics_path.exists():
+            # Try JSON format
+            json_path = Path(f"results/experiments/{experiment_id}/{experiment_id}_metrics.json")
+            if json_path.exists():
+                # Convert JSON to CSV
+                import json
+                with open(json_path, 'r') as f:
+                    data = json.load(f)
+                with open(metrics_path, 'w', newline='') as f:
+                    f.write('timesteps,walltime,reward_mean,reward_std,episode_count,fps\n')
+                    for m in data.get('metrics', []):
+                        ts = m.get('timestep', 0)
+                        reward = m.get('reward', 0)
+                        f.write(f'{ts},0,{reward},0,0,0\n')
+
+        generator = LearningCurveGenerator()
+        generator.generate_from_metrics(
+            metrics_csv=str(metrics_path),
+            output_path=args.output,
+            title=args.title,
+        )
+        print(f"Graph saved: {args.output}")
+
+    elif args.type in ("comparison", "gamma_comparison"):
+        # Multiple experiments
+        experiments = args.experiment.split(",")
+        metrics_paths = [
+            Path(f"results/experiments/{exp}/metrics.csv")
+            for exp in experiments
+        ]
+
+        # Check and convert if needed
+        for i, (exp, mp) in enumerate(zip(experiments, metrics_paths)):
+            if not mp.exists():
+                json_path = Path(f"results/experiments/{exp}/{exp}_metrics.json")
+                if json_path.exists():
+                    import json
+                    with open(json_path, 'r') as f:
+                        data = json.load(f)
+                    with open(mp, 'w', newline='') as f:
+                        f.write('timesteps,walltime,reward_mean,reward_std,episode_count,fps\n')
+                        for m in data.get('metrics', []):
+                            ts = m.get('timestep', 0)
+                            reward = m.get('reward', 0)
+                            f.write(f'{ts},0,{reward},0,0,0\n')
+
+        if args.type == "gamma_comparison":
+            # Extract gamma values from experiment names like "gamma_090"
+            gamma_map = {}
+            for exp in experiments:
+                if exp.startswith("gamma_"):
+                    gamma_value = float("0." + exp.split("_")[1])
+                    gamma_map[gamma_value] = f"results/experiments/{exp}/metrics.csv"
+
+            generator = GammaComparisonPlotGenerator()
+            generator.generate_gamma_comparison(
+                gamma_results=gamma_map,
+                output_path=args.output,
+                title=args.title,
+            )
+        else:
+            generator = ComparisonPlotGenerator()
+            generator.generate(
+                experiment_paths=[str(mp) for mp in metrics_paths],
+                labels=experiments,
+                output_path=args.output,
+                title=args.title,
+            )
+        print(f"Comparison graph saved: {args.output}")
+
+
+if __name__ == "__main__":
+    main()
