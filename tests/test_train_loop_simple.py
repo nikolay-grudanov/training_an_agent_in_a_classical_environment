@@ -130,9 +130,9 @@ class TestTrainingStatistics:
         # Добавляем данные в deque
         rewards = [10.0, 15.0, 20.0, 12.0, 18.0]
         lengths = [100, 120, 95, 110, 105]
-        for r, l in zip(rewards, lengths):
+        for r, length in zip(rewards, lengths):
             progress.recent_episode_rewards.append(r)
-            progress.recent_episode_lengths.append(l)
+            progress.recent_episode_lengths.append(length)
 
         stats = TrainingStatistics()
         stats.update_from_progress(progress)

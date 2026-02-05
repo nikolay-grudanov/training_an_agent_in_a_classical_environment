@@ -372,6 +372,12 @@ if __name__ == "__main__":
         help="Device to use (default: auto, recommended: cpu for MLP policies). "
         "Note: For ROCm systems, cpu will hide both CUDA and HIP devices.",
     )
+    parser.add_argument(
+        "--experiment",
+        type=str,
+        default=None,
+        help="Experiment ID (default: {algo}_seed{seed})",
+    )
     args = parser.parse_args()
 
     # Force CPU by hiding GPU if device='cpu' is requested
@@ -404,6 +410,7 @@ if __name__ == "__main__":
         n_epochs=args.n_epochs,
         batch_size=args.batch_size,
         device=args.device,
+        experiment_id=args.experiment,
     )
 
     print("\nTraining complete!")

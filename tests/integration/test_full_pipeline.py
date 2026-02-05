@@ -23,7 +23,7 @@ class TestFullPipeline:
         # Set up output directories
         results_dir = tmp_path / "results"
         results_dir.mkdir()
-        experiments_dir = results_dir / "experiments"
+        results_dir / "experiments"
         reports_dir = results_dir / "reports"
 
         print("\n" + "="*70)

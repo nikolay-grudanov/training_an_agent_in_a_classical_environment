@@ -565,7 +565,7 @@ class TestSACAgent:
         """Тест сброса модели."""
         with (
             patch("src.agents.sac_agent.make_vec_env") as mock_make_vec_env,
-            patch("src.agents.sac_agent.SAC") as mock_sac,
+            patch("src.agents.sac_agent.SAC"),
         ):
             # Мок векторизованной среды с методом close
             mock_vec_env = Mock()

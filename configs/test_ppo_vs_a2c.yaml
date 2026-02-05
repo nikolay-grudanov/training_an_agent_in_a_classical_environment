@@ -1,0 +1,27 @@
+experiment:
+  name: "PPO vs A2C Comparison"
+  environment: "LunarLander-v3"
+  seed: 42
+  total_timesteps: 10000
+
+baseline:
+  algorithm: "PPO"
+  training_steps: 5000
+  seed: 42
+  hyperparameters:
+    learning_rate: 0.0003
+    n_steps: 2048
+    batch_size: 64
+    n_epochs: 10
+    gamma: 0.99
+
+variant:
+  algorithm: "A2C"
+  training_steps: 5000
+  seed: 42
+  hyperparameters:
+    learning_rate: 0.0007
+    n_steps: 5
+    batch_size: 32
+    n_epochs: 10
+    gamma: 0.99

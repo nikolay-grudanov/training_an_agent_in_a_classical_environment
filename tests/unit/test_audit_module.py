@@ -9,7 +9,7 @@ from src.audit.core import (
     AuditConfig,
     ImportTestResult,
     SmokeTestResult,
-    test_module_import,
+    test_module_import as check_module_import,
     discover_python_files,
 )
 from src.audit.assessor import (
@@ -102,13 +102,13 @@ class TestImportTestingFunctions:
         # Use seeding.py which we know works
         module_path = Path("src/utils/seeding.py")
         if module_path.exists():
-            result = test_module_import(module_path)
+            result = check_module_import(module_path)
             assert result.success is True
 
     def test_import_nonexistent_file(self):
         """Test importing a non-existent file."""
         module_path = Path("/tmp/nonexistent_module_12345.py")
-        result = test_module_import(module_path)
+        result = check_module_import(module_path)
         assert result.success is False
         assert result.error_type == "FileNotFoundError"
 
@@ -119,7 +119,7 @@ class TestImportTestingFunctions:
             temp_path = f.name
 
         try:
-            result = test_module_import(Path(temp_path))
+            result = check_module_import(Path(temp_path))
             assert result.success is False
             assert result.error_type == "SyntaxError"
         finally:

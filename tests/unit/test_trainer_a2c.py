@@ -63,7 +63,7 @@ class TestA2CModelCreation:
         mock_model = MagicMock()
         mock_a2c.return_value = mock_model
 
-        trainer = PPOTrainer(algo="a2c", seed=42)
+        PPOTrainer(algo="a2c", seed=42)
 
         # Verify A2C was called with correct parameters
         mock_a2c.assert_called_once()

@@ -148,7 +148,7 @@ def run_smoke_test(module_path: Path) -> SmokeTestResult:
             if isinstance(attr, type):
                 try:
                     # Try to instantiate with no args (may fail, that's ok)
-                    instance = attr()
+                    attr()
                     smoke_tests_passed.append(f"instantiable:{attr_name}")
                     break  # Only instantiate one class
                 except (TypeError, ValueError):

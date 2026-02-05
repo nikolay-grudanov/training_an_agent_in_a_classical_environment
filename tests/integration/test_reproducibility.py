@@ -527,7 +527,7 @@ class TestReproducibilityIntegration:
                 training_results = agent.train(env, total_timesteps=500)
                 eval_results = agent.evaluate(env, num_episodes=5)
 
-                run_id = checker.register_experiment_run(
+                checker.register_experiment_run(
                     experiment_id=f"{experiment_id}_{strictness.value}",
                     config=reproducible_config,
                     results={"training": training_results, "evaluation": eval_results},
@@ -696,7 +696,7 @@ class TestReproducibilityIntegration:
 
         # Время создания снимка зависимостей
         start_time = time.time()
-        snapshot = dependency_tracker.create_dependency_snapshot(
+        dependency_tracker.create_dependency_snapshot(
             f"{experiment_id}_perf"
         )
         snapshot_time = time.time() - start_time
@@ -714,7 +714,7 @@ class TestReproducibilityIntegration:
 
         # Время регистрации запуска
         start_time = time.time()
-        run_id = reproducibility_checker.register_experiment_run(
+        reproducibility_checker.register_experiment_run(
             experiment_id=experiment_id,
             config=reproducible_config,
             results={"training": training_results},
@@ -732,7 +732,7 @@ class TestReproducibilityIntegration:
         reproducible_config.apply_seeds()
         training_results2 = agent2.train(env2, total_timesteps=1000)
 
-        run2_id = reproducibility_checker.register_experiment_run(
+        reproducibility_checker.register_experiment_run(
             experiment_id=experiment_id,
             config=reproducible_config,
             results={"training": training_results2},
