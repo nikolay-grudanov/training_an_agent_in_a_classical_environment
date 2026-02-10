@@ -270,7 +270,8 @@ def train_to_convergence(
         TrainingResult with final metrics
     """
     algo = Algorithm(algorithm.upper()) if isinstance(algorithm, str) else algorithm
-    exp_id = experiment_id or f"{algo.value.lower()}_seed{seed}"
+    # Include timesteps in experiment_id for better organization: e.g., ppo_seed42_500K
+    exp_id = experiment_id or f"{algo.value.lower()}_seed{seed}_{timesteps//1000}K"
 
     experiment = BaselineExperiment(
         experiment_id=exp_id,

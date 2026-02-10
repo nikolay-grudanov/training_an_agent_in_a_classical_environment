@@ -1,0 +1,14 @@
+{
+  "experiment_id": "gamma_900",
+  "experiment_type": "baseline",
+  "algorithm": "PPO",
+  "environment": "LunarLander-v3",
+  "timesteps": 100000,
+  "seed": 42,
+  "gamma": 0.9,
+  "learning_rate": null,
+  "checkpoint_freq": 50000,
+  "eval_freq": 5000,
+  "n_eval_episodes": 10,
+  "hypothesis": null
+}

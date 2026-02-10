@@ -1,123 +1,122 @@
-# Grid Search Training Results
+# Результаты обучения с поиском по сетке (Grid Search)
 
-**Date**: 2026-02-04
-**Environment**: LunarLander-v3
-**Target Reward**: >200
+**Среда**: LunarLander-v3
+**Целевая награда**: >200
 
----
+***
 
-## Executive Summary
+## Краткий обзор
 
-✅ **GOAL ACHIEVED!** - Found model configuration achieving >200 reward.
+✅ **ЦЕЛЬ ДОСТИГНУТА!** - Найдена конфигурация модели, достигающая награды >200.
 
-**Best Model**: PPO with optimized hyperparameters
-- **Reward**: 216.31 ± 65.80
-- **Timesteps**: 150,000
-- **Time to converge**: ~15-20 minutes
+**Лучшая модель**: PPO с оптимизированными гиперпараметрами
+- **Награда**: 216.31 ± 65.80
+- **Шаги (Timesteps)**: 150,000
+- **Время до сходимости**: ~15-20 минут
 
----
+***
 
-## A2C Results
+## Результаты A2C
 
-### Experiments Run
-| Experiment | Learning Rate | Final Reward | Status |
+### Запущенные эксперименты
+| Эксперимент | Learning Rate | Финальная награда | Статус |
 |------------|----------------|---------------|----------|
-| `a2c_lr1e4` | 1e-4 | 65.89 ± 121.24 | ❌ FAILED |
-| `a2c_lr3e4` | 3e-4 | -837.97 ± 236.80 | ❌ FAILED |
+| `a2c_lr1e4` | 1e-4 | 65.89 ± 121.24 | ❌ ПРОВАЛ |
+| `a2c_lr3e4` | 3e-4 | -837.97 ± 236.80 | ❌ ПРОВАЛ |
 
-### Conclusion
-**A2C is NOT suitable for LunarLander-v3.** Both experiments failed to converge, with one showing negative rewards. A2C should be excluded from future experiments for this environment.
+### Вывод
+**A2C НЕ подходит для LunarLander-v3.** Оба эксперимента не сошлись, один из них показал отрицательные награды. A2C следует исключить из будущих экспериментов для этой среды.
 
----
+***
 
-## PPO Results
+## Результаты PPO
 
-### Experiments Run
-| Experiment | LR | Batch | Epochs | Gamma | Ent. Coef | Best Checkpoint | Reward | Status |
+### Запущенные эксперименты
+| Эксперимент | LR | Батч | Эпохи | Гамма | Коэф. энтр. | Лучший чекпойнт | Награда | Статус |
 |------------|-----|--------|--------|---------|-------------|-----------------|---------|----------|
-| `ppo_lr1e4_bs64` | 1e-4 | 64 | 10 | 0.99 | 0.0 | Not evaluated | - | ⏹️ Stopped |
-| `ppo_lr3e4_bs128_e20` | 3e-4 | 128 | 20 | 0.99 | 0.0 | 200K | 151.16 ± 109.66 | ❌ FAILED |
-| `ppo_lr3e4_bs64_e20_g999` | 3e-4 | 64 | 20 | **0.999** | 0.0 | **150K** | **216.31 ± 65.80** | ✅ **SUCCESS** |
-| `ppo_lr5e4_bs64_ent01` | 5e-4 | 64 | 10 | 0.99 | 0.01 | Not evaluated | - | ⏹️ Stopped |
+| `ppo_lr1e4_bs64` | 1e-4 | 64 | 10 | 0.99 | 0.0 | Не оценивался | - | ⏹️ Остановлен |
+| `ppo_lr3e4_bs128_e20` | 3e-4 | 128 | 20 | 0.99 | 0.0 | 200K | 151.16 ± 109.66 | ❌ ПРОВАЛ |
+| `ppo_lr3e4_bs64_e20_g999` | 3e-4 | 64 | 20 | **0.999** | 0.0 | **150K** | **216.31 ± 65.80** | ✅ **УСПЕХ** |
+| `ppo_lr5e4_bs64_ent01` | 5e-4 | 64 | 10 | 0.99 | 0.01 | Не оценивался | - | ⏹️ Остановлен |
 
----
+***
 
-## Best Configuration
+## Лучшая конфигурация
 
-### Winning Hyperparameters
+### Победившие гиперпараметры
 ```
-Algorithm: PPO (Proximal Policy Optimization)
-Learning Rate: 3e-4
-Batch Size: 64
-Epochs: 20
-Gamma: 0.999 (High discount factor)
-Entropy Coefficient: 0.0
+Алгоритм: PPO (Proximal Policy Optimization)
+Скорость обучения (Learning Rate): 3e-4
+Размер батча (Batch Size): 64
+Эпохи (Epochs): 20
+Гамма (Gamma): 0.999 (Высокий коэффициент дисконтирования)
+Коэффициент энтропии (Entropy Coefficient): 0.0
 N Steps: 2048
-Timesteps: 150,000 (converged early)
+Количество шагов (Timesteps): 150,000 (ранняя сходимость)
 ```
 
-### Performance Metrics
-| Metric | Value |
+### Метрики производительности
+| Метрика | Значение |
 |--------|--------|
-| **Mean Reward** | **216.31** |
-| **Std Reward** | 65.80 |
-| **Episodes Evaluated** | 20 |
-| **Convergence Status** | ✅ YES (>200) |
-| **Stability** | GOOD (std < 100) |
+| **Средняя награда** | **216.31** |
+| **Стд. откл. награды** | 65.80 |
+| **Оценено эпизодов** | 20 |
+| **Статус сходимости** | ✅ ДА (>200) |
+| **Стабильность** | ХОРОШАЯ (std < 100) |
 
-### Training Progress
-| Timestep | Reward | Note |
+### Прогресс обучения
+| Шаг (Timestep) | Награда | Примечание |
 |-----------|---------|-------|
-| 50K | -78.81 ± 87.31 | Random exploration |
-| 100K | 184.52 ± 108.04 | Learning started |
-| 150K | 216.31 ± 65.80 | **CONVERGED!** |
-| 200K | 197.85 ± 71.19 | Slight degradation |
+| 50K | -78.81 ± 87.31 | Случайное исследование |
+| 100K | 184.52 ± 108.04 | Начало обучения |
+| 150K | 216.31 ± 65.80 | **СХОДИМОСТЬ!** |
+| 200K | 197.85 ± 71.19 | Небольшая деградация |
 
-**Observation**: Model peaked at 150K steps and showed slight degradation at 200K. This indicates optimal training time ~150K steps.
+**Наблюдение**: Модель достигла пика на 150K шагов и показала небольшую деградацию на 200K. Это указывает на то, что оптимальное время обучения составляет ~150K шагов.
 
----
+***
 
-## Key Findings
+## Ключевые выводы
 
-### 1. Gamma Parameter Critical
-- **gamma=0.999** achieved convergence
-- **gamma=0.99** (default) failed
+### 1. Параметр Гамма критически важен
+- **gamma=0.999** привела к сходимости
+- **gamma=0.99** (по умолчанию) провалилась
 
-**Insight**: Higher gamma (0.999) helps the agent plan further ahead, which is crucial for LunarLander landing.
+**Инсайт**: Более высокая гамма (0.999) помогает агенту планировать дальше вперед, что критически важно для посадки в LunarLander.
 
-### 2. A2C Not Suitable
-- A2C consistently failed on LunarLander-v3
-- Disadvantage: On-policy nature with less sample efficiency
-- Recommendation: Use PPO or other on-policy methods with better sample efficiency
+### 2. A2C не подходит
+- A2C последовательно проваливался на LunarLander-v3
+- Недостаток: On-policy природа с меньшей эффективностью использования данных (sample efficiency)
+- Рекомендация: Использовать PPO или другие on-policy методы с лучшей эффективностью данных
 
-### 3. Optimal Training Time
-- **150K steps** sufficient for convergence
-- 500K-1M steps not necessary
-- Significant time savings possible
+### 3. Оптимальное время обучения
+- **150K шагов** достаточно для сходимости
+- 500K-1M шагов не требуются
+- Возможна значительная экономия времени
 
-### 4. Batch Size Analysis
-- **Batch size 64** worked better than 128
-- Larger batch (128) showed worse convergence
-- Recommendation: Keep batch size moderate (64-128)
+### 4. Анализ размера батча
+- **Размер батча 64** работал лучше, чем 128
+- Больший батч (128) показал худшую сходимость
+- Рекомендация: Держите размер батча умеренным (64-128)
 
----
+***
 
-## Comparison with Previous Results
+## Сравнение с предыдущими результатами
 
-| Model | Reward | Timesteps | Notes |
+| Модель | Награда | Шаги | Примечания |
 |-------|---------|------------|-------|
-| PPO seed 999 (old) | ~109 | 500K | ❌ Failed |
-| PPO seed 123 (old) | ~145 | 500K | ❌ Failed |
-| PPO seed 42 (old) | ~101 | 500K | ❌ Failed |
-| **PPO lr3e4_bs64_e20_g999 (new)** | **216.31** | **150K** | ✅ **SUCCESS** |
+| PPO seed 999 (старая) | ~109 | 500K | ❌ Провал |
+| PPO seed 123 (старая) | ~145 | 500K | ❌ Провал |
+| PPO seed 42 (старая) | ~101 | 500K | ❌ Провал |
+| **PPO lr3e4_bs64_e20_g999 (новая)** | **216.31** | **150K** | ✅ **УСПЕХ** |
 
-**Improvement**: 2x higher reward in 3x less training time.
+**Улучшение**: Награда в 2 раза выше за время обучения в 3 раза меньше.
 
----
+***
 
-## Recommended Production Settings
+## Рекомендуемые настройки для продакшена
 
-### For LunarLander-v3
+### Для LunarLander-v3
 ```python
 from stable_baselines3 import PPO
 
@@ -128,61 +127,43 @@ model = PPO(
     n_steps=2048,
     batch_size=64,
     n_epochs=20,
-    gamma=0.999,  # KEY PARAMETER!
+    gamma=0.999,  # КЛЮЧЕВОЙ ПАРАМЕТР!
     ent_coef=0.0,
     verbose=1
 )
 
-# Train for 150K steps (not 500K!)
+# Обучать 150K шагов (не 500K!)
 model.learn(total_timesteps=150_000)
 ```
 
-### For Future Experiments
+### Для будущих экспериментов
 
-1. **Always use gamma=0.999** for LunarLander-v3
-2. **Train for 150K steps** first, evaluate, then continue if needed
-3. **Avoid A2C** for this environment
-4. **Use eval_freq=50000** to speed up training (not 5000!)
+1. **Всегда используйте gamma=0.999** для LunarLander-v3
+2. **Обучайте 150K шагов** сначала, оценивайте, затем продолжайте при необходимости
+3. **Избегайте A2C** для этой среды
+4. **Используйте eval_freq=50000** для ускорения обучения (не 5000!)
 
----
+***
 
-## Files
+## Файлы
 
-### Best Model
-- **Location**: `results/best_model.zip` (copied from checkpoint)
-- **Original**: `results/experiments/ppo_lr3e4_bs64_e20_g999/checkpoints/checkpoint_150000.zip`
-- **Config**: `results/experiments/ppo_lr3e4_bs64_e20_g999/config.json`
+### Лучшая модель
+- **Расположение**: `results/best_model.zip` (скопировано из чекпойнта)
+- **Оригинал**: `results/experiments/ppo_lr3e4_bs64_e20_g999/checkpoints/checkpoint_150000.zip`
+- **Конфиг**: `results/experiments/ppo_lr3e4_bs64_e20_g999/config.json`
 
-### All Results
-- `results/experiments/ppo_lr3e4_bs64_e20_g999/` - Full training directory
-- `results/experiments/a2c_lr1e4/` - A2C experiment 1
-- `results/experiments/a2c_lr3e4/` - A2C experiment 2
+### Все результаты
+- [results/experiments/ppo_lr3e4_bs64_e20_g999](results/experiments/ppo_lr3e4_bs64_e20_g999) - Полная директория обучения
+- [results/experiments/a2c_lr1e4/9](results/experiments/a2c_lr1e4/) - Эксперимент A2C 1
+- [results/experiments/a2c_lr3e4/](results/experiments/a2c_lr3e4/) - Эксперимент A2C 2
 
----
+***
 
-## Next Steps
 
-### Completed ✅
-- [x] Grid search across 6 configurations
-- [x] Found model achieving >200 reward
-- [x] Identified optimal hyperparameters
-- [x] Evaluated all checkpoints
-- [x] Created best model copy
+## Заключение
 
-### Optional Improvements
-- [ ] Test other seeds (123, 999) with optimal params
-- [ ] Generate video of best model
-- [ ] Create performance plots
-- [ ] Document API for inference
+**УСПЕХ!** Оптимизация гиперпараметров прошла успешно. Мы нашли конфигурацию PPO, которая достигает награды **216.31 ± 65.80** в LunarLander-v3 всего за **150K временных шагов**.
 
----
+**Ключевой инсайт**: Параметр гамма (0.999) оказался критически важным для успеха. Это позволяет агенту планировать дальше вперед во время фазы спуска, что существенно для точной посадки на Луну.
 
-## Conclusion
-
-**SUCCESS!** The hyperparameter optimization search was successful. We found a PPO configuration that achieves **216.31 ± 65.80** reward on LunarLander-v3 in only **150K timesteps**.
-
-**Key insight**: The gamma parameter (0.999) was critical for success. This allows the agent to plan further ahead during the descent phase, which is essential for precise lunar landing.
-
-**Training efficiency**: The optimal model was found in ~15-20 minutes of training, compared to failed experiments that ran for 10+ minutes longer without success.
-
-**Recommendation**: Use these hyperparameters as the baseline for all future LunarLander-v3 experiments.
+**Эффективность обучения**: Оптимальная модель была найдена за ~15-20 минут обучения, по сравнению с неудачными экспериментами, которые длились на 10+ минут дольше без успеха.

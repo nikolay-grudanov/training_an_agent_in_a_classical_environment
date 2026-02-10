@@ -1,0 +1,422 @@
+{
+  "metadata": {
+    "experiment_id": "a2c_seed42",
+    "algorithm": "A2C",
+    "environment": "LunarLander-v3",
+    "seed": 42,
+    "recording_interval": 100
+  },
+  "metrics": [
+    {
+      "timestep": 1000,
+      "episode": 10,
+      "reward": -497.19742056026644,
+      "episode_length": 152.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:28.899370"
+    },
+    {
+      "timestep": 2000,
+      "episode": 20,
+      "reward": -690.5232112163316,
+      "episode_length": 207.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:29.971754"
+    },
+    {
+      "timestep": 3000,
+      "episode": 30,
+      "reward": -663.1700513554284,
+      "episode_length": 207.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:31.042521"
+    },
+    {
+      "timestep": 4000,
+      "episode": 40,
+      "reward": -470.0200045866406,
+      "episode_length": 285.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:32.202333"
+    },
+    {
+      "timestep": 5000,
+      "episode": 50,
+      "reward": -363.5169987536089,
+      "episode_length": 401.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:33.501157"
+    },
+    {
+      "timestep": 6000,
+      "episode": 60,
+      "reward": -324.0682136661837,
+      "episode_length": 609.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:35.069255"
+    },
+    {
+      "timestep": 7000,
+      "episode": 70,
+      "reward": -785.7930634226204,
+      "episode_length": 858.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:36.955769"
+    },
+    {
+      "timestep": 8000,
+      "episode": 80,
+      "reward": -1901.7470978828114,
+      "episode_length": 888.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:38.855103"
+    },
+    {
+      "timestep": 9000,
+      "episode": 90,
+      "reward": -183.02727365778236,
+      "episode_length": 578.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:40.417366"
+    },
+    {
+      "timestep": 10000,
+      "episode": 100,
+      "reward": -1196.0416854848618,
+      "episode_length": 842.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:42.250921"
+    },
+    {
+      "timestep": 11000,
+      "episode": 110,
+      "reward": -1234.011502050996,
+      "episode_length": 887.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:44.157419"
+    },
+    {
+      "timestep": 12000,
+      "episode": 120,
+      "reward": -1640.2532273714291,
+      "episode_length": 1000.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:46.189774"
+    },
+    {
+      "timestep": 13000,
+      "episode": 130,
+      "reward": -525.3760695703864,
+      "episode_length": 816.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:48.004095"
+    },
+    {
+      "timestep": 14000,
+      "episode": 140,
+      "reward": -395.5508078720857,
+      "episode_length": 872.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:49.880918"
+    },
+    {
+      "timestep": 15000,
+      "episode": 150,
+      "reward": -31.24433693582976,
+      "episode_length": 553.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:51.399894"
+    },
+    {
+      "timestep": 16000,
+      "episode": 160,
+      "reward": -798.5488161916776,
+      "episode_length": 895.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:53.346077"
+    },
+    {
+      "timestep": 17000,
+      "episode": 170,
+      "reward": -1230.693456900804,
+      "episode_length": 1000.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:55.412721"
+    },
+    {
+      "timestep": 18000,
+      "episode": 180,
+      "reward": -46.226881194379246,
+      "episode_length": 607.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:57.000027"
+    },
+    {
+      "timestep": 19000,
+      "episode": 190,
+      "reward": -193.8628021830059,
+      "episode_length": 625.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:58.600362"
+    },
+    {
+      "timestep": 20000,
+      "episode": 200,
+      "reward": -137.27990218329225,
+      "episode_length": 372.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:28:59.890824"
+    },
+    {
+      "timestep": 21000,
+      "episode": 210,
+      "reward": 98.71451801846695,
+      "episode_length": 310.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:01.117063"
+    },
+    {
+      "timestep": 22000,
+      "episode": 220,
+      "reward": -84.19174021905039,
+      "episode_length": 342.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:02.427105"
+    },
+    {
+      "timestep": 23000,
+      "episode": 230,
+      "reward": 75.93880830673464,
+      "episode_length": 325.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:03.699134"
+    },
+    {
+      "timestep": 24000,
+      "episode": 240,
+      "reward": 17.601435628419114,
+      "episode_length": 393.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:05.030835"
+    },
+    {
+      "timestep": 25000,
+      "episode": 250,
+      "reward": -89.10770755672448,
+      "episode_length": 370.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:06.368959"
+    },
+    {
+      "timestep": 26000,
+      "episode": 260,
+      "reward": -1.9299198163383209,
+      "episode_length": 216.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:07.463406"
+    },
+    {
+      "timestep": 27000,
+      "episode": 270,
+      "reward": 48.908637760860636,
+      "episode_length": 363.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:08.746169"
+    },
+    {
+      "timestep": 28000,
+      "episode": 280,
+      "reward": -201.99012910938274,
+      "episode_length": 533.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:10.244255"
+    },
+    {
+      "timestep": 29000,
+      "episode": 290,
+      "reward": 37.568170561304015,
+      "episode_length": 428.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:11.640657"
+    },
+    {
+      "timestep": 30000,
+      "episode": 300,
+      "reward": -108.99762803707199,
+      "episode_length": 386.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:12.946120"
+    },
+    {
+      "timestep": 31000,
+      "episode": 310,
+      "reward": 19.496931747345535,
+      "episode_length": 492.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:14.377819"
+    },
+    {
+      "timestep": 32000,
+      "episode": 320,
+      "reward": 96.6877075270174,
+      "episode_length": 369.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:15.650388"
+    },
+    {
+      "timestep": 33000,
+      "episode": 330,
+      "reward": 15.827194496462344,
+      "episode_length": 386.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:16.946548"
+    },
+    {
+      "timestep": 34000,
+      "episode": 340,
+      "reward": 44.14104945654244,
+      "episode_length": 583.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:18.504010"
+    },
+    {
+      "timestep": 35000,
+      "episode": 350,
+      "reward": -23.797804661828234,
+      "episode_length": 757.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:20.272101"
+    },
+    {
+      "timestep": 36000,
+      "episode": 360,
+      "reward": -135.5473506203376,
+      "episode_length": 500.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:21.706459"
+    },
+    {
+      "timestep": 37000,
+      "episode": 370,
+      "reward": 96.75621908451171,
+      "episode_length": 483.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:23.127759"
+    },
+    {
+      "timestep": 38000,
+      "episode": 380,
+      "reward": 165.86588744652465,
+      "episode_length": 469.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:24.527396"
+    },
+    {
+      "timestep": 39000,
+      "episode": 390,
+      "reward": -11.230188606769934,
+      "episode_length": 479.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:25.945564"
+    },
+    {
+      "timestep": 40000,
+      "episode": 400,
+      "reward": 5.160850465849336,
+      "episode_length": 319.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:27.169699"
+    },
+    {
+      "timestep": 41000,
+      "episode": 410,
+      "reward": 102.28065653230476,
+      "episode_length": 264.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:28.357720"
+    },
+    {
+      "timestep": 42000,
+      "episode": 420,
+      "reward": 23.18453876215196,
+      "episode_length": 342.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:29.644159"
+    },
+    {
+      "timestep": 43000,
+      "episode": 430,
+      "reward": 25.913819232953983,
+      "episode_length": 356.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:30.950357"
+    },
+    {
+      "timestep": 44000,
+      "episode": 440,
+      "reward": 1.9578133257307286,
+      "episode_length": 302.8,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:32.182701"
+    },
+    {
+      "timestep": 45000,
+      "episode": 450,
+      "reward": 58.07399581561411,
+      "episode_length": 261.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:33.356549"
+    },
+    {
+      "timestep": 46000,
+      "episode": 460,
+      "reward": 11.18384006054568,
+      "episode_length": 330.0,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:34.628453"
+    },
+    {
+      "timestep": 47000,
+      "episode": 470,
+      "reward": 39.05255199431389,
+      "episode_length": 250.4,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:35.777695"
+    },
+    {
+      "timestep": 48000,
+      "episode": 480,
+      "reward": 80.78926744633857,
+      "episode_length": 374.2,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:37.052257"
+    },
+    {
+      "timestep": 49000,
+      "episode": 490,
+      "reward": -58.34897492435715,
+      "episode_length": 280.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:38.206595"
+    },
+    {
+      "timestep": 50000,
+      "episode": 500,
+      "reward": -4.27806638379983,
+      "episode_length": 306.6,
+      "loss": null,
+      "timestamp": "2026-01-15T05:29:39.393145"
+    }
+  ],
+  "statistics": {
+    "reward_mean": -259.24936878612175,
+    "reward_std": 469.0185953629526,
+    "reward_min": -1901.7470978828114,
+    "reward_max": 165.86588744652465,
+    "episode_length_mean": 484.84399999999994,
+    "total_timesteps": 50000,
+    "total_episodes": 500,
+    "loss_mean": null
+  },
+  "export_timestamp": "2026-01-15T05:29:39.396159"
+}
