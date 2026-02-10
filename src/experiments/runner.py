@@ -666,7 +666,7 @@ class ExperimentRunner:
             total=trainer.config.total_timesteps,
             desc=f"Обучение {config_type}",
             unit="steps",
-        ) as pbar:
+        ):
             # Callback для обновления прогресса
             class ProgressCallback:
                 def __init__(self, pbar, runner):

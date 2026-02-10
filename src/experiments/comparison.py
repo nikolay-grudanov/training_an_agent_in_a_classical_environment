@@ -892,7 +892,7 @@ class ExperimentComparator:
             # Violin plots
             axes[1, 0].set_title("Violin Plots")
             positions = range(1, len(data_dict) + 1)
-            violin_parts = axes[1, 0].violinplot(box_data, positions=positions)
+            axes[1, 0].violinplot(box_data, positions=positions)
             axes[1, 0].set_xticks(positions)
             axes[1, 0].set_xticklabels(box_labels, rotation=45)
             axes[1, 0].set_ylabel(metric.replace("_", " ").title())

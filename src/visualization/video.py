@@ -3,6 +3,8 @@
 Provides tools for rendering trained agents to MP4 video format.
 """
 
+import subprocess
+import tempfile
 import imageio
 import numpy as np
 from pathlib import Path
@@ -77,8 +79,6 @@ class VideoGenerator:
         env = gym.make(
             env_id,
             render_mode=render_mode,
-            width=self.width,
-            height=self.height,
         )
 
         frames: List[np.ndarray] = []
@@ -115,16 +115,36 @@ class VideoGenerator:
 
         env.close()
 
-        # Save video
+        # Save video using ffmpeg via subprocess
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        imageio.mimsave(
-            str(output_path),
-            frames,  # type: ignore[arg-type]
-            fps=self.fps,
-            codec="libx264",
-            quality=8,
-        )
+
+        # Write frames to temp TIFF sequence
+        temp_dir = tempfile.mkdtemp()
+        for i, frame in enumerate(frames):
+            imageio.imwrite(f"{temp_dir}/frame_{i:06d}.png", frame)
+
+        # Call ffmpeg to create MP4
+        ffmpeg_cmd = [
+            "ffmpeg", "-y", "-framerate", str(self.fps),
+            "-i", f"{temp_dir}/frame_%06d.png",
+            "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-crf", "23", str(output_path)
+        ]
+
+        try:
+            subprocess.run(ffmpeg_cmd, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"FFmpeg error: {e.stderr.decode()}")
+            # Fallback: save as GIF
+            gif_path = str(output_path).replace('.mp4', '.gif')
+            imageio.mimsave(gif_path, frames, fps=self.fps)
+            return str(gif_path), episode_scores
+        finally:
+            # Cleanup temp files
+            for f in Path(temp_dir).glob("*.png"):
+                f.unlink()
+            Path(temp_dir).rmdir()
 
         return str(output_path), episode_scores
 

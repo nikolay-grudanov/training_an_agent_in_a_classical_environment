@@ -170,7 +170,7 @@ class TestSimpleReproducibility:
 
         # Первый запуск с сидом 42
         result1 = simple_deterministic_function(seed=42)
-        run1_id = checker.register_experiment_run(
+        checker.register_experiment_run(
             experiment_id=experiment_id,
             config=simple_config,
             results=result1,
@@ -188,7 +188,7 @@ class TestSimpleReproducibility:
         )
 
         result2 = simple_deterministic_function(seed=123)
-        run2_id = checker.register_experiment_run(
+        checker.register_experiment_run(
             experiment_id=experiment_id,
             config=different_config,
             results=result2,
@@ -286,8 +286,8 @@ class TestSimpleReproducibility:
         tracker = DependencyTracker(temp_dir)
 
         # Создаем два снимка
-        snapshot1 = tracker.create_dependency_snapshot("snapshot1")
-        snapshot2 = tracker.create_dependency_snapshot("snapshot2")
+        tracker.create_dependency_snapshot("snapshot1")
+        tracker.create_dependency_snapshot("snapshot2")
 
         # Сравниваем снимки
         comparison = tracker.compare_snapshots("snapshot1", "snapshot2")

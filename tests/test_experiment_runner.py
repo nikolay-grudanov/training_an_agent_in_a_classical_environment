@@ -579,7 +579,7 @@ class TestExperimentRunnerRealExecution:
     def test_real_validation_mode(self, temp_dir):
         """Тест реального выполнения в режиме валидации."""
         # Создание реальных конфигураций
-        baseline_config = Configuration(
+        Configuration(
             algorithm="PPO",
             environment="LunarLander-v2",
             experiment_name="real_baseline",
@@ -587,7 +587,7 @@ class TestExperimentRunnerRealExecution:
             seed=42,
         )
 
-        variant_config = Configuration(
+        Configuration(
             algorithm="PPO",
             environment="LunarLander-v2",
             experiment_name="real_variant",

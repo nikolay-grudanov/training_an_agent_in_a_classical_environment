@@ -130,7 +130,7 @@ def train(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task("Обучение...", total=None)
+            progress.add_task("Обучение...", total=None)
 
             with trainer:
                 result = trainer.train()

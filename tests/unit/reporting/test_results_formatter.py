@@ -54,11 +54,9 @@ class TestResultsFormatter:
     @pytest.fixture
     def formatter(self, temp_dir: Path) -> ResultsFormatter:
         """Форматировщик для тестов."""
-        templates_dir = temp_dir / "templates"
         output_dir = temp_dir / "output"
 
         return ResultsFormatter(
-            templates_dir=templates_dir,
             output_dir=output_dir,
         )
 

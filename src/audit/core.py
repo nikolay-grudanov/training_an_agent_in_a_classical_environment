@@ -148,7 +148,7 @@ def run_smoke_test(module_path: Path) -> SmokeTestResult:
             if isinstance(attr, type):
                 try:
                     # Try to instantiate with no args (may fail, that's ok)
-                    instance = attr()
+                    attr()
                     smoke_tests_passed.append(f"instantiable:{attr_name}")
                     break  # Only instantiate one class
                 except (TypeError, ValueError):
@@ -190,6 +190,9 @@ def discover_python_files(scope: Path) -> list[Path]:
         for py_file in sorted(scope.rglob("*.py")):
             # Skip __pycache__ directories
             if "__pycache__" in py_file.parts:
+                continue
+            # Skip __main__.py files (entry points, should not be imported)
+            if py_file.name == "__main__.py":
                 continue
             # Skip .py files starting with test_ (handled separately if needed)
             python_files.append(py_file)

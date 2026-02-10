@@ -10,15 +10,24 @@
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
 
-# RL Experiment Results
-results/experiments/**
-!results/experiments/.gitkeep
+# RL Experiment Results - Ignore checkpoints and logs, but keep models
+results/experiments/*/checkpoints/**
+results/experiments/*/logs/**
+results/experiments/*/videos/**
+results/experiments/*/metrics/**
+results/experiments/*.log
+results/experiments/*.json
+# Keep final models for demonstration
+!results/experiments/*/*_model.zip
+!results/experiments/*/.gitkeep
 
 # Conda environments
 .rocm/
 
 # Checkpoints
 *.zip
+# But keep trained models for demonstration
+!results/experiments/*/*_model.zip
 *.ckpt
 *.pt
 *.pth
@@ -247,9 +256,11 @@ tags
 
 # ML/RL Specific Patterns
 results/models/
-results/videos/
+# results/videos/
 results/logs/
 *.zip
+# But keep trained models for demonstration
+!results/experiments/*/*_model.zip
 *.pkl
 *.h5
 *.onnx
@@ -276,3 +287,13 @@ mlruns/
 # SAC_IMPLEMENTATION_SUMMARY.md
 # spec/**
 # A2C_IMPLEMENTATION_SUMMARY.md
+
+# Additional results and artifacts
+results/comparison/**
+results/reports/**
+
+# Assets
+assets/
+
+# Scripts
+scripts/

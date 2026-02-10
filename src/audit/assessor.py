@@ -79,28 +79,28 @@ def assess_module(
     # Determine import status
     if import_result.success:
         import_status = "success"
-        import_icon = STATUS_ICONS[ModuleStatus.WORKING]
+        STATUS_ICONS[ModuleStatus.WORKING]
     elif import_result.error_type == "ModuleNotFoundError":
         import_status = "error"
-        import_icon = STATUS_ICONS[ModuleStatus.BROKEN]
+        STATUS_ICONS[ModuleStatus.BROKEN]
     else:
         import_status = "error"
-        import_icon = STATUS_ICONS[ModuleStatus.BROKEN]
+        STATUS_ICONS[ModuleStatus.BROKEN]
 
     # Determine functionality test status
     if import_result.success:
         if smoke_result is None:
             functionality_test = "skip"
-            test_icon = STATUS_ICONS[ModuleStatus.NEEDS_FIXING]
+            STATUS_ICONS[ModuleStatus.NEEDS_FIXING]
         elif smoke_result.success:
             functionality_test = "pass"
-            test_icon = STATUS_ICONS[ModuleStatus.WORKING]
+            STATUS_ICONS[ModuleStatus.WORKING]
         else:
             functionality_test = "fail"
-            test_icon = STATUS_ICONS[ModuleStatus.NEEDS_FIXING]
+            STATUS_ICONS[ModuleStatus.NEEDS_FIXING]
     else:
         functionality_test = "skip"
-        test_icon = STATUS_ICONS[ModuleStatus.BROKEN]
+        STATUS_ICONS[ModuleStatus.BROKEN]
 
     # Determine final status
     status, status_icon, notes = determine_final_status(

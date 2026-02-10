@@ -390,7 +390,7 @@ class TestTD3Agent:
         mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
 
-        agent = TD3Agent(config=td3_config, env=mock_env)
+        TD3Agent(config=td3_config, env=mock_env)
 
         # Проверяем, что NormalActionNoise был создан с правильными параметрами
         mock_noise_class.assert_called_once()
@@ -429,7 +429,7 @@ class TestTD3Agent:
         mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
 
-        agent = TD3Agent(config=td3_config, env=mock_env)
+        TD3Agent(config=td3_config, env=mock_env)
 
         # Проверяем, что OrnsteinUhlenbeckActionNoise был создан с правильными параметрами
         mock_noise_class.assert_called_once()
@@ -498,7 +498,7 @@ class TestTD3Agent:
         mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
 
-        agent = TD3Agent(config=td3_config, env=mock_env)
+        TD3Agent(config=td3_config, env=mock_env)
 
         # Проверяем, что get_linear_fn был вызван с правильными параметрами
         mock_schedule.assert_called_once_with(
@@ -575,7 +575,7 @@ class TestTD3Agent:
         # Мокируем функцию расписания
         mock_get_linear_fn.return_value = td3_config.learning_rate
 
-        agent = TD3Agent(config=td3_config, env=mock_env)
+        TD3Agent(config=td3_config, env=mock_env)
 
         # Проверяем, что TD3 был создан с правильными параметрами
         mock_td3_class.assert_called_once()
@@ -969,7 +969,7 @@ def test_reproducibility(seed: int) -> None:
         mock_vec_env.num_envs = 1
         mock_make_vec_env.return_value = mock_vec_env
 
-        agent = TD3Agent(config=config, env=mock_env)
+        TD3Agent(config=config, env=mock_env)
 
         # Проверяем, что set_seed был вызван с правильным значением
         mock_set_seed.assert_called_with(seed)

@@ -15,6 +15,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 from src.training.train import PPOTrainer
+from src.training.metrics_collector import TrainingMetrics
 
 
 class TestPPOTrainerInit:
@@ -45,7 +46,7 @@ class TestPPOTrainerInit:
         with (
             patch("gymnasium.make"),
             patch("src.training.train.PPO"),
-            tempfile.TemporaryDirectory() as tmpdir,
+            tempfile.TemporaryDirectory(),
         ):
             with patch("pathlib.Path.mkdir"):
                 trainer = PPOTrainer(algo="ppo", seed=42)
@@ -73,7 +74,7 @@ class TestModelCreation:
         mock_model = MagicMock()
         mock_ppo.return_value = mock_model
 
-        trainer = PPOTrainer(algo="ppo", seed=42)
+        PPOTrainer(algo="ppo", seed=42)
 
         # Verify PPO was called with correct parameters
         mock_ppo.assert_called_once()
@@ -94,7 +95,7 @@ class TestModelCreation:
         mock_model = MagicMock()
         mock_a2c.return_value = mock_model
 
-        trainer = PPOTrainer(algo="a2c", seed=42)
+        PPOTrainer(algo="a2c", seed=42)
 
         # Verify A2C was called with correct parameters
         mock_a2c.assert_called_once()
@@ -172,15 +173,31 @@ class TestResultsSaving:
             # Mock model save
             trainer.model.save = MagicMock()
 
-            # Mock metrics
-            trainer.metrics_collector.calculate_statistics = MagicMock(
-                return_value=MagicMock(
-                    reward_mean=250.0,
-                    reward_std=10.0,
-                    episode_length_mean=200.0,
-                    total_episodes=50,
-                )
+            # Mock metrics - need to initialize _metrics to avoid RuntimeError
+            from src.training.metrics_collector import TrainingMetrics
+            mock_metric = TrainingMetrics(
+                timestep=50000,
+                episode=50,
+                reward=250.0,
+                episode_length=200,
+                loss=0.5
             )
+            trainer.metrics_collector._metrics = [mock_metric]
+
+            # Mock calculate_statistics - use plain object with attributes, not nested MagicMock
+            mock_stats = type('MockStats', (), {
+                'reward_mean': 250.0,
+                'reward_std': 10.0,
+                'episode_length_mean': 200.0,
+                'total_episodes': 50,
+                'to_dict': lambda self: {
+                    'reward_mean': 250.0,
+                    'reward_std': 10.0,
+                    'episode_length_mean': 200.0,
+                    'total_episodes': 50,
+                }
+            })()
+            trainer.metrics_collector.calculate_statistics = MagicMock(return_value=mock_stats)
 
             # Save results
             from datetime import datetime
@@ -191,7 +208,7 @@ class TestResultsSaving:
 
             # Verify JSON files were created
             results_file = trainer.exp_dir / "ppo_seed42_results.json"
-            metrics_file = trainer.exp_dir / "ppo_seed42_metrics.json"
+            trainer.exp_dir / "ppo_seed42_metrics.json"
 
             # Check results file exists
             assert results_file.exists() or trainer.model.save.called
@@ -215,15 +232,30 @@ class TestResultsSaving:
             # Mock model save
             trainer.model.save = MagicMock()
 
-            # Mock metrics
-            mock_stats = MagicMock()
-            mock_stats.reward_mean = 250.0
-            mock_stats.reward_std = 10.0
-            mock_stats.episode_length_mean = 200.0
-            mock_stats.total_episodes = 50
-            trainer.metrics_collector.calculate_statistics = MagicMock(
-                return_value=mock_stats
+            # Mock metrics - need to initialize _metrics to avoid RuntimeError
+            mock_metric = TrainingMetrics(
+                timestep=50000,
+                episode=50,
+                reward=250.0,
+                episode_length=200,
+                loss=0.5
             )
+            trainer.metrics_collector._metrics = [mock_metric]
+
+            # Mock calculate_statistics - use plain object with to_dict method
+            mock_stats = type('MockStats', (), {
+                'reward_mean': 250.0,
+                'reward_std': 10.0,
+                'episode_length_mean': 200.0,
+                'total_episodes': 50,
+                'to_dict': lambda self: {
+                    'reward_mean': 250.0,
+                    'reward_std': 10.0,
+                    'episode_length_mean': 200.0,
+                    'total_episodes': 50,
+                }
+            })()
+            trainer.metrics_collector.calculate_statistics = MagicMock(return_value=mock_stats)
 
             # Set times
             from datetime import datetime
