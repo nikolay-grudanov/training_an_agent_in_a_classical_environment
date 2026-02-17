@@ -256,9 +256,13 @@ tags
 
 # ML/RL Specific Patterns
 results/models/
-# results/videos/
+results/videos/
+results/reports/videos/
 results/logs/
 *.zip
+*.mp4
+*.avi
+*.mov
 # But keep trained models for demonstration
 !results/experiments/*/*_model.zip
 *.pkl
@@ -268,32 +272,11 @@ wandb/
 .wandb/
 mlruns/
 .env*
-# info_project.md
-# PHASE_3_COMPLETION_REPORT.md
-# PHASE_4_COMPLETION_REPORT.md
-# TRAIN_LOOP_README.md
-# TRAINING_SYSTEM.md
-# EXPERIMENT_RUNNER_SUMMARY.md
-# AGENTS.md
-# .jupyter_ystore.db
-# QWEN.md
-# .specify/**
-# .qwen/**
-# .specify/memory/**
-# RESULT_EXPORTER_SUMMARY.md
-# INTEGRATION_TEST_REPORT.md
-# README_UTILS.md
-# SEED_IMPROVEMENTS_SUMMARY.md
-# SAC_IMPLEMENTATION_SUMMARY.md
-# spec/**
+
 # A2C_IMPLEMENTATION_SUMMARY.md
 
 # Additional results and artifacts
 results/comparison/**
-results/reports/**
-
-# Assets
-assets/
 
 # Scripts
 scripts/
