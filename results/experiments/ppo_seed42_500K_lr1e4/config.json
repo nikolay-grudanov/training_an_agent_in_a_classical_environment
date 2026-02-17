@@ -1,0 +1,14 @@
+{
+  "experiment_id": "ppo_seed42_500K_lr1e4",
+  "experiment_type": "baseline",
+  "algorithm": "PPO",
+  "environment": "LunarLander-v3",
+  "timesteps": 500000,
+  "seed": 42,
+  "gamma": 0.999,
+  "learning_rate": null,
+  "checkpoint_freq": 50000,
+  "eval_freq": 5000,
+  "n_eval_episodes": 10,
+  "hypothesis": null
+}
