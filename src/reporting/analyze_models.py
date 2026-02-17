@@ -58,7 +58,9 @@ def discover_experiments(experiments_dir: Path) -> list[Path]:
                 valid_experiments.append(item)
                 logger.debug(f"Found valid experiment: {item.name}")
 
-    logger.info(f"Found {len(valid_experiments)} valid experiments in {experiments_dir}")
+    logger.info(
+        f"Found {len(valid_experiments)} valid experiments in {experiments_dir}"
+    )
     return valid_experiments
 
 
@@ -141,7 +143,9 @@ def extract_eval_metrics(experiment_dir: Path) -> tuple[float, float, float, flo
     # Check number of eval episodes (should be 10-20)
     num_episodes = len(df)
     if num_episodes < 10 or num_episodes > 20:
-        logger.warning(f"Eval episodes count {num_episodes} outside recommended range [10-20]")
+        logger.warning(
+            f"Eval episodes count {num_episodes} outside recommended range [10-20]"
+        )
 
     # Extract best metrics (auto-detect column names)
     best_reward, best_std, _ = extract_best_metrics(df)
@@ -213,7 +217,9 @@ def analyze_hypothesis_coverage(table: ComparisonTable) -> list[HypothesisResult
                 tested=True,
                 supported=supported,
                 evidence=evidence,
-                recommendation="If hypothesis is false, consider investigating A2C hyperparameters" if not supported else None,
+                recommendation="If hypothesis is false, consider investigating A2C hyperparameters"
+                if not supported
+                else None,
             )
         )
     else:
@@ -237,12 +243,14 @@ def analyze_hypothesis_coverage(table: ComparisonTable) -> list[HypothesisResult
             seed_rewards = [m.best_eval_reward for m in table.models if m.seed == seed]
             rewards_by_seed[seed] = seed_rewards
 
-        evidence = f"Rewards by seed: {[(s, sum(r)/len(r)) for s, r in rewards_by_seed.items()]}"
+        evidence = f"Rewards by seed: {[(s, sum(r) / len(r)) for s, r in rewards_by_seed.items()]}"
 
         # Check if seed 42 (the fixed seed) performs well
         if 42 in rewards_by_seed:
             seed_42_reward = sum(rewards_by_seed[42]) / len(rewards_by_seed[42])
-            other_seeds_reward = sum([sum(r)/len(r) for s, r in rewards_by_seed.items() if s != 42]) / len([s for s in seeds if s != 42])
+            other_seeds_reward = sum(
+                [sum(r) / len(r) for s, r in rewards_by_seed.items() if s != 42]
+            ) / len([s for s in seeds if s != 42])
 
             supported = seed_42_reward >= other_seeds_reward
             evidence += f". Seed 42: {seed_42_reward:.2f}, Other seeds: {other_seeds_reward:.2f}"
@@ -256,7 +264,9 @@ def analyze_hypothesis_coverage(table: ComparisonTable) -> list[HypothesisResult
                 tested=True,
                 supported=supported,
                 evidence=evidence,
-                recommendation="If variance is high, increase n_steps or learning rate schedule" if supported is not None and not supported else None,
+                recommendation="If variance is high, increase n_steps or learning rate schedule"
+                if supported is not None and not supported
+                else None,
             )
         )
     else:
@@ -275,7 +285,9 @@ def analyze_hypothesis_coverage(table: ComparisonTable) -> list[HypothesisResult
 
 
 # T019: Generate experiment recommendations
-def generate_experiment_recommendations(table: ComparisonTable, hypothesis_results: list[HypothesisResult]) -> list[str]:
+def generate_experiment_recommendations(
+    table: ComparisonTable, hypothesis_results: list[HypothesisResult]
+) -> list[str]:
     """Generate recommendations for additional experiments.
 
     Args:
@@ -297,22 +309,32 @@ def generate_experiment_recommendations(table: ComparisonTable, hypothesis_resul
     # Check if any models converged
     converged_count = table.count_converged()
     if converged_count == 0:
-        recommendations.append("No models achieved reward >=200. Consider increasing training timesteps or tuning hyperparameters.")
+        recommendations.append(
+            "No models achieved reward >=200. Consider increasing training timesteps or tuning hyperparameters."
+        )
 
     # Check if converged models exist but few
     if 0 < converged_count < len(table.models) * 0.5:
-        recommendations.append(f"Only {converged_count}/{len(table.models)} models converged. Consider hyperparameter tuning for non-converged models.")
+        recommendations.append(
+            f"Only {converged_count}/{len(table.models)} models converged. Consider hyperparameter tuning for non-converged models."
+        )
 
     # Check for missing algorithms
     algorithms = {m.algorithm for m in table.models}
     if "PPO" not in algorithms:
-        recommendations.append("No PPO experiments found. PPO is recommended for LunarLander-v3.")
+        recommendations.append(
+            "No PPO experiments found. PPO is recommended for LunarLander-v3."
+        )
 
     if "A2C" not in algorithms:
-        recommendations.append("Consider running A2C experiments for algorithm comparison.")
+        recommendations.append(
+            "Consider running A2C experiments for algorithm comparison."
+        )
 
     if not recommendations:
-        recommendations.append("All hypotheses tested and sufficient experiments conducted. No additional experiments recommended.")
+        recommendations.append(
+            "All hypotheses tested and sufficient experiments conducted. No additional experiments recommended."
+        )
 
     return recommendations
 
@@ -352,10 +374,14 @@ def analyze_all_models(
             config = read_experiment_config(exp_dir)
 
             # Extract training metrics
-            final_train_reward, final_train_std, total_time = extract_training_metrics(exp_dir)
+            final_train_reward, final_train_std, total_time = extract_training_metrics(
+                exp_dir
+            )
 
             # Extract evaluation metrics
-            best_reward, best_std, final_reward, final_std = extract_eval_metrics(exp_dir)
+            best_reward, best_std, final_reward, final_std = extract_eval_metrics(
+                exp_dir
+            )
 
             # Get model path
             model_path = get_model_path(exp_dir)
@@ -364,9 +390,11 @@ def analyze_all_models(
             is_reproducible = validate_reproducibility(exp_dir, config)
 
             # Determine convergence status
-            if best_reward >= REWARD_THRESHOLD:
+            # Исправление: используем final_reward вместо best_reward для корректной проверки сходимости
+            # final_reward - это финальная награда после обучения, best_reward - лучшая за всё обучение
+            if final_reward >= REWARD_THRESHOLD:
                 convergence_status = STATUS_CONVERGED
-            elif best_reward > 0:
+            elif final_reward > 0:
                 convergence_status = STATUS_NOT_CONVERGED
             else:
                 convergence_status = STATUS_UNKNOWN
@@ -393,7 +421,9 @@ def analyze_all_models(
             )
 
             models.append(metrics)
-            logger.info(f"Analyzed experiment: {exp_dir.name} - Reward: {best_reward:.2f}")
+            logger.info(
+                f"Analyzed experiment: {exp_dir.name} - Reward: {best_reward:.2f}"
+            )
 
         except Exception as e:
             logger.error(f"Failed to analyze experiment {exp_dir.name}: {e}")
@@ -408,7 +438,9 @@ def analyze_all_models(
     # Save to JSON
     save_comparison_json(table, json_output)
 
-    logger.info(f"Analysis complete. Total models: {len(table.models)}, Converged: {table.count_converged()}")
+    logger.info(
+        f"Analysis complete. Total models: {len(table.models)}, Converged: {table.count_converged()}"
+    )
 
     return table
 
@@ -443,25 +475,27 @@ def save_comparison_json(table: ComparisonTable, json_path: Path) -> None:
     # Convert ModelMetrics objects to dicts
     models_dict = []
     for m in table.models:
-        models_dict.append({
-            "experiment_id": m.experiment_id,
-            "algorithm": m.algorithm,
-            "environment": m.environment,
-            "seed": m.seed,
-            "timesteps": m.timesteps,
-            "gamma": m.gamma,
-            "ent_coef": m.ent_coef,
-            "learning_rate": m.learning_rate,
-            "model_path": str(m.model_path),
-            "final_train_reward": m.final_train_reward,
-            "final_train_std": m.final_train_std,
-            "best_eval_reward": m.best_eval_reward,
-            "best_eval_std": m.best_eval_std,
-            "final_eval_reward": m.final_eval_reward,
-            "final_eval_std": m.final_eval_std,
-            "total_training_time": m.total_training_time,
-            "convergence_status": m.convergence_status,
-        })
+        models_dict.append(
+            {
+                "experiment_id": m.experiment_id,
+                "algorithm": m.algorithm,
+                "environment": m.environment,
+                "seed": m.seed,
+                "timesteps": m.timesteps,
+                "gamma": m.gamma,
+                "ent_coef": m.ent_coef,
+                "learning_rate": m.learning_rate,
+                "model_path": str(m.model_path),
+                "final_train_reward": m.final_train_reward,
+                "final_train_std": m.final_train_std,
+                "best_eval_reward": m.best_eval_reward,
+                "best_eval_std": m.best_eval_std,
+                "final_eval_reward": m.final_eval_reward,
+                "final_eval_std": m.final_eval_std,
+                "total_training_time": m.total_training_time,
+                "convergence_status": m.convergence_status,
+            }
+        )
 
     data = {
         "total_models": len(table.models),
@@ -506,7 +540,9 @@ def generate_hypothesis_coverage_report(
     ]
 
     for result in hypothesis_results:
-        status_icon = "✅" if result.supported else ("❌" if result.supported is False else "⚠️")
+        status_icon = (
+            "✅" if result.supported else ("❌" if result.supported is False else "⚠️")
+        )
         lines.append(f"### {result.hypothesis_id}: {result.description}")
         lines.append(f"- **Status**: {status_icon} Tested: {result.tested}")
         if result.tested:
@@ -521,7 +557,9 @@ def generate_hypothesis_coverage_report(
 
     lines.append("\n## Top Models\n")
     for i, m in enumerate(table.get_top_models(), 1):
-        lines.append(f"{i}. **{m.experiment_id}**: {m.best_eval_reward:.2f} ± {m.best_eval_std:.2f}")
+        lines.append(
+            f"{i}. **{m.experiment_id}**: {m.best_eval_reward:.2f} ± {m.best_eval_std:.2f}"
+        )
 
     content = "\n".join(lines)
 
@@ -534,7 +572,9 @@ def generate_hypothesis_coverage_report(
 # T024: Main CLI entry point
 def main() -> None:
     """CLI entry point for analyze_models."""
-    parser = argparse.ArgumentParser(description="Analyze all trained RL models and generate comparison table")
+    parser = argparse.ArgumentParser(
+        description="Analyze all trained RL models and generate comparison table"
+    )
 
     parser.add_argument(
         "--experiments-dir",
@@ -571,7 +611,8 @@ def main() -> None:
         help="Generate experiment recommendations",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Enable verbose logging",
     )
@@ -593,7 +634,9 @@ def main() -> None:
         # Generate hypothesis report if requested
         if args.check_hypotheses or args.suggest_experiments:
             hypothesis_results = analyze_hypothesis_coverage(table)
-            recommendations = generate_experiment_recommendations(table, hypothesis_results)
+            recommendations = generate_experiment_recommendations(
+                table, hypothesis_results
+            )
 
             if args.check_hypotheses:
                 generate_hypothesis_coverage_report(
@@ -606,7 +649,11 @@ def main() -> None:
             if args.suggest_experiments:
                 rec_path = args.output_dir / "experiment_recommendations.txt"
                 with open(rec_path, "w") as f:
-                    f.write("\n".join([f"{i+1}. {r}" for i, r in enumerate(recommendations)]))
+                    f.write(
+                        "\n".join(
+                            [f"{i + 1}. {r}" for i, r in enumerate(recommendations)]
+                        )
+                    )
                 logger.info(f"Saved experiment recommendations to {rec_path}")
 
     except Exception as e:

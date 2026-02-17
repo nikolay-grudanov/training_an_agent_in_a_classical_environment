@@ -2,7 +2,7 @@
 
 
 **Цель документа:** Фиксация конфигурации системы для воспроизводимости RL-экспериментов на LunarLander-v3. Анализ производительности обучения PPO/A2C. Рекомендации по CPU vs GPU.  
-**Связанные документы:** [CPU_vs_GPU_Comparison.md](CPU_vs_GPU_Comparison.md), [GRID_SEARCH_RESULTS.md](GRID_SEARCH_RESULTS.md), [VERIFICATION_REPORT.md](VERIFICATION_REPORT.md)
+**Связанные документы:** [CPU_vs_GPU_Comparison.md](CPU_vs_GPU_Comparison.md)
 
 Эта система:
 - 32 потока CPU,

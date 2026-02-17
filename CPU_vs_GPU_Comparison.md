@@ -154,6 +154,3 @@ export CUDA_VISIBLE_DEVICES=""
 export HIP_VISIBLE_DEVICES=""
 export PYTORCH_ROCM_ARCH="gfx1100"  # Для RX 7800 XT (RDNA3)
 ```
-
-**Дата отчета:** 04 февраля 2026 г.  
-**Проект:** RL Agent Training (LunarLander-v3)

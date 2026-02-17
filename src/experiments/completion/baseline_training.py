@@ -270,8 +270,18 @@ def train_to_convergence(
         TrainingResult with final metrics
     """
     algo = Algorithm(algorithm.upper()) if isinstance(algorithm, str) else algorithm
-    # Include timesteps in experiment_id for better organization: e.g., ppo_seed42_500K
-    exp_id = experiment_id or f"{algo.value.lower()}_seed{seed}_{timesteps//1000}K"
+    # Include timesteps and learning_rate in experiment_id for better organization: e.g., ppo_seed42_500K_lr3e4
+    if experiment_id:
+        exp_id = experiment_id
+    else:
+        # Format learning_rate as lr3e4 (compact format, e.g., 3e-4 → lr3e4)
+        lr_str = (
+            f"lr{learning_rate:.0e}".replace("+", "")
+            .replace("e0", "e")
+            .replace("e-0", "e-")
+            .replace("e-", "e")  # 3e-4 → lr3e4
+        )
+        exp_id = f"{algo.value.lower()}_seed{seed}_{timesteps // 1000}K_{lr_str}"
 
     experiment = BaselineExperiment(
         experiment_id=exp_id,
