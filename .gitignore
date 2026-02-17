@@ -273,10 +273,5 @@ wandb/
 mlruns/
 .env*
 
-# A2C_IMPLEMENTATION_SUMMARY.md
-
-# Additional results and artifacts
-results/comparison/**
-
 # Scripts
 scripts/

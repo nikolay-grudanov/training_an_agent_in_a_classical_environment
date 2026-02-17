@@ -196,9 +196,8 @@ python -m src.experiments.completion.baseline_training \
 
 ### Финальный агент (ppo_seed42_500K_lr5e4)
 
-[Смотреть видео](results/videos/best_model_ppo_seed42_500K_lr5e4.mp4)
+![Смотреть видео](results/videos/best_model_ppo_seed42_500K_lr5e4.mp4)
 
-<video src='https://github.com/nikolay-grudanov/training_an_agent_in_a_classical_environment/tree/master/results/videos/best_model_ppo_seed42_500K_lr5e4.mp4' />
 
 **Описание:** Видеодемонстрация работы лучшего обученного агента в среде LunarLander-v3. Агент успешно сажает лунный модуль на центр площадки без повреждений. Параметры: gamma=0.999, learning_rate=5e-4, seed=42, timesteps=500K.
 
